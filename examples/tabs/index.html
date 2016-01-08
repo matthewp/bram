@@ -1,0 +1,31 @@
+<html>
+<head>
+  <title>Tabs</title>
+</head>
+<body>
+  <my-tab>
+    <tab-panel title="First">
+      Hello first
+    </tab-panel>
+    <tab-panel title="Second">
+      Hello second
+    </tab-panel>
+  </my-tab>
+
+  <template id="tab-template">
+    <template id="link-template">
+      <a href="javscript://" class="title"></a>
+    </template>
+
+    <content/>
+  </template>
+  <template id="panel-template">
+    <div class="content">
+      <content/>
+    </div>
+  </template>
+  <script src="../../dist/bram.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/4.0.7/rx.all.js"></script>
+  <script src="./tabs.js"></script>
+</body>
+</html>
