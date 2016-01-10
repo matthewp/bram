@@ -14,3 +14,8 @@ dist/bram.js: ${modules}
 	done
 	echo "})();" >> $@
 	sed -i.bak 's/var ccompute = require.*/var ccompute = can.compute;/g' dist/bram.js
+
+all: dist/bram.js
+
+watch:
+	find lib -name "*.js" | entr make all
