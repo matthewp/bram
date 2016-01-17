@@ -1,6 +1,6 @@
 {
   "name": "bram",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Web component architecture with Observables",
   "main": "dist/bram.js",
   "scripts": {
@@ -15,5 +15,14 @@
     "dist/bram.js"
   ],
   "author": "Matthew Phillips",
-  "license": "BSD-2-Clause"
+  "license": "BSD-2-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/matthewp/bram.git"
+  },
+  "homepage": "https://github.com/matthewp/bram",
+  "bugs": {
+    "url": "https://github.com/matthewp/bram/issues"
+  },
+
 }
