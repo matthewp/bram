@@ -1,20 +1,19 @@
 {
   "name": "bram",
   "version": "0.1.0",
-  "description": "A playground for web components",
-  "main": "lib/bram.js",
+  "description": "Web component architecture with Observables",
+  "main": "dist/bram.js",
   "scripts": {
-    "build": "babel src -d lib",
-    "watch": "babel src -d lib -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "web",
-    "components"
+    "components",
+    "observables"
   ],
+  "files": [
+    "dist/bram.js"
+  ]
   "author": "Matthew Phillips",
-  "license": "BSD-2-Clause",
-  "dependencies": {
-    "ccompute": "0.0.1"
-  }
+  "license": "BSD-2-Clause"
 }
