@@ -2,6 +2,8 @@
 
 # Bram
 
+![Bram Stoker](http://i.imgur.com/VaBL9oL.jpg)
+
 Bram is a small library for creating user interfaces. It combines two exciting emerging technologies, [web components](http://webcomponents.org/) and [Observables](https://github.com/zenparsing/es-observable) in a way that is simple to understand.
 
 Bram was born out of the frustration with JavaScript templating today. The popular choices today are Mustache/Handlebars syntax that requires complex data-binding mechanisms or JSX which, while conceptually simpler, necessitates heavy tooling which is leading to [tooling fatigue](https://medium.com/@ericclemmons/javascript-fatigue-48d4011b6fc4#.8xz2jmyu2).
