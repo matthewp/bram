@@ -2,8 +2,7 @@ define \n
 
 endef
 
-modules = node_modules/ccompute/dist/compute.js\
-          lib/bram.js
+modules = lib/bram.js
 
 dist/bram.js: ${modules}
 	echo ${\n} > $@
@@ -13,7 +12,6 @@ dist/bram.js: ${modules}
     cat >> $@ $$mod && echo ${\n} >> $@ ; \
 	done
 	echo "})();" >> $@
-	sed -i.bak 's/var ccompute = require.*/var ccompute = can.compute;/g' dist/bram.js
 
 all: dist/bram.js
 

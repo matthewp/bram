@@ -1392,6 +1392,8 @@ var Bram = {};
 
 var INTERNAL_SETTERS = typeof Symbol === "function" ? Symbol("[[ComponentSetters]]") : "[[ComponentSetters]]";
 
+var slice = Array.prototype.slice;
+
 function setupSetters(obj, setters) {
   var props = Object.keys(setters);
   props.forEach(function(prop){
@@ -1410,7 +1412,7 @@ function setupSetters(obj, setters) {
 }
 
 function defineSetters(obj) {
-  Object.defineProperty(obj, INTERNAL_PROPS, {
+  Object.defineProperty(obj, INTERNAL_SETTERS, {
     enumerable: false, writable: false, configurable: false,
     value: {}
   });
@@ -1439,10 +1441,13 @@ Bram.element = function(defn){
   });
 
   if(defn.setters) {
-    setupSetters(this, defn.setters);
+    setupSetters(proto, defn.setters);
   }
 
   proto.createdCallback = function(){
+    if(defn.setters && !getSetters(this))
+      defineSetters(this);
+
     var root;
     if(defn.template) {
       var t = document.querySelector(defn.template);
@@ -1487,50 +1492,16 @@ Bram.element = function(defn){
   return document.registerElement(defn.tag, registerOptions);
 };
 
-Bram.getOwnCompute = function(el, name){
-  var props = getProps(el);
-  return props ? props[name] : undefined;
-};
-
-Bram.observableToCompute = function(observable){
-  var compute = ccompute();
-  observable.subscribe(function(val){
-    compute(val);
+Bram.report = function(el, observable, event, bubbles){
+  // TODO save this subscription
+  var subscription = observable.subscribe(function(val){
+    var event = new CustomEvent('todo', {
+      bubbles: bubbles !== false,
+      detail: val
+    });
+    el.dispatchEvent(event);
   });
-  return compute;
-};
 
-Bram.compute = function(){
-  return ccompute.apply(can, arguments);
-};
-
-function createStateProperty(obj, name){
-  var desc = Object.getOwnPropertyDescriptor(obj, name);
-  var compute;
-  if(desc && desc.value) {
-    compute = ccompute(desc.value);
-  } else {
-    compute = ccompute();
-  }
-  getProps(obj)[name] = compute;
-
-  Object.defineProperty(obj, name, {
-    get: function(){
-      return getProps(this)[name]();
-    },
-    set: function(val){
-      getProps(this)[name](val);
-    }
-  });
-}
-
-Bram.state = function(obj){
-  var keys = Object.keys(obj);
-  defineProps(obj);
-  keys.forEach(function(key){
-    createStateProperty(obj, key);
-  });
-  return obj;
 };
 
 function Binding(on, off){
@@ -1696,12 +1667,24 @@ Bind.prototype.list = function(observable, templateSelector, hostSelector, callb
   var parent = this._getElement(hostSelector);
   var keys = {};
   var el = this.el;
+  var inserted = {};
 
   observable.subscribe(function(list){
     list.forEach(function(item, i){
+      if(item.action === 'remove') {
+        var children = inserted[item.id];
+        children.forEach(function(child){
+          child.parentNode.removeChild(child);
+        });
+        delete inserted[item.id];
+        return;
+      }
+
       var clone = document.importNode(t.content, true);
       var bindings = new Bind(el, clone);
       callback.call(el, clone, item, i);
+
+      inserted[item.id] = slice.call(clone.childNodes);
       parent.appendChild(clone);
     });
   });

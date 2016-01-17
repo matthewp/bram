@@ -1,32 +1,21 @@
+"use strict";
+
 Bram.element({
   tag: "todo-form",
   template: "#tmpl-todo-form",
 
   created: function(bind, shadow){
-    this.form = shadow.querySelector('form');
-  },
-
-  attached: function(){
-    this.form.addEventListener('submit', this);
-  },
-
-  detached: function(){
-    this.form.addEventListener('submit', this);
-  },
-
-  proto: {
-    handleEvent: function(ev){
-      ev.preventDefault();
-
-      var input = this.form.querySelector('input');
-      var todo = input.value;
-      input.value = '';
-      var event = new CustomEvent('todo', {
-        bubbles: true,
-        detail: todo
+    var form = shadow.querySelector('form');
+    var input = form.querySelector('input');
+    var submission = Rx.Observable.fromEvent(form, 'submit')
+      .map(ev => {
+        ev.preventDefault();
+        var value = input.value;
+        input.value = '';
+        return { type: 'add', item: value };
       });
-      this.dispatchEvent(event);
-    }
+
+    Bram.send(this, submission);
   }
 });
 
@@ -34,37 +23,47 @@ Bram.element({
   tag: "todo-list",
   template: "#tmpl-todo-list",
 
-  setters: {
-    todos: function(bind){
-      debugger;
-    }
-  },
+  props: ["todos"],
 
- /* proto: {
-    get todos() {
-      return this._todos;
-    },
+  created: function(bind){
+    bind.list(this.todos, 'value', '#todos', 'ul', (frag, todo) => {
+      frag.querySelector('.todo').textContent = todo.value;
 
-    set todos(val) {
-      this._todos = val;
-      this._bindings.list(val, '#todos', 'ul', function(frag, todo){
-        frag.querySelector('li').textContent = todo.item;
-      });
-    }
-  }*/
+      var deletion = Rx.Observable.fromEvent(frag.querySelector('a'), 'click')
+        .map(() => ({ type: 'remove', item: todo }));
+
+      Bram.send(this, deletion);
+    });
+
+  }
 });
 
-var baseTodos = Rx.Observable.from(["Make an app"])
-  .map(todo => [{ item: todo }]);
+Bram.element({
+  tag: "todo-app",
+  template: "#tmpl-todo-app",
 
-var newTodos = Rx.Observable.fromEvent(document.body, 'todo')
-  .map(ev => [{ type: 'new', item: ev.detail }]);
+  created: function(bind){
+    var addTodo = (state, item) => ({
+      items: state.items.concat({ value: item })
+    });
+    var removeTodo = (state, item) => ({
+      items: state.items.filter(todo => todo.value !== item.value)
+    });
 
-var todos = Rx.Observable
-  .merge(newTodos, baseTodos);
+   var state = Bram.mailbox()
+    .startWith({ items: [{ value: 'Make an app' }] })
+    .scan(function(state, ev){
+      switch(ev.type) {
+        case 'add':
+          return addTodo(state, ev.item);
+        case 'remove':
+          return removeTodo(state, ev.item);
+      }
+    });
 
-todos.subscribe(function(todos){
-  console.log("TODOS:", todos);
+    var todos = state.map(state => state.items);
+    this.querySelector('todo-list').todos = todos;
+
+    bind.text('#count', state.map(s => s.items.length));
+  }
 });
-
-document.querySelector('todo-list').todos = todos;

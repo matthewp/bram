@@ -5,7 +5,8 @@ Bram.element({
   template: "#panel-template",
 
   created: function(bind){
-    bind.cond("visible", ".content");
+    var hidden = this.visible.map(visible => !visible);
+    bind.hideWhen('.content', hidden);
   },
 
   props: ["visible"]
@@ -16,25 +17,21 @@ Bram.element({
   template: "#tab-template",
 
   created: function(bind, shadow){
-    this.selected = 0;
+    var selectedPanel = Rx.Observable.fromEvent(shadow, 'click')
+      .filter(ev => ev.target.tagName === 'A')
+      .map(ev => ev.target.index)
+      .startWith(0);
 
-    let panels = this.querySelectorAll("tab-panel");
+    var t = shadow.querySelector('#link-template');
+    var panels = this.querySelectorAll('tab-panel');
+    [].forEach.call(panels, function(panel, i){
+      panel.visible = selectedPanel.map(selected => selected === i);
 
-    bind.each(panels, "#link-template", function(clone, panel, i){
-      let compute = Bram.compute(() => this.selected === i, this);
-      bind.prop("visible", panel, compute);
-
-      let title = clone.querySelector(".title");
-      title.index = i;
-      title.textContent = panel.getAttribute("title");
-    });
-
-    let source = Rx.Observable.fromEvent(shadow, "click")
-      .filter(ev => ev.target.tagName === "A")
-      .map(ev => ev.target.index);
-
-    bind.prop("selected", this, source);
-  },
-
-  props: ["selected"]
+      var clone = document.importNode(t.content, true);
+      var a = clone.querySelector('a');
+      a.index = i;
+      a.textContent = panel.getAttribute('title');
+      this.querySelector('.tabs').appendChild(clone);
+    }, shadow);
+  }
 });

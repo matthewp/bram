@@ -1,7 +1,17 @@
+<html>
+<head>
+  <title>Todo app</title>
+</head>
 <body>
-  <todo-form></todo-form>
-  <todo-list></todo-list>
+  <todo-app>
+    <todo-form></todo-form>
+    <todo-list></todo-list>
+  </todo-app>
 
+  <template id="tmpl-todo-app">
+    <content></content>
+    <strong>Count: <span id="count"></span></strong>
+  </template>
   <template id="tmpl-todo-form">
     <form>
       <input type="text" name="item"/>
@@ -9,7 +19,10 @@
   </template>
   <template id="tmpl-todo-list">
     <template id="todos">
-      <li></li>
+      <li>
+        <a href="javascript://">x</a>
+        <span class="todo"></span>
+      </li>
     </template>
     <ul></ul>
   </template>
@@ -17,3 +30,4 @@
   <script src="../../dist/bram.js"></script>
   <script src="./app.js"></script>
 </body>
+</html>

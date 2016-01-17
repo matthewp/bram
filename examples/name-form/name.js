@@ -3,21 +3,24 @@ Bram.element({
   template: "#user-template",
 
   created: function(bind){
-    this.first = "";
-    this.last = "";
+    var mailbox = Bram.mailbox();
 
-    bind.text("fullName", ".name");
+    var first = mailbox.filter(ev => ev.type === 'first')
+      .map(ev => ev.value)
+      .startWith("");
 
-    bind.prop("first", "user-form");
-    bind.prop("last", "user-form");
-  },
+    var last = mailbox.filter(ev => ev.type === 'last')
+      .map(ev => ev.value)
+      .startWith("");
 
-  props: ["first", "last"],
+    var form = this.querySelector('user-form');
+    form.first = first;
+    form.last = last;
 
-  proto: {
-    get fullName() {
-      return this.first + " " + this.last;
-    }
+    var fullName = Rx.Observable.combineLatest(first, last, (first, last) => {
+      return first + ' ' + last;
+    });
+    bind.text('.name', fullName);
   }
 });
 
@@ -25,9 +28,17 @@ Bram.element({
   tag: "user-form",
   template: "#form-template",
 
-  created: function(bind){
-    bind.form("first", "[name=first]", "keyup");
-    bind.form("last", "[name=last]", "keyup");
+  created: function(bind, shadow){
+    var firstEl = shadow.querySelector("[name=first]");
+    var first = Rx.Observable.fromEvent(firstEl, "keyup")
+      .map(ev => ({ type: 'first', value: ev.target.value }));
+
+    var lastEl = shadow.querySelector("[name=last]");
+    var last = Rx.Observable.fromEvent(lastEl, "keyup")
+      .map(ev => ({ type: 'last', value: ev.target.value }));
+
+    Bram.send(this, first);
+    Bram.send(this, last);
   },
 
   props: ["first", "last"]
