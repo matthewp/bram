@@ -11,7 +11,7 @@ var CID = supportsSymbol ? Symbol("[[BramCID]]") : "[[BramCID]]";
 var slice = Array.prototype.slice;
 
 function makeObservable(element, eventName) {
-  return Bram.listen(element, eventName)
+  return Bram.on(element, eventName)
     .map(function(ev) {
       ev.stopPropagation();
       return ev.detail;
@@ -151,7 +151,7 @@ else {
   return;
 }
 
-Bram.listen = function(element, eventName){
+Bram.on = function(element, eventName){
   return Bram.Observable.fromEvent
     ? Bram.Observable.fromEvent(element, eventName)
     : new Bram.Observable(function(observer){
@@ -169,10 +169,10 @@ Bram.listen = function(element, eventName){
   });
 }
 
-Bram.mailbox = function(element){
-  var address = 'bram-appchange';
+Bram.listen = function(element){
+  var eventName = 'bram-appchange';
   if(arguments.length === 1) {
-    // element-contextual address
+    // element-contextual eventName
     var proto = Object.getPrototypeOf(element);
     if(!proto[CID]) {
       Object.defineProperty(proto, CID, {
@@ -181,19 +181,21 @@ Bram.mailbox = function(element){
       });
     }
     var cid = proto[CID]++;
-    address = address + '-' + element.tagName.toLowerCase() + '-' + cid;
+    eventName = eventName + '-' + element.tagName.toLowerCase() + '-' + cid;
 
     element.send = function(observable){
-      Bram.send(this, observable, address, false);
+      Bram.send(this, observable, eventName, false);
     };
   }
   element = element || document.body;
 
-  var observable = Bram.listen(element, address);
-  return observable.map(function(ev) {
-    ev.stopPropagation();
-    return ev.detail;
-  });
+  var observable = Bram.on(element, eventName)
+    .map(function(ev) {
+      ev.stopPropagation();
+      return ev.detail;
+    });
+  observable.eventName = eventName;
+  return observable;
 };
 
 Bram.trigger = function(el, val, eventName, bubbles){

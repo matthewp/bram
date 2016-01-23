@@ -42,14 +42,18 @@ Communication in Bram happens through observables. Borrowing the [mailbox concep
 
       created: function(bind, shadow){
         let button = shadow.querySelector('button');
-        let clicks = Rx.Observable.fromEvent(button, 'click');
+        let clicks = Rx.Observable.fromEvent(button, 'click')
+          .map(() => ({ type: 'click' }));
         Bram.send(this, clicks);
 
         bind.text(".count", this.count);
       }
     });
 
-    let count = Bram.mailbox()
+    let messages = Bram.listen();
+
+    let count = messages
+      .filter(ev => ev.type === 'click')
       .startWith(0)
       .scan(value => value + 1);
 

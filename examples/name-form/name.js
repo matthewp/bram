@@ -3,13 +3,13 @@ Bram.element({
   template: "#user-template",
 
   created: function(bind){
-    var mailbox = Bram.mailbox();
+    var messages = Bram.listen();
 
-    var first = mailbox.filter(ev => ev.type === 'first')
+    var first = messages.filter(ev => ev.type === 'first')
       .map(ev => ev.value)
       .startWith("");
 
-    var last = mailbox.filter(ev => ev.type === 'last')
+    var last = messages.filter(ev => ev.type === 'last')
       .map(ev => ev.value)
       .startWith("");
 
