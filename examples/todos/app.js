@@ -50,7 +50,9 @@ Bram.element({
       items: state.items.filter(todo => todo.value !== item.value)
     });
 
-   var state = Bram.mailbox()
+  var messages = Bram.listen();
+
+   var state = messages
     .startWith({ items: [{ value: 'Make an app' }] })
     .scan(function(state, ev){
       switch(ev.type) {

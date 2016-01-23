@@ -5,14 +5,18 @@ Bram.element({
   props: ["count"],
 
   created: function(bind, shadow){
-    var clicks = Rx.Observable.fromEvent(shadow.querySelector('button'), 'click');
+    var clicks = Rx.Observable.fromEvent(shadow.querySelector('button'), 'click')
+      .map(() => ({ type: 'click' }));
     Bram.send(this, clicks);
 
     bind.text(".count", this.count);
   }
 });
 
-var count = Bram.mailbox()
+var messages = Bram.listen();
+
+var count = messages
+  .filter(ev => ev.type === 'click')
   .startWith(0)
   .scan(value => value + 1);
 
