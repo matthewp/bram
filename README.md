@@ -13,6 +13,9 @@ Binding is done in JavaScript with a jQuery-like object.
 
 Communication in Bram happens through observables. Borrowing the [mailbox concept](http://elm-lang.org/blog/announce/0.15#introducing-mailboxes) from Elm, Bram provides a simple way to send messages utilizing a uni-directional data flow.
 
+[![build status](https://img.shields.io/travis/matthewp/bram/master.svg?style=flat-square)](https://travis-ci.org/matthewp/bram)
+[![npm version](https://img.shields.io/npm/v/bram.svg?style=flat-square)](https://www.npmjs.com/package/bram)
+
 ## Example
 
 ```html
