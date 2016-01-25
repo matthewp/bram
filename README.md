@@ -16,6 +16,12 @@ Communication in Bram happens through observables. Borrowing the [mailbox concep
 [![build status](https://img.shields.io/travis/matthewp/bram/master.svg?style=flat-square)](https://travis-ci.org/matthewp/bram)
 [![npm version](https://img.shields.io/npm/v/bram.svg?style=flat-square)](https://www.npmjs.com/package/bram)
 
+## Table of Contents
+
+- [Example](#example)
+- [Installing](#install)
+- [API](https://github.com/matthewp/bram/wiki/API)
+
 ## Example
 
 ```html
@@ -67,6 +73,21 @@ Communication in Bram happens through observables. Borrowing the [mailbox concep
 
 ```shell
 npm install bram --save
+```
+
+**Or** grab one of [our releases](https://github.com/matthewp/bram/releases).
+
+Bram needs an Observable library. We support the in-progress [Observable spec](https://zenparsing.github.io/es-observable/), so you can use either [a polyfill](https://github.com/zenparsing/zen-observable) or [RxJS](https://github.com/Reactive-Extensions/RxJS). For most non-trivial projects I'd recommend going with RxJS.
+
+Then add the scripts to your page at the end of the `<body>` tag.
+
+```html
+<html>
+<body>
+  <script src="path/to/observable.js"></script>
+  <script src="path/to/bram.js"></script>
+</body>
+</html>
 ```
 
 ## License
