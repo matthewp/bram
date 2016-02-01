@@ -6,7 +6,7 @@ Bram.element({
 
   created: function(bind){
     var hidden = this.visible.map(visible => !visible);
-    bind.hideWhen('.content', hidden);
+    bind('.content').hideWhen(hidden);
   },
 
   props: ["visible"]

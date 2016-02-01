@@ -52,7 +52,7 @@ Communication in Bram happens through observables. Borrowing the [mailbox concep
           .map(() => ({ type: 'click' }));
         Bram.send(this, clicks);
 
-        bind.text(".count", this.count);
+        bind('.count').text(this.count);
       }
     });
 
@@ -92,4 +92,4 @@ Then add the scripts to your page at the end of the `<body>` tag.
 
 ## License
 
-BSD 2 Clause
+BSD 2 Clause)
