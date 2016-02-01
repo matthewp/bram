@@ -20,7 +20,7 @@ Bram.element({
     var fullName = Rx.Observable.combineLatest(first, last, (first, last) => {
       return first + ' ' + last;
     });
-    bind.text('.name', fullName);
+    bind('.name').text(fullName);
   }
 });
 

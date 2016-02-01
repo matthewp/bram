@@ -9,7 +9,7 @@ Bram.element({
       .map(() => ({ type: 'click' }));
     Bram.send(this, clicks);
 
-    bind.text(".count", this.count);
+    bind(".count").text(this.count);
   }
 });
 

@@ -26,7 +26,10 @@ Bram.element({
   props: ["todos"],
 
   created: function(bind){
-    bind.list(this.todos, 'value', '#todos', 'ul', (frag, todo) => {
+    bind('ul').list(this.todos, {
+      template: '#todos',
+      key: 'value',
+    }, (frag, todo) => {
       frag.querySelector('.todo').textContent = todo.value;
 
       var deletion = Rx.Observable.fromEvent(frag.querySelector('a'), 'click')
@@ -66,6 +69,6 @@ Bram.element({
     var todos = state.map(state => state.items);
     this.querySelector('todo-list').todos = todos;
 
-    bind.text('#count', state.map(s => s.items.length));
+    bind('#count').text(state.map(s => s.items.length));
   }
 });
