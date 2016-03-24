@@ -1,0 +1,16 @@
+{
+  "name": "my-lang",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm run grammar",
+    "grammar": "node_modules/.bin/pegjs src/grammar.pegjs",
+    "test": "node test/test.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "pegjs": "^0.9.0"
+  }
+}
