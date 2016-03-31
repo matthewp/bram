@@ -8,9 +8,9 @@
   };
   // Store position information
   var p = function(node){
-    node.line = line();
+    /*node.line = line();
     node.column = column();
-    node.offset = offset();
+    node.offset = offset();*/
     return node;
   };
   // composition of r and p
@@ -21,11 +21,29 @@
   var id = function(x){ return x; };
 }
 
-import = IMPORT { rp(new BS.Import(true)) }
+program
+  = leader:TERMINATOR? _ b:toplevelBlock? {
+      return rp(new BS.Program(b));
+    }
+
+toplevelBlock
+  = s:toplevelStatement ss:(_ TERMINATOR _ s:toplevelStatement { s })* TERMINATOR? {
+      return rp(new BS.Block([s, ss]));
+    }
+  toplevelStatement = s:statement { return s }
+
+statement
+  = expression
+
+expression
+  = bool
+  / import
+
+import = IMPORT { return rp(new BS.Import()) }
 
 bool
-  = (TRUE) { rp(new BS.Bool(true)) }
-  / (FALSE) { rp(new BS.Bool(false)) }
+  = (TRUE) { return rp(new BS.Bool(true)) }
+  / (FALSE) { return rp(new BS.Bool(false)) }
 
 decimalDigit = [0-9]
 hexDigit = [0-9a-fA-F]
@@ -46,6 +64,24 @@ identifierPart
   / UnicodeConnectorPunctuation
   / ZWNJ
   / ZWJ
+
+__ = $(whitespace+ (blockComment whitespace+)?)
+_ = __?
+
+comment =  blockComment / singleLineComment
+singleLineComment = $("#" (!TERM .)*)
+blockComment = $("###" [^#] ([^#] / "#" "#"? !"#")* "###")
+
+whitespace
+  = [\u0009\u000B\u000C\u0020\u00A0\uFEFF\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]
+  / "\r" // ignored to support windows line endings
+  / $("\\" "\r"? "\n")
+
+TERM
+  = $("\r"? "\n")
+  / "\uEFFF" { return '' }
+
+TERMINATOR = $((_ comment? TERM blockComment?)+)
 
 // Keywords
 TRUE = $("true" !identifierPart)

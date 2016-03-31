@@ -69,7 +69,9 @@ createNodes({
           ],
           String: null
         }
-      ]
+      ],
+      Program: [['body']],
+      Block: [['statements']]
     }
   ]
 });

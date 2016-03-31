@@ -1,3 +1,5 @@
 var parse = require("../src/grammar").parse;
 
-console.log("NOW:", parse("true"));
+var ast = parse("import");
+
+console.log("RESULT:", ast);
