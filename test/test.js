@@ -1,24 +1,14 @@
+var assert = require('assert');
 var Bram = require("../src/index");
 
-var input = '4 + 4 - 3';
+describe('Math', function(){
 
-var output = Bram.compile(input);
+  it('can do it', function(){
+    var input = '4 + 4 - 3';
+    var output = Bram.compile(input);
+    var code = 'return ' + output;
+    var fn = new Function(code);
 
-var code = 'return ' + output;
-
-console.log(code);
-
-var fn = new Function('add', 'subtract', code);
-
-
-console.log(
-  fn(add, subtract)
-);
-
-function add(a, b){
-  return a + b;
-}
-
-function subtract(a, b){
-  return a - b;
-}
+    assert.equal(fn(), 5, 'Correctly calculated');
+  });
+});
