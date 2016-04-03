@@ -33,6 +33,16 @@ function codeGenerator(node) {
         'var ' + name + ' = ' + params.map(codeGenerator).join(' ') + ';'
       );
 
+    case 'FunctionAssignment':
+      var name = node.value.name;
+      var body = node.expression.body;
+      var args = node.expression.arguments.map(codeGenerator).join(', ');
+
+      return (
+        'var ' + name + ' = function(' + args + ') { ' +
+        body.map(codeGenerator).join(' ') + ' };'
+      );
+
     case 'Value':
     case 'Identifier':
       return node.name;

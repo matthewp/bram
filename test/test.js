@@ -17,6 +17,23 @@ describe('Assignment', function(){
     var input = 'a = 1';
     var output = Bram.compile(input);
 
-    assert.equal(output, 'var a = 1;', 'Correctly translated');
+    assert.equal(output, 'var a = 1;', 'Correctly transpiled');
+  });
+
+  it('can assign the result of a math expression', function(){
+    var input = 'a = 1 * 2';
+    var output = Bram.compile(input);
+
+    assert.equal(output, 'var a = 1 * 2;', 'Correctly transpiled');
+  });
+});
+
+describe('Assigning functions', function(){
+  it('works', function(){
+    var input = 'addFive a = 5 + a';
+    var expected = 'var addFive = function(a) { return 5 + a; };';
+    var output = Bram.compile(input);
+
+    assert.equal(output, expected, 'Transpiled to a function');
   });
 });

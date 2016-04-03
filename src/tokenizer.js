@@ -72,7 +72,7 @@ function tokenizer(input) {
     if (LETTERS.test(char)) {
       var value = '';
 
-      while (LETTERS.test(char)) {
+      while (char && LETTERS.test(char)) {
         value += char;
         char = input[++current];
       }

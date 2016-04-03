@@ -12,10 +12,6 @@ function traverser(ast, visitor) {
   function traverseNode(node, parent) {
     var method = visitor[node.type];
 
-    if(node.type === 'Assignment') {
-      debugger;
-    }
-
     if (method) {
       method(node, parent);
     }
@@ -100,19 +96,41 @@ function transformer(ast) {
     },
 
     Assignment: function(node, parent) {
-      var value = parent._context.pop();
-      var expression = {
-        type: 'Assignment',
-        value: value,
-        expression: {
-          type: 'AssignmentExpression',
-          params: []
-        }
-      };
+      var context = parent._context;
+      var args = [];
 
-      node._context = expression.expression.params;
+      while(context.length && last(context).type === 'Value') {
+        args.unshift(context.pop());
+      }
+      var value = args.shift();
 
-      parent._context.push(expression);
+      var expression;
+
+      // This is a function
+      if(args.length) {
+        expression = {
+          type: 'FunctionAssignment',
+          value: value,
+          expression: {
+            type: 'FunctionExpression',
+            arguments: args,
+            body: []
+          }
+        };
+        node._context = expression.expression.body;
+      } else {
+        expression = {
+          type: 'Assignment',
+          value: value,
+          expression: {
+            type: 'AssignmentExpression',
+            params: []
+          }
+        };
+        node._context = expression.expression.params;
+      }
+
+      context.push(expression);
     },
 
     Value: function(node, parent) {
@@ -129,4 +147,8 @@ function transformer(ast) {
 function notImplemented(type){
   var msg = 'Transformer does not yet support ' + type;
   throw new TypeError(msg);
+}
+
+function last(arr) {
+  return arr[arr.length - 1];
 }

@@ -90,8 +90,6 @@ function parser(tokens) {
         }
       };
 
-      debugger;
-
       token = increment();
 
       while(token && token.type !== 'linebreak') {
