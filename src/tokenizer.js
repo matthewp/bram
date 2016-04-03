@@ -13,6 +13,11 @@ var types = {
 function tokenizer(input) {
   var current = 0;
   var tokens = [];
+  var inNewline = false;
+
+  function isIndent() {
+    return inNewline && char === ' ';
+  }
 
   while (current < input.length) {
     var char = input[current];
@@ -45,9 +50,37 @@ function tokenizer(input) {
       continue;
     }
 
+    var LINEBREAK = /\n/;
+    if(LINEBREAK.test(char)) {
+      current++;
+
+      tokens.push({
+        type: 'linebreak'
+      });
+      inNewline = true;
+      continue;
+    }
+
+    if(isIndent()) {
+      var indent = 0;
+      while(isIndent()) {
+        indent++;
+        char = input[++current];
+      }
+
+      tokens.push({
+        type: 'indent',
+        value: indent
+      });
+
+      inNewline = false;
+      continue;
+    }
+
     var WHITESPACE = /\s/;
     if (WHITESPACE.test(char)) {
       current++;
+
       continue;
     }
 
@@ -83,15 +116,6 @@ function tokenizer(input) {
       });
 
       continue;
-    }
-
-    var LINEBREAK = /\n/;
-    if(LINEBREAK.test(char)) {
-      current++;
-
-      tokens.push({
-        type: 'linebreak'
-      });
     }
 
     if(char === '=') {

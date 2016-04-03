@@ -1,6 +1,7 @@
 module.exports = codeGenerator;
 
 function codeGenerator(node) {
+
   switch (node.type) {
     case 'Program':
       return node.body.map(codeGenerator)
@@ -39,8 +40,13 @@ function codeGenerator(node) {
       var args = node.expression.arguments.map(codeGenerator).join(', ');
 
       return (
-        'var ' + name + ' = function(' + args + ') { ' +
-        body.map(codeGenerator).join(' ') + ' };'
+        'var ' + name + ' = function(' + args + ') {\n ' +
+        body.map(codeGenerator).join('\n') + ' \n};'
+      );
+
+    case 'ReturnStatement':
+      return (
+        'return ' + node.params.map(codeGenerator).join(' ') + ';'
       );
 
     case 'Value':

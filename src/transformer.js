@@ -29,6 +29,9 @@ function traverser(ast, visitor) {
         traverseArray(node.expression.params, node);
         break;
 
+      case 'ReturnStatement':
+        traverseNode(node.expression, node);
+
       case 'Value':
       case 'MathLiteral':
       case 'MathExpression':
@@ -108,6 +111,12 @@ function transformer(ast) {
 
       // This is a function
       if(args.length) {
+        var params = node.expression.params;
+        params.push({
+          type: 'ReturnStatement',
+          expression: params.pop()
+        });
+
         expression = {
           type: 'FunctionAssignment',
           value: value,
@@ -138,6 +147,15 @@ function transformer(ast) {
         type: 'Value',
         name: node.name
       });
+    },
+
+    ReturnStatement: function(node, parent) {
+      var ret = {
+        type: 'ReturnStatement',
+        params: []
+      };
+      node._context = ret.params;
+      parent._context.push(ret);
     }
   });
 

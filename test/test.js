@@ -36,4 +36,19 @@ describe('Assigning functions', function(){
 
     assert.equal(output, expected, 'Transpiled to a function');
   });
+
+  it.skip('works with multi line functions', function(){
+    var input = 'addFive a =\n' +
+      ' b = 5 + a\n' +
+      ' b';
+    var expected = 'var addFive = function(a) {\n' +
+      'var b = 5 + a;\n' +
+      'return b;\n' +
+      '};';
+    var output = Bram.compile(input);
+
+    console.log("OUT:", output)
+
+    assert.equal(output, expected, 'Transpiled a complex function');
+  });
 });

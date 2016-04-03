@@ -3,9 +3,15 @@ module.exports = parser;
 function parser(tokens) {
   var current = 0;
   var inMathExpression = false;
+  var currentIndent = 0;
 
   function increment(){
     return tokens[++current];
+  }
+
+  function peek(){
+    var token = tokens[current + 1];
+    return token || {};
   }
 
   function walk() {
@@ -89,10 +95,42 @@ function parser(tokens) {
           params: []
         }
       };
+      var last = token;
 
       token = increment();
+      while(token.type === 'linebreak') {
+        token = increment();
+      }
+      if(token.type === 'indent') {
+        walk();
+        token = tokens[current];
+      }
 
-      while(token && token.type !== 'linebreak') {
+      function isValidContinuationToken(token) {
+        var type = token && token.type;
+        return type === 'assignment' || type === 'math';
+      }
+
+      function inAssignment(){
+        if(!token) return false;
+        if(token.type === 'linebreak') {
+          var next = peek();
+          if(!isValidContinuationToken(last)) {
+            return false;
+          }
+          if(next.type === 'indent' && next.value === currentIndent) {
+            walk();
+            walk();
+            return true;
+          } else {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      while(inAssignment()) {
+        last = token;
         node.expression.params.push(walk());
         token = tokens[current];
       }
@@ -109,6 +147,17 @@ function parser(tokens) {
       };
     }
 
+    if(token.type === 'linebreak') {
+      current++;
+      return;
+    }
+
+    if(token.type === 'indent') {
+      current++;
+      currentIndent = token.value;
+      return;
+    }
+
     notImplemented(token.type);
   }
 
@@ -117,8 +166,12 @@ function parser(tokens) {
     body: []
   };
 
+  var node;
   while (current < tokens.length) {
-    ast.body.push(walk());
+    node = walk();
+    if(node) {
+      ast.body.push(node);
+    }
   }
 
   return ast;
