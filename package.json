@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/test.js"
+    "test": "mocha test/test.js",
+    "test-debug": "mocha --debug-brk test/test.js"
   },
   "author": "",
   "license": "BSD-2-Clause",

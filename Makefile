@@ -1,9 +1,7 @@
-grammar = src/grammar.pegjs
+.PHONY: test debug
 
-src/grammar.js: ${grammar}
-	node_modules/.bin/pegjs src/grammar.pegjs
+test:
+	mocha test/test.js
 
-all: src/grammar.js
-
-watch:
-	find src/grammar.pegjs | entr make all
+debug:
+	mocha --debug-brk test/test.js

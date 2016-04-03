@@ -85,6 +85,25 @@ function tokenizer(input) {
       continue;
     }
 
+    var LINEBREAK = /\n/;
+    if(LINEBREAK.test(char)) {
+      current++;
+
+      tokens.push({
+        type: 'linebreak'
+      });
+    }
+
+    if(char === '=') {
+      current++;
+      tokens.push({
+        type: 'assignment',
+        value: char
+      });
+
+      continue;
+    }
+
     throw new TypeError('I dont know what this character is: ' + char);
   }
 

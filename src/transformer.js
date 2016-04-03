@@ -12,6 +12,10 @@ function traverser(ast, visitor) {
   function traverseNode(node, parent) {
     var method = visitor[node.type];
 
+    if(node.type === 'Assignment') {
+      debugger;
+    }
+
     if (method) {
       method(node, parent);
     }
@@ -25,6 +29,11 @@ function traverser(ast, visitor) {
         traverseArray(node.params, node);
         break;
 
+      case 'Assignment':
+        traverseArray(node.expression.params, node);
+        break;
+
+      case 'Value':
       case 'MathLiteral':
       case 'MathExpression':
       case 'NumberLiteral':
@@ -88,6 +97,29 @@ function transformer(ast) {
       }
 
       parent._context.push(expression);
+    },
+
+    Assignment: function(node, parent) {
+      var value = parent._context.pop();
+      var expression = {
+        type: 'Assignment',
+        value: value,
+        expression: {
+          type: 'AssignmentExpression',
+          params: []
+        }
+      };
+
+      node._context = expression.expression.params;
+
+      parent._context.push(expression);
+    },
+
+    Value: function(node, parent) {
+      parent._context.push({
+        type: 'Value',
+        name: node.name
+      });
     }
   });
 

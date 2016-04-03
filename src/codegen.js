@@ -22,11 +22,18 @@ function codeGenerator(node) {
       );
 
     case 'MathExpression':
-      debugger;
       return (
         node.params.map(codeGenerator).join(' ')
       );
 
+    case 'Assignment':
+      var name = node.value.name;
+      var params = node.expression.params;
+      return (
+        'var ' + name + ' = ' + params.map(codeGenerator).join(' ') + ';'
+      );
+
+    case 'Value':
     case 'Identifier':
       return node.name;
 

@@ -4,6 +4,10 @@ function parser(tokens) {
   var current = 0;
   var inMathExpression = false;
 
+  function increment(){
+    return tokens[++current];
+  }
+
   function walk() {
     var token = tokens[current];
     var nextToken;
@@ -13,6 +17,7 @@ function parser(tokens) {
 
       // Peek and see if the next is Math
       nextToken = tokens[current + 1];
+
       if(!inMathExpression && isPartOfMathExpression(nextToken)) {
 
         inMathExpression = true;
@@ -76,7 +81,37 @@ function parser(tokens) {
       return node;
     }
 
-    throw new TypeError(token.type);
+    if(token.type === 'assignment') {
+      var node = {
+        type: 'Assignment',
+        value: token.value,
+        expression: {
+          params: []
+        }
+      };
+
+      debugger;
+
+      token = increment();
+
+      while(token && token.type !== 'linebreak') {
+        node.expression.params.push(walk());
+        token = tokens[current];
+      }
+
+      return node;
+    }
+
+    if(token.type === 'name') {
+      current++;
+
+      return {
+        type: 'Value',
+        name: token.value
+      };
+    }
+
+    notImplemented(token.type);
   }
 
   var ast = {
@@ -92,11 +127,11 @@ function parser(tokens) {
 }
 
 function isPartOfMathExpression(token){
-  var type = token.type;
+  var type = token && token.type;
   return type === 'number' || type === 'math' || type === 'paren';
 }
 
 function notImplemented(type){
-  var msg = 'Parser does not support ' + type + ' yet.';
+  var msg = 'Parser does not support \'' + type + '\' yet.';
   throw new TypeError(msg);
 }
