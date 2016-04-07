@@ -31,13 +31,14 @@ describe('Assignment', function(){
 describe('Assigning functions', function(){
   it('works', function(){
     var input = 'addFive a = 5 + a';
-    var expected = 'var addFive = function(a) { return 5 + a; };';
+    var expected = 'var addFive = function(a) {\n' +
+      'return 5 + a;\n};';
     var output = Bram.compile(input);
 
     assert.equal(output, expected, 'Transpiled to a function');
   });
 
-  it.skip('works with multi line functions', function(){
+  it('works with multi line functions', function(){
     var input = 'addFive a =\n' +
       ' b = 5 + a\n' +
       ' b';
@@ -47,8 +48,6 @@ describe('Assigning functions', function(){
       '};';
     var output = Bram.compile(input);
 
-    console.log("OUT:", output)
-
-    assert.equal(output, expected, 'Transpiled a complex function');
+    assert.equal(output.trim(), expected.trim(), 'Transpiled a complex function');
   });
 });

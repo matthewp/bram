@@ -22,10 +22,9 @@ function parser(tokens) {
       current++;
 
       // Peek and see if the next is Math
-      nextToken = tokens[current + 1];
+      nextToken = tokens[current];
 
-      if(!inMathExpression && isPartOfMathExpression(nextToken)) {
-
+      if(!inMathExpression && isPartOfMathExpression(nextToken, token)) {
         inMathExpression = true;
         var node = {
           type: 'MathExpression',
@@ -37,7 +36,9 @@ function parser(tokens) {
 
         token = tokens[current];
 
-        while(token && isPartOfMathExpression(token)) {
+        var last = token;
+        while(token && isPartOfMathExpression(token, last)) {
+          last = token;
           node.params.push(walk());
           token = tokens[current];
         }
@@ -177,9 +178,10 @@ function parser(tokens) {
   return ast;
 }
 
-function isPartOfMathExpression(token){
+function isPartOfMathExpression(token, last){
   var type = token && token.type;
-  return type === 'number' || type === 'math' || type === 'paren';
+  var mathType = type === 'number' || type === 'math' || type === 'paren';
+  return mathType || last.type === 'math';
 }
 
 function notImplemented(type){

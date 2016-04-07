@@ -40,8 +40,8 @@ function codeGenerator(node) {
       var args = node.expression.arguments.map(codeGenerator).join(', ');
 
       return (
-        'var ' + name + ' = function(' + args + ') {\n ' +
-        body.map(codeGenerator).join('\n') + ' \n};'
+        'var ' + name + ' = function(' + args + ') {\n' +
+        body.map(codeGenerator).join('\n') + '\n};'
       );
 
     case 'ReturnStatement':

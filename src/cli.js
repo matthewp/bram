@@ -1,12 +1,11 @@
 var Bram = require('./index');
 
-process.stdin.setEncoding('utf8');
-
 compileFromStdIn(process.stdin);
 
 function compileFromStdIn(stream) {
   var input = '';
 
+  stream.setEncoding('utf8');
   stream.on('data', function(data){
     input += data;
   });
