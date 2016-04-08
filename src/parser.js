@@ -3,6 +3,7 @@ module.exports = parser;
 function parser(tokens) {
   var current = 0;
   var inMathExpression = false;
+  var inCallExpression = false;
   var currentIndent = 0;
 
   function increment(){
@@ -25,6 +26,13 @@ function parser(tokens) {
       }
     }
 
+    if(token.type === 'name') {
+      var node = walkCallExpression();
+      if(node) {
+        return node;
+      }
+    }
+
     function walkMathExpression(){
       if(!inMathExpression && isPartOfMathExpression(nextToken, token)) {
         inMathExpression = true;
@@ -42,6 +50,28 @@ function parser(tokens) {
           token = tokens[current];
         }
         inMathExpression = false;
+        return node;
+      }
+    }
+
+    function walkCallExpression(){
+      var nextType = nextToken.type;
+      if(!inCallExpression && (nextType === 'name' || nextType === 'number')) {
+        inCallExpression = true;
+        var node = {
+          type: 'CallExpression',
+          params: [walk()]
+        };
+
+        token = tokens[current];
+
+        var last = token;
+        while(token && token.type !== 'linebreak') {
+          last = token;
+          node.params.push(walk());
+          token = tokens[current];
+        }
+        inCallExpression = false;
         return node;
       }
     }
@@ -184,7 +214,15 @@ function parser(tokens) {
 function isPartOfMathExpression(token, last){
   var type = token && token.type;
   var mathType = type === 'number' || type === 'math' || type === 'paren';
+  if(last.type === 'name' && type !== 'math') {
+    return false;
+  }
   return mathType || last.type === 'math';
+}
+
+function isPartOfCallExpression(token, last){
+  var type = token && token.type;
+  return type === 'name';
 }
 
 function notImplemented(type){

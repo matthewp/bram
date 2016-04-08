@@ -63,5 +63,19 @@ describe('Assigning functions', function(){
 });
 
 describe('Call expressions', function(){
+  it.only('work', function(){
+    var input = 'addTwo 1\naddOne 3';
+    var expected = 'addTwo(1);\naddOne(3);';
+    var output = Bram.compile(input);
 
+    assert.equal(output, expected, 'Transpiled correctly');
+  });
+
+  it('can assign value by calling a function', function(){
+    var input = 'three = addTwo 1';
+    var expected = 'var three = addTwo(1);';
+    var output = Bram.compile(input);
+
+    assert.equal(output, expected, 'Transpiled correctly');
+  });
 });
