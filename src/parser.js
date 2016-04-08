@@ -16,22 +16,21 @@ function parser(tokens) {
 
   function walk() {
     var token = tokens[current];
-    var nextToken;
+    var nextToken = peek();
 
-    if (token.type === 'number') {
-      current++;
+    if(token.type === 'number' || token.type === 'name') {
+      var node = walkMathExpression();
+      if(node) {
+        return node;
+      }
+    }
 
-      // Peek and see if the next is Math
-      nextToken = tokens[current];
-
+    function walkMathExpression(){
       if(!inMathExpression && isPartOfMathExpression(nextToken, token)) {
         inMathExpression = true;
         var node = {
           type: 'MathExpression',
-          params: [{
-            type: 'NumberLiteral',
-            value: token.value
-          }]
+          params: [walk()]
         };
 
         token = tokens[current];
@@ -45,6 +44,10 @@ function parser(tokens) {
         inMathExpression = false;
         return node;
       }
+    }
+
+    if (token.type === 'number') {
+      current++;
 
       return {
         type: 'NumberLiteral',

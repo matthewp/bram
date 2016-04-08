@@ -48,6 +48,20 @@ describe('Assigning functions', function(){
       '};';
     var output = Bram.compile(input);
 
-    assert.equal(output.trim(), expected.trim(), 'Transpiled a complex function');
+    assert.equal(output, expected, 'Transpiled a complex function');
   });
+
+  it('works with math where value comes first', function(){
+    var input = 'addTwo a = a + 2';
+    var expected = 'var addTwo = function(a) {\n' +
+      'return a + 2;\n' +
+      '};';
+    var output = Bram.compile(input);
+
+    assert.equal(output, expected, 'Transpiled correctly');
+  });
+});
+
+describe('Call expressions', function(){
+
 });
