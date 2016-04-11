@@ -147,6 +147,7 @@ function parser(tokens) {
         token = increment();
       }
       if(token.type === 'indent') {
+        node.isFunction = true;
         walk();
         token = tokens[current];
       }

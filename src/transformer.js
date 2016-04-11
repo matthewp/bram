@@ -110,7 +110,7 @@ function transformer(ast) {
       var expression;
 
       // This is a function
-      if(args.length) {
+      if(args.length || node.isFunction) {
         var params = node.expression.params;
         params.push({
           type: 'ReturnStatement',

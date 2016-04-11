@@ -38,6 +38,16 @@ describe('Assigning functions', function(){
     assert.equal(output, expected, 'Transpiled to a function');
   });
 
+  it('works for functions without parameters', function(){
+    var input = 'doStuff =\n 2';
+    var expected = 'var doStuff = function() {\n' +
+      'return 2;\n' +
+      '};';
+    var output = Bram.compile(input);
+
+    assert.equal(output, expected, 'Did its thing');
+  });
+
   it('works with multi line functions', function(){
     var input = 'addFive a =\n' +
       ' b = 5 + a\n' +
