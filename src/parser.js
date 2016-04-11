@@ -57,12 +57,23 @@ function parser(tokens) {
     function walkCallExpression(){
       var nextType = nextToken.type;
       if(!inCallExpression && (nextType === 'name' || nextType === 'number')) {
+        var idx = current;
+        var next = nextToken;
+        while(next && next.type !== 'linebreak') {
+          next = tokens[++idx];
+          if(next && next.type === 'assignment') {
+            return;
+          }
+        }
+
         inCallExpression = true;
         var node = {
           type: 'CallExpression',
-          params: [walk()]
+          name: token.value,
+          params: []
         };
 
+        walk();
         token = tokens[current];
 
         var last = token;

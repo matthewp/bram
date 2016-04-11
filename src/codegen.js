@@ -30,9 +30,8 @@ function codeGenerator(node) {
     case 'Assignment':
       var name = node.value.name;
       var params = node.expression.params;
-      return (
-        'var ' + name + ' = ' + params.map(codeGenerator).join(' ') + ';'
-      );
+      var str = 'var ' + name + ' = ' + params.map(codeGenerator).join(' ');
+      return str[str.length - 1] === ';' ? str : str + ';';
 
     case 'FunctionAssignment':
       var name = node.value.name;

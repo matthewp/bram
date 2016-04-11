@@ -13,11 +13,6 @@ var types = {
 function tokenizer(input) {
   var current = 0;
   var tokens = [];
-  var inNewline = false;
-
-  function isIndent() {
-    return inNewline && char === ' ';
-  }
 
   while (current < input.length) {
     var char = input[current];
@@ -57,23 +52,21 @@ function tokenizer(input) {
       tokens.push({
         type: 'linebreak'
       });
-      inNewline = true;
-      continue;
-    }
 
-    if(isIndent()) {
+      char = input[current];
       var indent = 0;
-      while(isIndent()) {
+      while(char === ' ') {
         indent++;
         char = input[++current];
       }
 
-      tokens.push({
-        type: 'indent',
-        value: indent
-      });
+      if(indent) {
+        tokens.push({
+          type: 'indent',
+          value: indent
+        });
+      }
 
-      inNewline = false;
       continue;
     }
 

@@ -63,7 +63,7 @@ describe('Assigning functions', function(){
 });
 
 describe('Call expressions', function(){
-  it.only('work', function(){
+  it('work', function(){
     var input = 'addTwo 1\naddOne 3';
     var expected = 'addTwo(1);\naddOne(3);';
     var output = Bram.compile(input);
@@ -74,6 +74,28 @@ describe('Call expressions', function(){
   it('can assign value by calling a function', function(){
     var input = 'three = addTwo 1';
     var expected = 'var three = addTwo(1);';
+    var output = Bram.compile(input);
+
+    assert.equal(output, expected, 'Transpiled correctly');
+  });
+
+  it('can be called inside another function', function(){
+    var input = 'addOne n = 1 + n\n' +
+      'addTwo n =\n' +
+      ' a = addOne n\n' +
+      ' b = addOne n\n' +
+      ' b + a\n' +
+      'five = addTwo 3';
+    var expected = 'var addOne = function(n) {\n' +
+      'return 1 + n;\n' +
+      '};\n' +
+      'var addTwo = function(n) {\n' +
+      'var a = addOne(n);\n' +
+      'var b = addOne(n);\n' +
+      'return b + a;\n' +
+      '};\n' +
+      'var five = addTwo(3);';
+
     var output = Bram.compile(input);
 
     assert.equal(output, expected, 'Transpiled correctly');
