@@ -27,7 +27,7 @@ function parser(tokens) {
       }
     }
 
-    if(token.type === 'name') {
+    if(token.type === 'name' || token.type === 'string') {
       var node = walkCallExpression();
       if(node) {
         return node;
@@ -57,7 +57,8 @@ function parser(tokens) {
 
     function walkCallExpression(){
       var nextType = nextToken.type;
-      if(!inCallExpression && (nextType === 'name' || nextType === 'number')) {
+      if(!inCallExpression && (nextType === 'name' || nextType === 'number' ||
+                              nextType === 'string')) {
         var idx = current;
         var next = nextToken;
         while(next && next.type !== 'linebreak') {
@@ -217,7 +218,7 @@ function isPartOfMathExpression(token, last){
 
 function isPartOfCallExpression(token, last){
   var type = token && token.type;
-  return type === 'name';
+  return type === 'name' || type === 'string';
 }
 
 function notImplemented(type){
