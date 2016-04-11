@@ -96,6 +96,15 @@ function parser(tokens) {
       };
     }
 
+    if(token.type === 'string') {
+      current++;
+
+      return {
+        type: 'StringLiteral',
+        value: token.value
+      };
+    }
+
     if(token.type === 'math') {
       current++;
 

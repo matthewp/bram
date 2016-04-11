@@ -111,3 +111,39 @@ describe('Call expressions', function(){
     assert.equal(output, expected, 'Transpiled correctly');
   });
 });
+
+describe('Strings', function(){
+  it('basics works', function(){
+    var input = 'a = "dog"';
+    var expected = 'var a = "dog";';
+    var output = Bram.compile(input);
+
+    assert.equal(output, expected, 'It worked');
+  });
+
+  it('escapes work', function(){
+    var input = 'a = "\\\"dog\\\""';
+    var expected = 'var a = "\\"dog\\"";';
+    var output = Bram.compile(input);
+
+    assert.equal(output, expected, 'It worked');
+  });
+
+  it('multiline', function(){
+    var input = 'a = "hello\n' +
+      'world"';
+    var expected = 'var a = "hello\nworld";';
+    var output = Bram.compile(input);
+
+    assert.equal(output, expected, 'Multiline works');
+  });
+
+  it('triple quotes', function(){
+    var input = 'a = """hello\n' +
+      '"world""""';
+    var expected = 'var a = "hello\n\"world\"";';
+    var output = Bram.compile(input);
+
+    assert.equal(output, expected, 'Triple quotes works');
+  });
+});

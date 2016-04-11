@@ -56,6 +56,9 @@ function codeGenerator(node) {
     case 'NumberLiteral':
       return node.value;
 
+    case 'StringLiteral':
+      return '"' + node.value + '"';
+
     default:
       notImplemented(node.type);
   }

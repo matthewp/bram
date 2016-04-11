@@ -94,6 +94,46 @@ function tokenizer(input) {
       continue;
     }
 
+    if(char === '"') {
+      var inEscape = false;
+      var isTripleQuote = false;
+      var quoteCount = 0;
+      var value = '';
+      char = input[++current];
+
+      if(char === '"' && input[current + 1] === '"') {
+        isTripleQuote = true;
+        char = input[++current];
+        char = input[++current];
+      }
+
+      while(char !== '"' || isTripleQuote || inEscape) {
+        value += char;
+        inEscape = !inEscape && char === '\\';
+        char = input[++current];
+
+        if(isTripleQuote && char === '"' && !inEscape) {
+          quoteCount++;
+
+          if(quoteCount >= 3 && input[current + 1] !== '"') {
+            value = value.substr(0, value.length - 2);
+            break;
+          }
+        } else {
+          quoteCount = 0;
+        }
+      }
+
+      current++;
+
+      tokens.push({
+        type: 'string',
+        value: value
+      });
+
+      continue;
+    }
+
     var LETTERS = /[a-zA-Z]/;
     if (LETTERS.test(char)) {
       var value = '';

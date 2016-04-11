@@ -36,6 +36,7 @@ function traverser(ast, visitor) {
       case 'MathLiteral':
       case 'MathExpression':
       case 'NumberLiteral':
+      case 'StringLiteral':
         break;
 
       default:
@@ -58,6 +59,13 @@ function transformer(ast) {
     NumberLiteral: function(node, parent) {
       parent._context.push({
         type: 'NumberLiteral',
+        value: node.value
+      });
+    },
+
+    StringLiteral: function(node, parent) {
+      parent._context.push({
+        type: 'StringLiteral',
         value: node.value
       });
     },
