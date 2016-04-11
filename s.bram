@@ -1,7 +1,0 @@
-addOne n = 1 + n
-addTwo n =
-  a = addOne n
-  b = addOne a
-  b
-
-three = addTwo 1

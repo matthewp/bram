@@ -132,7 +132,7 @@ describe('Strings', function(){
   it('multiline', function(){
     var input = 'a = "hello\n' +
       'world"';
-    var expected = 'var a = "hello\nworld";';
+    var expected = 'var a = "hello\\nworld";';
     var output = Bram.compile(input);
 
     assert.equal(output, expected, 'Multiline works');
@@ -141,7 +141,7 @@ describe('Strings', function(){
   it('triple quotes', function(){
     var input = 'a = """hello\n' +
       '"world""""';
-    var expected = 'var a = "hello\n\"world\"";';
+    var expected = 'var a = "hello\\n\"world\"";';
     var output = Bram.compile(input);
 
     assert.equal(output, expected, 'Triple quotes works');

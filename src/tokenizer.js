@@ -108,7 +108,11 @@ function tokenizer(input) {
       }
 
       while(char !== '"' || isTripleQuote || inEscape) {
-        value += char;
+        if(char === '\n') {
+          value += '\\n';
+        } else {
+          value += char;
+        }
         inEscape = !inEscape && char === '\\';
         char = input[++current];
 

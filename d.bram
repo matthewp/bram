@@ -1,5 +1,0 @@
-addTwo a = 2 + a
-
-addOne a = 1 + a
-
-addOne 3
