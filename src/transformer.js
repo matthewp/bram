@@ -35,6 +35,7 @@ function traverser(ast, visitor) {
       case 'Value':
       case 'MathLiteral':
       case 'MathExpression':
+      case 'ConcatenationExpression':
       case 'NumberLiteral':
       case 'StringLiteral':
         break;

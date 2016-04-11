@@ -146,4 +146,23 @@ describe('Strings', function(){
 
     assert.equal(output, expected, 'Triple quotes works');
   });
+
+  describe('Concatenation', function(){
+    it('two strings', function(){
+      var input = 'a = "b" + "c"';
+      var expected = 'var a = "b" + "c";';
+      var output = Bram.compile(input);
+
+      assert.equal(output, expected, 'two strings works');
+    });
+
+    it('values and strings', function(){
+      var input = 'a = b + "c"';
+      var expected = 'var a = b + "c";';
+      var output = Bram.compile(input);
+
+      assert.equal(output, expected, 'mixed strings and values works');
+    });
+
+  });
 });

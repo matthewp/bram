@@ -4,6 +4,7 @@ function parser(tokens) {
   var current = 0;
   var inMathExpression = false;
   var inCallExpression = false;
+  var inConcatExpression = false;
   var currentIndent = 0;
 
   function increment(){
