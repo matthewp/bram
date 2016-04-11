@@ -105,33 +105,6 @@ function parser(tokens) {
       };
     }
 
-    if (
-      token.type === 'paren' &&
-      token.value === '('
-    ) {
-      token = tokens[++current];
-
-      var node = {
-        type: 'CallExpression',
-        name: token.value,
-        params: []
-      };
-
-      token = tokens[++current];
-
-      while (
-        (token.type !== 'paren') ||
-        (token.type === 'paren' && token.value !== ')')
-      ) {
-        node.params.push(walk());
-        token = tokens[current];
-      }
-
-      current++;
-
-      return node;
-    }
-
     if(token.type === 'assignment') {
       var node = {
         type: 'Assignment',
