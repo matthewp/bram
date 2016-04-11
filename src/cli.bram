@@ -1,0 +1,19 @@
+Bram = require "./index"
+
+compileFromStdIn stream input =
+  onEnd =
+    output = Bram.compile input
+    console.log output
+
+  stream.on "end" onEnd
+
+  onData data =
+    stream.off "end" onEnd
+
+    newInput = input + data
+    compileFromStdIn stream newInput
+
+  stream.once "data" onData
+
+process.stdin.setEncoding "utf8"
+compileFromStdIn process.stdin ""

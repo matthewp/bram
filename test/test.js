@@ -110,6 +110,14 @@ describe('Call expressions', function(){
 
     assert.equal(output, expected, 'Transpiled correctly');
   });
+
+  it('works with strings', function(){
+    var input = 'two = addStuff "f"';
+    var expected = 'var two = addStuff("f");';
+    var output = Bram.compile(input);
+
+    assert.equal(output, expected, 'can call strings');
+  });
 });
 
 describe('Strings', function(){
