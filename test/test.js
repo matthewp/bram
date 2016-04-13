@@ -70,6 +70,28 @@ describe('Assigning functions', function(){
 
     assert.equal(output, expected, 'Transpiled correctly');
   });
+
+  it.only('works for nested functions', function(){
+    var input = 'addTwo n =\n' +
+      ' addOne a = 1 + a\n' +
+      //'  1 + a\n' +
+      ' b = addOne n\n' +
+      ' c = addOne n\n' +
+      ' b + c';
+    var expected = 'var addTwo = function(n) {\n' +
+      'var addOne = function(a) {\n' +
+      'return 1 + a;\n' +
+      '};\n' +
+      'var b = addOne(n);\n' +
+      'var c = addOne(n);\n' +
+      'return b + c;\n' +
+      '};';
+    var output = Bram.compile(input);
+
+    console.log("OUT:", output);
+
+    assert.equal(output, expected, 'Able to handle nested functions');
+  });
 });
 
 describe('Call expressions', function(){
