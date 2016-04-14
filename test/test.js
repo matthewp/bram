@@ -14,23 +14,31 @@ describe('Math', function(){
 
 describe('Assignment', function(){
   it('can assign variables', function(){
-    var input = 'a = 1';
+    var input = 'let a = 1';
     var output = Bram.compile(input);
 
     assert.equal(output, 'var a = 1;', 'Correctly transpiled');
   });
 
   it('can assign the result of a math expression', function(){
-    var input = 'a = 1 * 2';
+    var input = 'let a = 1 * 2';
     var output = Bram.compile(input);
 
     assert.equal(output, 'var a = 1 * 2;', 'Correctly transpiled');
+  });
+
+  it('can do multi-line assignments', function(){
+    var input = 'let a =\n' +
+      ' 1 + 1';
+    var output = Bram.compile(input);
+
+    assert.equal(output, 'var a = 1 + 1;', 'Transpiled multiline');
   });
 });
 
 describe('Assigning functions', function(){
   it('works', function(){
-    var input = 'addFive a = 5 + a';
+    var input = 'let addFive a = 5 + a';
     var expected = 'var addFive = function(a) {\n' +
       'return 5 + a;\n};';
     var output = Bram.compile(input);
@@ -38,19 +46,9 @@ describe('Assigning functions', function(){
     assert.equal(output, expected, 'Transpiled to a function');
   });
 
-  it('works for functions without parameters', function(){
-    var input = 'doStuff =\n 2';
-    var expected = 'var doStuff = function() {\n' +
-      'return 2;\n' +
-      '};';
-    var output = Bram.compile(input);
-
-    assert.equal(output, expected, 'Did its thing');
-  });
-
   it('works with multi line functions', function(){
-    var input = 'addFive a =\n' +
-      ' b = 5 + a\n' +
+    var input = 'let addFive a =\n' +
+      ' let b = 5 + a\n' +
       ' b';
     var expected = 'var addFive = function(a) {\n' +
       'var b = 5 + a;\n' +
@@ -62,7 +60,7 @@ describe('Assigning functions', function(){
   });
 
   it('works with math where value comes first', function(){
-    var input = 'addTwo a = a + 2';
+    var input = 'let addTwo a = a + 2';
     var expected = 'var addTwo = function(a) {\n' +
       'return a + 2;\n' +
       '};';
@@ -71,12 +69,11 @@ describe('Assigning functions', function(){
     assert.equal(output, expected, 'Transpiled correctly');
   });
 
-  it.only('works for nested functions', function(){
-    var input = 'addTwo n =\n' +
-      ' addOne a = 1 + a\n' +
-      //'  1 + a\n' +
-      ' b = addOne n\n' +
-      ' c = addOne n\n' +
+  it('works for nested functions', function(){
+    var input = 'let addTwo n =\n' +
+      ' let addOne a = 1 + a\n' +
+      ' let b = addOne n\n' +
+      ' let c = addOne n\n' +
       ' b + c';
     var expected = 'var addTwo = function(n) {\n' +
       'var addOne = function(a) {\n' +
@@ -87,8 +84,6 @@ describe('Assigning functions', function(){
       'return b + c;\n' +
       '};';
     var output = Bram.compile(input);
-
-    console.log("OUT:", output);
 
     assert.equal(output, expected, 'Able to handle nested functions');
   });
@@ -104,7 +99,7 @@ describe('Call expressions', function(){
   });
 
   it('can assign value by calling a function', function(){
-    var input = 'three = addTwo 1';
+    var input = 'let three = addTwo 1';
     var expected = 'var three = addTwo(1);';
     var output = Bram.compile(input);
 
@@ -112,12 +107,12 @@ describe('Call expressions', function(){
   });
 
   it('can be called inside another function', function(){
-    var input = 'addOne n = 1 + n\n' +
-      'addTwo n =\n' +
-      ' a = addOne n\n' +
-      ' b = addOne n\n' +
+    var input = 'let addOne n = 1 + n\n' +
+      'let addTwo n =\n' +
+      ' let a = addOne n\n' +
+      ' let b = addOne n\n' +
       ' b + a\n' +
-      'five = addTwo 3';
+      'let five = addTwo 3';
     var expected = 'var addOne = function(n) {\n' +
       'return 1 + n;\n' +
       '};\n' +
@@ -134,7 +129,7 @@ describe('Call expressions', function(){
   });
 
   it('works with strings', function(){
-    var input = 'two = addStuff "f"';
+    var input = 'let two = addStuff "f"';
     var expected = 'var two = addStuff("f");';
     var output = Bram.compile(input);
 
@@ -144,7 +139,7 @@ describe('Call expressions', function(){
 
 describe('Strings', function(){
   it('basics works', function(){
-    var input = 'a = "dog"';
+    var input = 'let a = "dog"';
     var expected = 'var a = "dog";';
     var output = Bram.compile(input);
 
@@ -152,7 +147,7 @@ describe('Strings', function(){
   });
 
   it('escapes work', function(){
-    var input = 'a = "\\\"dog\\\""';
+    var input = 'let a = "\\\"dog\\\""';
     var expected = 'var a = "\\"dog\\"";';
     var output = Bram.compile(input);
 
@@ -160,7 +155,7 @@ describe('Strings', function(){
   });
 
   it('multiline', function(){
-    var input = 'a = "hello\n' +
+    var input = 'let a = "hello\n' +
       'world"';
     var expected = 'var a = "hello\\nworld";';
     var output = Bram.compile(input);
@@ -169,7 +164,7 @@ describe('Strings', function(){
   });
 
   it('triple quotes', function(){
-    var input = 'a = """hello\n' +
+    var input = 'let a = """hello\n' +
       '"world""""';
     var expected = 'var a = "hello\\n\"world\"";';
     var output = Bram.compile(input);
@@ -179,7 +174,7 @@ describe('Strings', function(){
 
   describe('Concatenation', function(){
     it('two strings', function(){
-      var input = 'a = "b" + "c"';
+      var input = 'let a = "b" + "c"';
       var expected = 'var a = "b" + "c";';
       var output = Bram.compile(input);
 
@@ -187,7 +182,7 @@ describe('Strings', function(){
     });
 
     it('values and strings', function(){
-      var input = 'a = b + "c"';
+      var input = 'let a = b + "c"';
       var expected = 'var a = b + "c";';
       var output = Bram.compile(input);
 

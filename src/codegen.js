@@ -7,11 +7,22 @@ function codeGenerator(node) {
       return node.body.map(codeGenerator)
         .join('\n');
 
-    case 'ExpressionStatement':
-      return (
-        codeGenerator(node.expression) +
-        ';'
+    case 'Binding':
+      return addSemicolon(
+        'var ' + node.value + ' = ' + node.body.map(codeGenerator).join(' ')
       );
+
+    case 'FunctionBinding':
+      var value = node.value;
+      var body = node.body;
+      var params = node.params.map(codeGenerator).join(', ');
+      return (
+        'var ' + value + ' = function(' + params + ') {\n' +
+        body.map(codeGenerator).join('\n') + '\n};'
+      );
+
+    case 'ExpressionStatement':
+      return addSemicolon(codeGenerator(node.expression));
 
     case 'CallExpression':
       return (
@@ -28,12 +39,14 @@ function codeGenerator(node) {
       );
 
     case 'Assignment':
+      throw new Error("Assignment is no longer supported");
       var name = node.value.name;
       var params = node.expression.params;
       var str = 'var ' + name + ' = ' + params.map(codeGenerator).join(' ');
       return str[str.length - 1] === ';' ? str : str + ';';
 
     case 'FunctionAssignment':
+      throw new Error("Assignment is no longer supported");
       var name = node.value.name;
       var body = node.expression.body;
       var args = node.expression.arguments.map(codeGenerator).join(', ');
@@ -62,6 +75,10 @@ function codeGenerator(node) {
     default:
       notImplemented(node.type);
   }
+}
+
+function addSemicolon(str){
+  return str[str.length - 1] === ';' ? str : str + ';';
 }
 
 function notImplemented(type){

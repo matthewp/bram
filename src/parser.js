@@ -11,6 +11,14 @@ function parser(tokens) {
     return tokens[++current];
   }
 
+  function decrement(){
+    return tokens[--current];
+  }
+
+  function currentToken(){
+    return tokens[current];
+  }
+
   function peek(){
     var token = tokens[current + 1];
     return token || {};
@@ -19,6 +27,59 @@ function parser(tokens) {
   function walk() {
     var token = tokens[current];
     var nextToken = peek();
+
+    if(token.type === 'name' && token.value === 'let') {
+      token = increment();
+
+      var node = {
+        type: 'Binding',
+        value: token.value,
+        body: []
+      };
+
+      var params = [];
+      token = increment();
+
+      do {
+        token = currentToken();
+        if(token.type === 'assignment') {
+          break;
+        } else {
+          params.push(walk());
+        }
+      } while(true);
+
+      // A FunctionBinding
+      if(params.length) {
+        node.type = 'FunctionBinding';
+        node.params = params;
+      }
+
+      increment();
+
+      // Now for the body
+      do {
+        token = currentToken();
+        if(!token) break;
+        if(token.type === 'linebreak') {
+          token = increment();
+          if(token.type === 'indent') {
+            var indent = currentIndent;
+            walk();
+
+            // If indent has increased we are still within this assignment
+            if(currentIndent > indent) {
+              continue;
+            }
+          }
+          break;
+        } else {
+          node.body.push(walk());
+        }
+      } while(true);
+
+      return node;
+    }
 
     if(token.type === 'number' || token.type === 'name') {
       var node = walkMathExpression();

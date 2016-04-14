@@ -18,6 +18,8 @@ function traverser(ast, visitor) {
 
     switch (node.type) {
       case 'Program':
+      case 'Binding':
+      case 'FunctionBinding':
         traverseArray(node.body, node);
         break;
 
@@ -57,6 +59,34 @@ function transformer(ast) {
   ast._context = newAst.body;
 
   traverser(ast, {
+    Binding: function(node, parent) {
+      var expression = {
+        type: 'Binding',
+        value: node.value,
+        body: []
+      };
+
+      node._context = expression.body;
+      parent._context.push(expression);
+    },
+
+    FunctionBinding: function(node, parent){
+      var expression = {
+        type: 'FunctionBinding',
+        value: node.value,
+        params: node.params,
+        body: []
+      };
+
+      node.body.push({
+        type: 'ReturnStatement',
+        expression: node.body.pop()
+      });
+
+      node._context = expression.body;
+      parent._context.push(expression);
+    },
+
     NumberLiteral: function(node, parent) {
       parent._context.push({
         type: 'NumberLiteral',
