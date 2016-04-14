@@ -38,24 +38,6 @@ function codeGenerator(node) {
         node.params.map(codeGenerator).join(' ')
       );
 
-    case 'Assignment':
-      throw new Error("Assignment is no longer supported");
-      var name = node.value.name;
-      var params = node.expression.params;
-      var str = 'var ' + name + ' = ' + params.map(codeGenerator).join(' ');
-      return str[str.length - 1] === ';' ? str : str + ';';
-
-    case 'FunctionAssignment':
-      throw new Error("Assignment is no longer supported");
-      var name = node.value.name;
-      var body = node.expression.body;
-      var args = node.expression.arguments.map(codeGenerator).join(', ');
-
-      return (
-        'var ' + name + ' = function(' + args + ') {\n' +
-        body.map(codeGenerator).join('\n') + '\n};'
-      );
-
     case 'ReturnStatement':
       return (
         'return ' + node.params.map(codeGenerator).join(' ') + ';'

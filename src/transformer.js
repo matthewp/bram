@@ -27,10 +27,6 @@ function traverser(ast, visitor) {
         traverseArray(node.params, node);
         break;
 
-      case 'Assignment':
-        traverseArray(node.expression.params, node);
-        break;
-
       case 'ReturnStatement':
         traverseNode(node.expression, node);
 
@@ -135,50 +131,6 @@ function transformer(ast) {
       }
 
       parent._context.push(expression);
-    },
-
-    Assignment: function(node, parent) {
-      var context = parent._context;
-      var args = [];
-
-      while(context.length && last(context).type === 'Value') {
-        args.unshift(context.pop());
-      }
-      var value = args.shift();
-
-      var expression;
-
-      // This is a function
-      if(args.length || node.isFunction) {
-        var params = node.expression.params;
-        params.push({
-          type: 'ReturnStatement',
-          expression: params.pop()
-        });
-
-        expression = {
-          type: 'FunctionAssignment',
-          value: value,
-          expression: {
-            type: 'FunctionExpression',
-            arguments: args,
-            body: []
-          }
-        };
-        node._context = expression.expression.body;
-      } else {
-        expression = {
-          type: 'Assignment',
-          value: value,
-          expression: {
-            type: 'AssignmentExpression',
-            params: []
-          }
-        };
-        node._context = expression.expression.params;
-      }
-
-      context.push(expression);
     },
 
     Value: function(node, parent) {

@@ -177,58 +177,6 @@ function parser(tokens) {
       };
     }
 
-    if(token.type === 'assignment') {
-      var node = {
-        type: 'Assignment',
-        value: token.value,
-        expression: {
-          params: []
-        }
-      };
-      var last = token;
-
-      token = increment();
-      while(token.type === 'linebreak') {
-        token = increment();
-      }
-      if(token.type === 'indent') {
-        node.isFunction = true;
-        walk();
-        token = tokens[current];
-      }
-
-      function isValidContinuationToken(token) {
-        var type = token && token.type;
-        return type === 'assignment' || type === 'math';
-      }
-
-      function inAssignment(){
-        if(!token) return false;
-        if(token.type === 'linebreak') {
-          var next = peek();
-          if(!isValidContinuationToken(last)) {
-            return false;
-          }
-          if(next.type === 'indent' && next.value === currentIndent) {
-            walk();
-            walk();
-            return true;
-          } else {
-            return false;
-          }
-        }
-        return true;
-      }
-
-      while(inAssignment()) {
-        last = token;
-        node.expression.params.push(walk());
-        token = tokens[current];
-      }
-
-      return node;
-    }
-
     if(token.type === 'name') {
       current++;
 
