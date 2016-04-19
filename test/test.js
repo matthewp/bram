@@ -108,6 +108,16 @@ describe('Assigning functions', function(){
 
     assert.equal(output, expected, 'Compiled a complex assignment');
   });
+
+  it('works with unit functions', function(){
+    var input = 'let printHelloFn () = printf "hello world"';
+    var expected = 'var printHelloFn = function() {\n' +
+      'return printf("hello world");\n' +
+      '};';
+    var output = Bram.compile(input);
+
+    assert.equal(output, expected, 'Compiled as expected');
+  });
 });
 
 describe('Call expressions', function(){

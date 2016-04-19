@@ -4,7 +4,6 @@ let compileFromStdIn stream input =
   let onEnd =
     let output = Bram.compile input
     console.log output
-    "foo"
 
   stream.on "end" onEnd
 

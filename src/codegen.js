@@ -39,8 +39,8 @@ function codeGenerator(node) {
       );
 
     case 'ReturnStatement':
-      return (
-        'return ' + node.params.map(codeGenerator).join(' ') + ';'
+      return addSemicolon(
+        'return ' + node.params.map(codeGenerator).join(' ')
       );
 
     case 'Value':

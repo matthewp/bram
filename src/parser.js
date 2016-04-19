@@ -53,6 +53,13 @@ function parser(tokens) {
       if(params.length) {
         node.type = 'FunctionBinding';
         node.params = params;
+
+        // Detect a unit function
+        if(params[0].type === 'Paren' && params[1].type === 'Paren') {
+          // TODO unmatched unit parens
+          params.pop();
+          params.pop();
+        }
       }
 
       increment();
@@ -195,6 +202,15 @@ function parser(tokens) {
       current++;
       currentIndent = token.value;
       return;
+    }
+
+    if(token.type === 'paren') {
+      current++;
+
+      return {
+        type: 'Paren',
+        name: token.value
+      };
     }
 
     notImplemented(token.type);
