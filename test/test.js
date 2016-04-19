@@ -118,6 +118,30 @@ describe('Assigning functions', function(){
 
     assert.equal(output, expected, 'Compiled as expected');
   });
+
+  it('Works when there are empty lines in the function', function(){
+    var input = 'let foo bar =\n' +
+      ' let one = 2\n\n' +
+      ' let two = 3\n\n' +
+      ' let fn a =\n' +
+      '  let b = a + 2\n' +
+      '  b\n\n' +
+      ' bar';
+    var expected = 'var foo = function(bar) {\n' +
+      'var one = 2;\n' +
+      'var two = 3;\n' +
+      'var fn = function(a) {\n' +
+      'var b = a + 2;\n' +
+      'return b;\n' +
+      '};\n' +
+      'return bar;\n' +
+      '};';
+    var output = Bram.compile(input);
+
+    console.log(output);
+
+    assert.equal(output, expected, 'Compiled as expected');
+  });
 });
 
 describe('Call expressions', function(){

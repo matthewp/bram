@@ -1,7 +1,7 @@
 let Bram = require "./index"
 
 let compileFromStdIn stream input =
-  let onEnd =
+  let onEnd () =
     let output = Bram.compile input
     console.log output
 

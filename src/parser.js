@@ -63,6 +63,7 @@ function parser(tokens) {
       }
 
       increment();
+      var letIndent = currentIndent;
 
       // Now for the body
       do {
@@ -71,11 +72,10 @@ function parser(tokens) {
         if(token.type === 'linebreak') {
           token = increment();
           if(token && token.type === 'indent') {
-            var indent = currentIndent;
             walk();
 
             // If indent has increased we are still within this assignment
-            if(currentIndent > indent) {
+            if(currentIndent > letIndent) {
               continue;
             }
           }
