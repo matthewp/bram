@@ -1,16 +1,17 @@
-Bram = require "./index"
+let Bram = require "./index"
 
-compileFromStdIn stream input =
-  onEnd =
-    output = Bram.compile input
+let compileFromStdIn stream input =
+  let onEnd =
+    let output = Bram.compile input
     console.log output
+    "foo"
 
   stream.on "end" onEnd
 
-  onData data =
+  let onData data =
     stream.off "end" onEnd
 
-    newInput = input + data
+    let newInput = input + data
     compileFromStdIn stream newInput
 
   stream.once "data" onData

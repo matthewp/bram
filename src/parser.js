@@ -63,7 +63,7 @@ function parser(tokens) {
         if(!token) break;
         if(token.type === 'linebreak') {
           token = increment();
-          if(token.type === 'indent') {
+          if(token && token.type === 'indent') {
             var indent = currentIndent;
             walk();
 

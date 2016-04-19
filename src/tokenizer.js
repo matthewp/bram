@@ -138,7 +138,7 @@ function tokenizer(input) {
       continue;
     }
 
-    var LETTERS = /[a-zA-Z]/;
+    var LETTERS = /[a-zA-Z\.]/;
     if (LETTERS.test(char)) {
       var value = '';
 

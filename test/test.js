@@ -87,6 +87,27 @@ describe('Assigning functions', function(){
 
     assert.equal(output, expected, 'Able to handle nested functions');
   });
+
+  it('even more complex assignment', function(){
+    var input = 'let foo a = a\n' +
+      'let bar a b =\n' +
+      ' let qux a =\n' +
+      '  let b = foo a\n' +
+      '  b\n';
+    var expected = 'var foo = function(a) {\n' +
+      'return a;\n' +
+      '};\n' +
+      'var bar = function(a, b) {\n' +
+      'var qux = function(a) {\n' +
+      'var b = foo(a);\n' +
+      'return b;\n' +
+      '};\n' +
+      'return qux;\n' +
+      '};';
+    var output = Bram.compile(input);
+
+    assert.equal(output, expected, 'Compiled a complex assignment');
+  });
 });
 
 describe('Call expressions', function(){

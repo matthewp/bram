@@ -74,9 +74,21 @@ function transformer(ast) {
         body: []
       };
 
+      var returnExpression = node.body.pop();
+
+      if(returnExpression.type === 'Binding' ||
+         returnExpression.type === 'FunctionBinding') {
+        node.body.push(returnExpression);
+
+        returnExpression = {
+          type: 'Value',
+          name: returnExpression.value
+        };
+      }
+
       node.body.push({
         type: 'ReturnStatement',
-        expression: node.body.pop()
+        expression: returnExpression
       });
 
       node._context = expression.body;
