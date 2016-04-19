@@ -138,9 +138,17 @@ describe('Assigning functions', function(){
       '};';
     var output = Bram.compile(input);
 
-    console.log(output);
-
     assert.equal(output, expected, 'Compiled as expected');
+  });
+});
+
+describe.skip('Pipelining', function(){
+  it('Basics', function(){
+    var input = 'let val = x |> square';
+    var expected = 'var val = square(x);';
+    var output = Bram.compile(input);
+
+    assert.equal(output, expected,' Compiled correctly');
   });
 });
 
