@@ -14,6 +14,10 @@ function tokenizer(input) {
   var current = 0;
   var tokens = [];
 
+  function peek() {
+    return input[current + 1];
+  }
+
   while (current < input.length) {
     var char = input[current];
 
@@ -160,6 +164,17 @@ function tokenizer(input) {
       tokens.push({
         type: 'assignment',
         value: char
+      });
+
+      continue;
+    }
+
+    if(char === '|' && peek() === '>') {
+      current++;
+      current++;
+
+      tokens.push({
+        type: 'pipeline'
       });
 
       continue;

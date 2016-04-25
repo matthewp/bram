@@ -1,3 +1,5 @@
+var parsePipeline = require("./parser/pipeline");
+
 module.exports = parser;
 
 function parser(tokens) {
@@ -23,6 +25,15 @@ function parser(tokens) {
     var token = tokens[current + 1];
     return token || {};
   }
+
+  var helpers = {
+    increment: increment,
+    decrement: decrement,
+    currentToken: currentToken,
+    peek: peek,
+    tokens: tokens,
+    walk: walk,
+  };
 
   function walk() {
     var token = tokens[current];
@@ -100,6 +111,11 @@ function parser(tokens) {
       if(node) {
         return node;
       }
+    }
+
+    var node = parsePipeline(token, helpers);
+    if(node) {
+      return node;
     }
 
     function walkMathExpression(){

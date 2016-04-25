@@ -142,13 +142,22 @@ describe('Assigning functions', function(){
   });
 });
 
-describe.skip('Pipelining', function(){
+describe('Pipelining', function(){
   it('Basics', function(){
     var input = 'let val = x |> square';
     var expected = 'var val = square(x);';
     var output = Bram.compile(input);
 
     assert.equal(output, expected,' Compiled correctly');
+  });
+
+  it('With multiple pipes', function(){
+    var input = 'let val = x |> square |> add';
+    var expected = 'var val = add(square(x));';
+    var output = Bram.compile(input);
+
+    assert.equal(output, expected,' Compiled correctly');
+
   });
 });
 

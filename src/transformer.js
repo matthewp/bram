@@ -13,7 +13,7 @@ function traverser(ast, visitor) {
     var method = visitor[node.type];
 
     if (method) {
-      method(node, parent);
+      method = method(node, parent);
     }
 
     switch (node.type) {
@@ -25,6 +25,11 @@ function traverser(ast, visitor) {
 
       case 'CallExpression':
         traverseArray(node.params, node);
+        break;
+
+      case 'PipelineExpression':
+        traverseArray(node.params, node);
+        method();
         break;
 
       case 'ReturnStatement':
@@ -143,6 +148,37 @@ function transformer(ast) {
       }
 
       parent._context.push(expression);
+    },
+
+    PipelineExpression: function(node, parent) {
+      // Should turn this into nested call expressions?
+      var expression = {
+        type: 'PipelineExpression',
+        params: []
+      };
+
+      node._context = expression.params;
+
+      parent._context.push(expression);
+
+      return function(){
+        var params = expression.params;
+        expression.expression = child();
+        delete expression.params;
+
+        function child() {
+          var node = params.pop();
+          // something if value
+          return {
+            type: 'CallExpression',
+            callee: {
+              type: 'Identifier',
+              name: node.name
+            },
+            arguments: [params.length === 1 ? last(params) : child()]
+          };
+        }
+      };
     },
 
     Value: function(node, parent) {

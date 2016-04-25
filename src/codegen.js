@@ -33,6 +33,9 @@ function codeGenerator(node) {
         ')'
       );
 
+    case 'PipelineExpression':
+      return codeGenerator(node.expression);
+
     case 'MathExpression':
       return (
         node.params.map(codeGenerator).join(' ')
