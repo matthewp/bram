@@ -1,0 +1,25 @@
+<html>
+<head>
+  <title>A simple test</title>
+  <script src="../dist/bram.js"></script>
+</head>
+<body>
+  <template>
+    <div foo="{{foo}}">
+      <span>{{name}}</span>
+    </div>
+  </template>
+  <div id="main"></div>
+
+  <script>
+  (function(){
+    var template = document.querySelector('template');
+    var model = {}; // Bram.model()
+
+    var hydrate = Bram.template(template);
+    var tree = hydrate(model);
+    document.querySelector('#main').appendChild(tree);
+  })();
+  </script>
+</body>
+</html>
