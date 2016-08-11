@@ -14,7 +14,10 @@
   <script>
   (function(){
     var template = document.querySelector('template');
-    var model = {}; // Bram.model()
+    var model = window.model = Bram.model({
+      name: 'Wilbur',
+      foo: 'bar'
+    });
 
     var hydrate = Bram.template(template);
     var tree = hydrate(model);
