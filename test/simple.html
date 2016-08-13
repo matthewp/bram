@@ -2,11 +2,18 @@
 <head>
   <title>A simple test</title>
   <script src="../dist/bram.js"></script>
+  <script src="../node_modules/webcomponents.js/webcomponents-lite.min.js"></script>
+  <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
+  <style>
+    .green { background: green; }
+    .red { background: red; }
+    .blue { background: blue; }
+  </style>
 </head>
 <body>
   <template>
-    <div foo="{{foo}}">
-      <span>{{name}}</span>
+    <div id="color" class="{{color}}">
+      <span id="name">{{name}}</span>
     </div>
   </template>
   <div id="main"></div>
@@ -16,7 +23,7 @@
     var template = document.querySelector('template');
     var model = window.model = Bram.model({
       name: 'Wilbur',
-      foo: 'bar'
+      color: ''
     });
 
     var hydrate = Bram.template(template);
@@ -24,5 +31,32 @@
     document.querySelector('#main').appendChild(tree);
   })();
   </script>
+  <mocha-test>
+  <template>
+    <script>
+      describe('Template using attrs and textnodes', function(){
+        var name = document.querySelector('#name');
+        var color = document.querySelector('#color');
+        var model = window.model;
+
+        afterEach(function(){
+          model.name = 'Wilbur';
+          model.color = '';
+        });
+
+        it('The TextNode can be updated', function(){
+          model.name = 'Matthew';
+          assert.equal(name.textContent, 'Matthew');
+        });
+
+        it('Attributes can be changed', function(){
+          model.color = 'green';
+          var style = window.getComputedStyle(color);
+          assert.equal(style.backgroundColor, 'rgb(0, 128, 0)');
+        });
+      });
+    </script>
+  </template>
+  </mocha-test>
 </body>
 </html>

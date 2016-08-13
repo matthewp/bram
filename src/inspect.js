@@ -1,0 +1,56 @@
+function inspect(node, ref, paths) {
+  switch(node.nodeType) {
+    // Element
+    case 1:
+      var templateAttr;
+      if(node.nodeName === 'TEMPLATE' && (templateAttr = specialTemplateAttr(node))) {
+        var result = parse(node.getAttribute(templateAttr));
+        if(result.hasBinding) {
+          paths[ref.id] = function(node, model){
+            setupArrayBinding(model, result.value, live[templateAttr](node));
+          };
+        }
+      }
+      break;
+    // TextNode
+    case 3:
+      var result = parse(node.nodeValue);
+      if(result.hasBinding) {
+        paths[ref.id] = function(node, model){
+          setupBinding(model, result.value, live.text(node));
+        };
+      }
+      break;
+  }
+
+
+  forEach.call(node.attributes || [], function(attrNode){
+    // TODO see if this is important
+    ref.id++;
+
+    var result = parse(attrNode.value);
+    if(result.hasBinding) {
+      paths[ref.id] = function(node, model){
+        setupBinding(model, result.value, live.attr(node, attrNode.name));
+      };
+    }
+  });
+
+  var childNodes = node.childNodes;
+  forEach.call(childNodes, function(node){
+    ref.id++;
+    inspect(node, ref, paths);
+  });
+
+  return paths;
+}
+
+var specialTemplateAttrs = ['if', 'each'];
+function specialTemplateAttr(template){
+  var attrName;
+  for(var i = 0, len = specialTemplateAttrs.length; i < len; i++) {
+    attrName = specialTemplateAttrs[i];
+    if(template.getAttribute(attrName))
+      return attrName;
+  }
+}

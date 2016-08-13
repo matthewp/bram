@@ -2,7 +2,13 @@ define \n
 
 endef
 
-modules = lib/bram.js
+modules = src/bram.js \
+	src/bindings.js \
+  src/expression.js \
+	src/inspect.js \
+  src/hydrate.js \
+  src/scope.js \
+  src/model.js
 
 dist/bram.js: ${modules}
 	echo ${\n} > $@
@@ -19,4 +25,4 @@ release: dist/bram.js
 	uglifyjs dist/bram.js > dist/bram.min.js
 
 watch:
-	find lib -name "*.js" | entr make all
+	find src -name "*.js" | entr make all

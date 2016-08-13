@@ -14,19 +14,19 @@
   </template>
   <template id="tmpl-todo-form">
     <form>
-      <input type="text" name="item"/>
+      <input type="text" name="item" placeholder="What todo?" />
     </form>
   </template>
   <template id="tmpl-todo-list">
-    <template id="todos">
+    <ul>
+    <template each="{{todos}}">
       <li>
-        <a href="javascript://">x</a>
-        <span class="todo"></span>
+        <a href="#">x</a>
+        <span class="todo">{{item}}</span>
       </li>
     </template>
-    <ul></ul>
+    </ul>
   </template>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/4.0.7/rx.all.js"></script>
   <script src="../../dist/bram.js"></script>
   <script src="./app.js"></script>
 </body>

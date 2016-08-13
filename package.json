@@ -23,5 +23,9 @@
   "homepage": "https://github.com/matthewp/bram",
   "bugs": {
     "url": "https://github.com/matthewp/bram/issues"
+  },
+  "devDependencies": {
+    "mocha-test": "^1.0.3",
+    "webcomponents.js": "^0.7.22"
   }
 }
