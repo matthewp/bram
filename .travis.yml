@@ -1,5 +1,5 @@
 language: node_js
-node_js: 5.3
+node_js: 6.3
 before_script:
   - npm install -g testee
 script: npm test

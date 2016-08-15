@@ -25,6 +25,8 @@ class TodoForm extends HTMLElement {
       detail: this.input.value
     });
     this.dispatchEvent(newEvent);
+
+    this.input.value = '';
   }
 }
 
@@ -41,6 +43,24 @@ class TodoList extends HTMLElement {
   attachedCallback() {
     var tree = this.hydrate(this.model);
     this.appendChild(tree);
+
+    this.addEventListener('click', this);
+  }
+
+  detachedCallback() {
+    this.removeEventListener('click', this);
+  }
+
+  handleEvent(ev) {
+    var el = ev.target;
+
+    if(el.nodeName === 'A') {
+      ev.preventDefault();
+
+      var index = +el.dataset.index;
+
+      this.todos.splice(index, 1);
+    }
   }
 
   get todos() {

@@ -28,7 +28,15 @@ function observe(o, fn) {
       return true;
     },
     deleteProperty: function(target, property, value){
+      if(isArraySet(target, property)) {
+        fn({
+          prop: Bram.arrayChange,
+          index: +property,
+          type: 'delete'
+        });
+      }
 
+      return true;
     }
   })
 }

@@ -73,14 +73,32 @@ var live = {
       children[i] = { scope: scope, nodes: childNodes };
     };
 
+    var deleteChild = function(index){
+      var child = children[index];
+      child.nodes.forEach(function(node){
+        node.parentNode.removeChild(node);
+      });
+    };
+
     array.forEach(render);
 
     Bram.addEventListener(array, Bram.arrayChange, function(ev, value){
+      if(ev.type === 'delete') {
+        //deleteChild(ev.index);
+        //children.splice(index, 1);
+        return;
+      }
+
       var child;
       var index = ev.index;
       var oldIndex = comp.indexOf(value);
       if(oldIndex !== -1) {
+        var currentChild = children[index];
         child = children[oldIndex];
+        if(currentChild) {
+          //deleteChild(index);
+        }
+
         children[index] = child;
         children[oldIndex] = undefined;
         child.scope.model.index = index;
@@ -412,7 +430,15 @@ function observe(o, fn) {
       return true;
     },
     deleteProperty: function(target, property, value){
+      if(isArraySet(target, property)) {
+        fn({
+          prop: Bram.arrayChange,
+          index: +property,
+          type: 'delete'
+        });
+      }
 
+      return true;
     }
   })
 }

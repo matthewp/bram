@@ -4,7 +4,7 @@
   "description": "Web component architecture with Observables",
   "main": "dist/bram.js",
   "scripts": {
-    "test": "testee test/test.html --browsers firefox"
+    "test": "testee test/simple.html test/lists.html test/model.html test/conditional.html --browsers firefox"
   },
   "keywords": [
     "web",
@@ -12,7 +12,7 @@
     "observables"
   ],
   "files": [
-    "dist/bram.js"
+    "bram.js"
   ],
   "author": "Matthew Phillips",
   "license": "BSD-2-Clause",
