@@ -1,3 +1,4 @@
+
 var live = {
   attr: function(node, attrName){
     return function(val){
@@ -14,18 +15,52 @@ var live = {
       node[prop] = val;
     };
   },
-  each: function(node, parentScope){
+  each: function(node, parentScope, prop){
     var hydrate = Bram.template(node);
-    var holder = document.createTextNode('');
-    node.parentNode.replaceChild(holder, node);
-    return function(model){
-      var scope = new Scope(model, parentScope);
+
+    var info = parentScope.read(prop);
+    var array = info.value;
+    var comp = slice.call(array);
+    var placeholder = document.createTextNode('');
+    node.parentNode.replaceChild(placeholder, node);
+    var children = [];
+
+    var render = function(model, i){
+      var scope = parentScope.add(model).add({item: model, index: i});
       var frag = hydrate(scope);
 
-      // TODO need to for real figure out what to put stuff.
-      var ref = holder.nextSibling;
-      holder.parentNode.insertBefore(frag, ref);
+      var childNodes = slice.call(frag.childNodes);
+      var parent = placeholder.parentNode;
+
+      var sibling = children[i + 1];
+      if(sibling) {
+        var lastChild = sibling.nodes[0];
+        parent.insertBefore(frag, lastChild);
+      } else {
+        parent.appendChild(frag);
+      }
+
+      children[i] = { scope: scope, nodes: childNodes };
     };
+
+    array.forEach(render);
+
+    Bram.addEventListener(array, Bram.arrayChange, function(ev, value){
+      var child;
+      var index = ev.index;
+      var oldIndex = comp.indexOf(value);
+      if(oldIndex !== -1) {
+        child = children[oldIndex];
+        children[index] = child;
+        children[oldIndex] = undefined;
+        child.scope.model.index = index;
+      } else if((child = children[index])) {
+        child.scope.model.item = value;
+      } else {
+        render(value, index);
+      }
+      comp = slice.call(array);
+    });
   },
   if: function(node){ /* TODO figure this one out */}
 };

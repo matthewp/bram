@@ -4,12 +4,6 @@ function Scope(model, parent) {
 }
 
 Scope.prototype.read = function(prop){
-  if(prop === 'item') {
-    return {
-      model: this.model,
-      bindable: false
-    };
-  }
   var val = this.model[prop];
   if(val) {
     return {
@@ -21,3 +15,8 @@ Scope.prototype.read = function(prop){
     return this.parent.read(prop);
   }
 }
+
+Scope.prototype.add = function(object){
+  var model = Bram.isModel(object) ? object : Bram.model(object);
+  return new Scope(model, this);
+};

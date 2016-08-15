@@ -7,7 +7,11 @@ function inspect(node, ref, paths) {
         var result = parse(node.getAttribute(templateAttr));
         if(result.hasBinding) {
           paths[ref.id] = function(node, model){
-            setupArrayBinding(model, result.value, live[templateAttr](node));
+            if(templateAttr === 'each') {
+              live.each(node, model, result.value, node);
+            } else {
+              setupBinding(model, result.value, live[templateAttr](node));
+            }
           };
         }
       }

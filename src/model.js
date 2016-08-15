@@ -1,22 +1,40 @@
+function isArraySet(object, property){
+  return Array.isArray(object) && !isNaN(+property);
+}
+
 function observe(o, fn) {
   return new Proxy(o, {
-    set(target, property, value) {
+    set: function(target, property, value) {
       target[property] = value;
-      fn({
-        prop: property,
-        type: 'set'
-      }, value);
+
+      if(isArraySet(target, property)) {
+        fn({
+          prop: Bram.arrayChange,
+          index: +property,
+          type: 'set'
+        }, value);
+      } else {
+        fn({
+          prop: property,
+          type: 'set'
+        }, value)
+      }
+
       return true;
     },
+    deleteProperty: function(target, property, value){
+
+    }
   })
 }
 
 var events = Symbol('bram-events');
+Bram.arrayChange = Symbol('bram-array-change');
 
 Bram.model = function(o){
   o = Object.keys(o).reduce(function(acc, prop){
     var val = o[prop];
-    acc[prop] = (Array.isArray(val) || typeof val === "string")
+    acc[prop] = (Array.isArray(val) || typeof val === "object")
       ? Bram.model(val)
       : val;
     return acc;
@@ -39,6 +57,10 @@ Bram.model = function(o){
   });
 
   return proxy;
+};
+
+Bram.isModel = function(object){
+  return object && !!object[events];
 };
 
 Bram.addEventListener = function(model, prop, callback){

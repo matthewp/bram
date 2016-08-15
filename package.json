@@ -25,6 +25,7 @@
     "url": "https://github.com/matthewp/bram/issues"
   },
   "devDependencies": {
+    "flow-bin": "^0.30.0",
     "mocha-test": "^1.0.3",
     "webcomponents.js": "^0.7.22"
   }

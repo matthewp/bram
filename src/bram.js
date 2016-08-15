@@ -2,6 +2,7 @@ var Bram = {};
 
 var forEach = Array.prototype.forEach;
 var some = Array.prototype.some;
+var slice = Array.prototype.slice;
 
 Bram.template = function(template){
   template = (template instanceof HTMLTemplateElement) ? template : document.querySelector(template);

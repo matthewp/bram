@@ -5,6 +5,7 @@ var Bram = {};
 
 var forEach = Array.prototype.forEach;
 var some = Array.prototype.some;
+var slice = Array.prototype.slice;
 
 Bram.template = function(template){
   template = (template instanceof HTMLTemplateElement) ? template : document.querySelector(template);
@@ -27,6 +28,7 @@ if(typeof module === "object" && module.exports) {
   window.Bram = Bram;
 }
 
+
 var live = {
   attr: function(node, attrName){
     return function(val){
@@ -43,18 +45,52 @@ var live = {
       node[prop] = val;
     };
   },
-  each: function(node, parentScope){
+  each: function(node, parentScope, prop){
     var hydrate = Bram.template(node);
-    var holder = document.createTextNode('');
-    node.parentNode.replaceChild(holder, node);
-    return function(model){
-      var scope = new Scope(model, parentScope);
+
+    var info = parentScope.read(prop);
+    var array = info.value;
+    var comp = slice.call(array);
+    var placeholder = document.createTextNode('');
+    node.parentNode.replaceChild(placeholder, node);
+    var children = [];
+
+    var render = function(model, i){
+      var scope = parentScope.add(model).add({item: model, index: i});
       var frag = hydrate(scope);
 
-      // TODO need to for real figure out what to put stuff.
-      var ref = holder.nextSibling;
-      holder.parentNode.insertBefore(frag, ref);
+      var childNodes = slice.call(frag.childNodes);
+      var parent = placeholder.parentNode;
+
+      var sibling = children[i + 1];
+      if(sibling) {
+        var lastChild = sibling.nodes[0];
+        parent.insertBefore(frag, lastChild);
+      } else {
+        parent.appendChild(frag);
+      }
+
+      children[i] = { scope: scope, nodes: childNodes };
     };
+
+    array.forEach(render);
+
+    Bram.addEventListener(array, Bram.arrayChange, function(ev, value){
+      var child;
+      var index = ev.index;
+      var oldIndex = comp.indexOf(value);
+      if(oldIndex !== -1) {
+        child = children[oldIndex];
+        children[index] = child;
+        children[oldIndex] = undefined;
+        child.scope.model.index = index;
+      } else if((child = children[index])) {
+        child.scope.model.item = value;
+      } else {
+        render(value, index);
+      }
+      comp = slice.call(array);
+    });
   },
   if: function(node){ /* TODO figure this one out */}
 };
@@ -185,7 +221,11 @@ function inspect(node, ref, paths) {
         var result = parse(node.getAttribute(templateAttr));
         if(result.hasBinding) {
           paths[ref.id] = function(node, model){
-            setupArrayBinding(model, result.value, live[templateAttr](node));
+            if(templateAttr === 'each') {
+              live.each(node, model, result.value, node);
+            } else {
+              setupBinding(model, result.value, live[templateAttr](node));
+            }
           };
         }
       }
@@ -282,12 +322,6 @@ function Scope(model, parent) {
 }
 
 Scope.prototype.read = function(prop){
-  if(prop === 'item') {
-    return {
-      model: this.model,
-      bindable: false
-    };
-  }
   var val = this.model[prop];
   if(val) {
     return {
@@ -300,25 +334,48 @@ Scope.prototype.read = function(prop){
   }
 }
 
+Scope.prototype.add = function(object){
+  var model = Bram.isModel(object) ? object : Bram.model(object);
+  return new Scope(model, this);
+};
+
+function isArraySet(object, property){
+  return Array.isArray(object) && !isNaN(+property);
+}
+
 function observe(o, fn) {
   return new Proxy(o, {
-    set(target, property, value) {
+    set: function(target, property, value) {
       target[property] = value;
-      fn({
-        prop: property,
-        type: 'set'
-      }, value);
+
+      if(isArraySet(target, property)) {
+        fn({
+          prop: Bram.arrayChange,
+          index: +property,
+          type: 'set'
+        }, value);
+      } else {
+        fn({
+          prop: property,
+          type: 'set'
+        }, value)
+      }
+
       return true;
     },
+    deleteProperty: function(target, property, value){
+
+    }
   })
 }
 
 var events = Symbol('bram-events');
+Bram.arrayChange = Symbol('bram-array-change');
 
 Bram.model = function(o){
   o = Object.keys(o).reduce(function(acc, prop){
     var val = o[prop];
-    acc[prop] = (Array.isArray(val) || typeof val === "string")
+    acc[prop] = (Array.isArray(val) || typeof val === "object")
       ? Bram.model(val)
       : val;
     return acc;
@@ -341,6 +398,10 @@ Bram.model = function(o){
   });
 
   return proxy;
+};
+
+Bram.isModel = function(object){
+  return object && !!object[events];
 };
 
 Bram.addEventListener = function(model, prop, callback){
