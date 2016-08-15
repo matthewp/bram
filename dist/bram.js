@@ -92,7 +92,37 @@ var live = {
       comp = slice.call(array);
     });
   },
-  if: function(node){ /* TODO figure this one out */}
+  if: function(node, parentScope){
+    var hydrate = Bram.template(node);
+    var rendered = false;
+    var child = {};
+    var placeholder = document.createTextNode('');
+    node.parentNode.replaceChild(placeholder, node);
+    return function(val){
+      if(!rendered) {
+        if(val) {
+          var scope = parentScope.add(val);
+          var frag = hydrate(scope);
+          child.children = slice.call(frag.childNodes);
+          child.scope = scope;
+          placeholder.parentNode.insertBefore(frag, placeholder.nextSibling);
+          rendered = true;
+        }
+      } else {
+        var parent = placeholder.parentNode;
+        var sibling = placeholder.nextSibling;
+        if(val) {
+          child.children.forEach(function(node){
+            parent.insertBefore(node, sibling);
+          });
+        } else {
+          child.children.forEach(function(node){
+            parent.removeChild(node);
+          });
+        }
+      }
+    };
+  }
 };
 
 function setupBinding(scope, prop, fn){
@@ -213,6 +243,8 @@ function parse(expr){
 }
 
 function inspect(node, ref, paths) {
+  var ignoredAttrs = {};
+
   switch(node.nodeType) {
     // Element
     case 1:
@@ -220,11 +252,12 @@ function inspect(node, ref, paths) {
       if(node.nodeName === 'TEMPLATE' && (templateAttr = specialTemplateAttr(node))) {
         var result = parse(node.getAttribute(templateAttr));
         if(result.hasBinding) {
+          ignoredAttrs[templateAttr] = true;
           paths[ref.id] = function(node, model){
             if(templateAttr === 'each') {
               live.each(node, model, result.value, node);
             } else {
-              setupBinding(model, result.value, live[templateAttr](node));
+              setupBinding(model, result.value, live[templateAttr](node, model));
             }
           };
         }
@@ -245,6 +278,9 @@ function inspect(node, ref, paths) {
   forEach.call(node.attributes || [], function(attrNode){
     // TODO see if this is important
     ref.id++;
+
+    if(ignoredAttrs[attrNode.name])
+      return;
 
     var result = parse(attrNode.value);
     if(result.hasBinding) {
@@ -322,6 +358,13 @@ function Scope(model, parent) {
 }
 
 Scope.prototype.read = function(prop){
+  return this._read(prop) || {
+    model: this.model,
+    value: undefined
+  };
+};
+
+Scope.prototype._read = function(prop){
   var val = this.model[prop];
   if(val) {
     return {
@@ -346,7 +389,12 @@ function isArraySet(object, property){
 function observe(o, fn) {
   return new Proxy(o, {
     set: function(target, property, value) {
+      var oldValue = target[property];
       target[property] = value;
+
+      // If the value hasn't changed, nothing else to do
+      if(value === oldValue)
+        return true;
 
       if(isArraySet(target, property)) {
         fn({
@@ -373,13 +421,7 @@ var events = Symbol('bram-events');
 Bram.arrayChange = Symbol('bram-array-change');
 
 Bram.model = function(o){
-  o = Object.keys(o).reduce(function(acc, prop){
-    var val = o[prop];
-    acc[prop] = (Array.isArray(val) || typeof val === "object")
-      ? Bram.model(val)
-      : val;
-    return acc;
-  }, Array.isArray(o) ? [] : {});
+  o = deepModel(o);
 
   var callback = function(ev, value){
     var fns = proxy[events][ev.prop];
@@ -399,6 +441,16 @@ Bram.model = function(o){
 
   return proxy;
 };
+
+function deepModel(o) {
+  return !o ? o : Object.keys(o).reduce(function(acc, prop){
+    var val = o[prop];
+    acc[prop] = (Array.isArray(val) || typeof val === "object")
+      ? Bram.model(val)
+      : val;
+    return acc;
+  }, Array.isArray(o) ? [] : {})
+}
 
 Bram.isModel = function(object){
   return object && !!object[events];

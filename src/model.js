@@ -5,7 +5,12 @@ function isArraySet(object, property){
 function observe(o, fn) {
   return new Proxy(o, {
     set: function(target, property, value) {
+      var oldValue = target[property];
       target[property] = value;
+
+      // If the value hasn't changed, nothing else to do
+      if(value === oldValue)
+        return true;
 
       if(isArraySet(target, property)) {
         fn({
@@ -32,13 +37,7 @@ var events = Symbol('bram-events');
 Bram.arrayChange = Symbol('bram-array-change');
 
 Bram.model = function(o){
-  o = Object.keys(o).reduce(function(acc, prop){
-    var val = o[prop];
-    acc[prop] = (Array.isArray(val) || typeof val === "object")
-      ? Bram.model(val)
-      : val;
-    return acc;
-  }, Array.isArray(o) ? [] : {});
+  o = deepModel(o);
 
   var callback = function(ev, value){
     var fns = proxy[events][ev.prop];
@@ -58,6 +57,16 @@ Bram.model = function(o){
 
   return proxy;
 };
+
+function deepModel(o) {
+  return !o ? o : Object.keys(o).reduce(function(acc, prop){
+    var val = o[prop];
+    acc[prop] = (Array.isArray(val) || typeof val === "object")
+      ? Bram.model(val)
+      : val;
+    return acc;
+  }, Array.isArray(o) ? [] : {})
+}
 
 Bram.isModel = function(object){
   return object && !!object[events];

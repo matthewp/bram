@@ -1,4 +1,6 @@
 function inspect(node, ref, paths) {
+  var ignoredAttrs = {};
+
   switch(node.nodeType) {
     // Element
     case 1:
@@ -6,11 +8,12 @@ function inspect(node, ref, paths) {
       if(node.nodeName === 'TEMPLATE' && (templateAttr = specialTemplateAttr(node))) {
         var result = parse(node.getAttribute(templateAttr));
         if(result.hasBinding) {
+          ignoredAttrs[templateAttr] = true;
           paths[ref.id] = function(node, model){
             if(templateAttr === 'each') {
               live.each(node, model, result.value, node);
             } else {
-              setupBinding(model, result.value, live[templateAttr](node));
+              setupBinding(model, result.value, live[templateAttr](node, model));
             }
           };
         }
@@ -31,6 +34,9 @@ function inspect(node, ref, paths) {
   forEach.call(node.attributes || [], function(attrNode){
     // TODO see if this is important
     ref.id++;
+
+    if(ignoredAttrs[attrNode.name])
+      return;
 
     var result = parse(attrNode.value);
     if(result.hasBinding) {

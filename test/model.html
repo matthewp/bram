@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+  <title>model tests</title>
+
+  <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
+  <script src="../dist/bram.js"></script>
+</head>
+<body>
+<mocha-test>
+<template>
+  <script>
+    describe('Bram.addEventListener', function(){
+      it('triggers change events on model props', function(){
+        var model = Bram.model();
+        Bram.addEventListener(model, 'prop', function(){
+          assert.ok(true, 'prop changed');
+        });
+        model.prop = 'foo';
+      });
+
+      it('doesn\'t trigger change events when value hasn\'t changed', function(){
+        var model = Bram.model({ prop: 'foo' });
+        Bram.addEventListener(model, 'prop', function(){
+          assert.ok(false, 'change event when there shouldn\'t be one');
+        });
+        model.prop = 'foo';
+      });
+    });
+  </script>
+</template>
+</mocha-test>
+</body>
+</html>

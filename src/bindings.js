@@ -62,7 +62,37 @@ var live = {
       comp = slice.call(array);
     });
   },
-  if: function(node){ /* TODO figure this one out */}
+  if: function(node, parentScope){
+    var hydrate = Bram.template(node);
+    var rendered = false;
+    var child = {};
+    var placeholder = document.createTextNode('');
+    node.parentNode.replaceChild(placeholder, node);
+    return function(val){
+      if(!rendered) {
+        if(val) {
+          var scope = parentScope.add(val);
+          var frag = hydrate(scope);
+          child.children = slice.call(frag.childNodes);
+          child.scope = scope;
+          placeholder.parentNode.insertBefore(frag, placeholder.nextSibling);
+          rendered = true;
+        }
+      } else {
+        var parent = placeholder.parentNode;
+        var sibling = placeholder.nextSibling;
+        if(val) {
+          child.children.forEach(function(node){
+            parent.insertBefore(node, sibling);
+          });
+        } else {
+          child.children.forEach(function(node){
+            parent.removeChild(node);
+          });
+        }
+      }
+    };
+  }
 };
 
 function setupBinding(scope, prop, fn){
