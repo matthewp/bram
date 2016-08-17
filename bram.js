@@ -451,7 +451,7 @@ Scope.prototype.read = function(prop){
 
 Scope.prototype._read = function(prop){
   var val = this.model[prop];
-  if(val) {
+  if(val != null) {
     return {
       model: this.model,
       value: val
