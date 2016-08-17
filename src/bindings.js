@@ -15,70 +15,93 @@ var live = {
       node[prop] = val;
     };
   },
-  each: function(node, parentScope, prop){
+  each: function(node, parentScope, parseResult){
     var hydrate = Bram.template(node);
+    var compute = parseResult.compute(parentScope);
 
-    var info = parentScope.read(prop);
-    var array = info.value;
-    var comp = slice.call(array);
-    var placeholder = document.createTextNode('');
-    node.parentNode.replaceChild(placeholder, node);
-    var children = [];
+    var observe = function(list){
+      var itemMap = new Map();
+      var indexMap = new Map();
 
-    var render = function(model, i){
-      var scope = parentScope.add(model).add({item: model, index: i});
-      var frag = hydrate(scope);
+      var placeholder = document.createTextNode('');
+      node.parentNode.replaceChild(placeholder, node);
 
-      var childNodes = slice.call(frag.childNodes);
-      var parent = placeholder.parentNode;
+      var render = function(item, i){
+        var scope = parentScope.add(item).add({ item: item, index: i});
+        var frag = hydrate(scope);
 
-      var sibling = children[i + 1];
-      if(sibling) {
-        var lastChild = sibling.nodes[0];
-        parent.insertBefore(frag, lastChild);
-      } else {
-        parent.appendChild(frag);
-      }
+        var info = {
+          item: item,
+          nodes: slice.call(frag.childNodes),
+          scope: scope,
+          index: i
+        };
+        itemMap.set(item, info);
+        indexMap.set(i, info);
 
-      children[i] = { scope: scope, nodes: childNodes };
-    };
+        var siblingInfo = indexMap.get(i + 1);
+        var parent = placeholder.parentNode;
+        if(siblingInfo) {
+          var firstChild = siblingInfo.nodes[0];
+          parent.insertBefore(frag, firstChild);
+        } else {
+          parent.appendChild(frag);
+        }
+      };
 
-    var deleteChild = function(index){
-      var child = children[index];
-      child.nodes.forEach(function(node){
-        node.parentNode.removeChild(node);
+      var remove = function(index){
+        var info = indexMap.get(index);
+        if(info) {
+          info.nodes.forEach(function(node){
+            node.parentNode.removeChild(node);
+          });
+          itemMap.delete(info.item);
+          indexMap.delete(index);
+        }
+      };
+
+      list.forEach(render);
+
+      Bram.addEventListener(list, Bram.arrayChange, function(ev, value){
+        if(ev.type === 'delete') {
+          remove(ev.index);
+          return;
+        }
+
+        var info = itemMap.get(value);
+        if(info) {
+          var oldIndex = info.index;
+          var hasChanged = oldIndex !== ev.index;
+          if(hasChanged) {
+            info.scope.model.index = info.index = ev.index;
+
+            var existingItem = indexMap.get(ev.index);
+            if(existingItem) {
+              indexMap.set(oldIndex, existingItem);
+            } else {
+              indexMap.delete(oldIndex);
+            }
+            indexMap.set(ev.index, info);
+
+            var ref = indexMap.get(ev.index + 1);
+            if(ref) {
+              ref = ref.nodes[0];
+            }
+
+            var nodeIdx = info.nodes.length - 1;
+            while(nodeIdx >= 0) {
+              placeholder.parentNode.insertBefore(info.nodes[nodeIdx], ref);
+              nodeIdx--;
+            }
+          }
+        } else {
+          remove(ev.index);
+          render(value, ev.index);
+        }
       });
     };
 
-    array.forEach(render);
-
-    Bram.addEventListener(array, Bram.arrayChange, function(ev, value){
-      if(ev.type === 'delete') {
-        //deleteChild(ev.index);
-        //children.splice(index, 1);
-        return;
-      }
-
-      var child;
-      var index = ev.index;
-      var oldIndex = comp.indexOf(value);
-      if(oldIndex !== -1) {
-        var currentChild = children[index];
-        child = children[oldIndex];
-        if(currentChild) {
-          //deleteChild(index);
-        }
-
-        children[index] = child;
-        children[oldIndex] = undefined;
-        child.scope.model.index = index;
-      } else if((child = children[index])) {
-        child.scope.model.item = value;
-      } else {
-        render(value, index);
-      }
-      comp = slice.call(array);
-    });
+    observe(compute());
   },
   if: function(node, parentScope){
     var hydrate = Bram.template(node);
@@ -113,50 +136,20 @@ var live = {
   }
 };
 
-function setupBinding(scope, prop, fn){
-  var set = function(ev, newVal){
-    fn(newVal);
+function setupBinding(scope, parseResult, fn){
+  var compute = parseResult.compute(scope);
+
+  var set = function(){
+    fn(compute());
   };
 
-  var info = scope.read(prop);
-  var model = info.model;
-  if(info.bindable === false) {
-    set({}, model);
-  } else {
-    Bram.addEventListener(model, prop, set);
-    set({}, model[prop]);
-  }
-}
-
-function setupArrayBinding(scope, prop, fn) {
-  var model = scope.read(prop).model,
-    array = model[prop],
-    length = array.length,
-    key = Symbol('bram-array-binding');
-
-  // Change the list when the list itself changes
-  Bram.addEventListener(model, prop, function setArray(){
-    array = model[prop];
-  });
-
-  array.forEach(function(item, i){
-    item[key] = true;
-    setupBinding(array, i, fn);
-  });
-
-  Bram.addEventListener(array, 'length', function(ev, newLength){
-    // TODO new thing to set up.
-    var i, item;
-
-    // Push, look for new items added to the end.
-    if(newLength > length) {
-      i = newLength - 1;
-
-      while((item = array[i]) && !item[key]) {
-        setupBinding(new Scope(array), i, fn);
-
-        i--;
-      }
+  parseResult.props().forEach(function(prop){
+    var info = scope.read(prop);
+    var model = info.model;
+    if(info.bindable !== false) {
+      Bram.addEventListener(model, prop, set);
     }
   });
+
+  set();
 }

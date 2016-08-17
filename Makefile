@@ -3,6 +3,7 @@ define \n
 endef
 
 modules = src/bram.js \
+  src/map.js \
 	src/bindings.js \
   src/expression.js \
 	src/inspect.js \

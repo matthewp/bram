@@ -7,6 +7,13 @@ var forEach = Array.prototype.forEach;
 var some = Array.prototype.some;
 var slice = Array.prototype.slice;
 
+Bram.values = Object.values || function(obj){
+  return Object.keys(obj).reduce(function(acc, key){
+    acc.push(obj[key]);
+    return acc;
+  }, []);
+};
+
 Bram.template = function(template){
   template = (template instanceof HTMLTemplateElement) ? template : document.querySelector(template);
   var paths = inspect(template.content, {id:0}, {});
@@ -22,10 +29,50 @@ Bram.template = function(template){
   };
 };
 
+Bram.symbol = typeof Symbol === 'function' ? Symbol :
+  function(str){
+    return '@@-' + str;
+  };
+
 if(typeof module === "object" && module.exports) {
   module.exports = Bram;
 } else {
   window.Bram = Bram;
+}
+
+if(typeof Map !== "function") {
+  var bid = Bram.symbol('bid'),
+    bidCnt = 1;
+
+  function BID(obj){
+    var type = typeof obj;
+    if(type === 'string' || type === 'number')
+      return obj;
+    var id = obj[bid];
+    if(!id) {
+      Object.defineProperty(obj, bid, {
+        value: id++,
+        enumerable: false,
+        writable: false,
+        configurable: false
+      });
+    }
+    return id;
+  }
+
+  function Map(){
+    this.k = {};
+  }
+  Map.prototype.set = function(key, value){
+    var id = BID(obj);
+    this.k[id] = value;
+  };
+  Map.prototype.get = function(key){
+    return this.k[BID(key)];
+  };
+  Map.prototype.delete = function(key){
+    delete this.k[BID(key)];
+  };
 }
 
 
@@ -45,70 +92,93 @@ var live = {
       node[prop] = val;
     };
   },
-  each: function(node, parentScope, prop){
+  each: function(node, parentScope, parseResult){
     var hydrate = Bram.template(node);
+    var compute = parseResult.compute(parentScope);
 
-    var info = parentScope.read(prop);
-    var array = info.value;
-    var comp = slice.call(array);
-    var placeholder = document.createTextNode('');
-    node.parentNode.replaceChild(placeholder, node);
-    var children = [];
+    var observe = function(list){
+      var itemMap = new Map();
+      var indexMap = new Map();
 
-    var render = function(model, i){
-      var scope = parentScope.add(model).add({item: model, index: i});
-      var frag = hydrate(scope);
+      var placeholder = document.createTextNode('');
+      node.parentNode.replaceChild(placeholder, node);
 
-      var childNodes = slice.call(frag.childNodes);
-      var parent = placeholder.parentNode;
+      var render = function(item, i){
+        var scope = parentScope.add(item).add({ item: item, index: i});
+        var frag = hydrate(scope);
 
-      var sibling = children[i + 1];
-      if(sibling) {
-        var lastChild = sibling.nodes[0];
-        parent.insertBefore(frag, lastChild);
-      } else {
-        parent.appendChild(frag);
-      }
+        var info = {
+          item: item,
+          nodes: slice.call(frag.childNodes),
+          scope: scope,
+          index: i
+        };
+        itemMap.set(item, info);
+        indexMap.set(i, info);
 
-      children[i] = { scope: scope, nodes: childNodes };
-    };
+        var siblingInfo = indexMap.get(i + 1);
+        var parent = placeholder.parentNode;
+        if(siblingInfo) {
+          var firstChild = siblingInfo.nodes[0];
+          parent.insertBefore(frag, firstChild);
+        } else {
+          parent.appendChild(frag);
+        }
+      };
 
-    var deleteChild = function(index){
-      var child = children[index];
-      child.nodes.forEach(function(node){
-        node.parentNode.removeChild(node);
+      var remove = function(index){
+        var info = indexMap.get(index);
+        if(info) {
+          info.nodes.forEach(function(node){
+            node.parentNode.removeChild(node);
+          });
+          itemMap.delete(info.item);
+          indexMap.delete(index);
+        }
+      };
+
+      list.forEach(render);
+
+      Bram.addEventListener(list, Bram.arrayChange, function(ev, value){
+        if(ev.type === 'delete') {
+          remove(ev.index);
+          return;
+        }
+
+        var info = itemMap.get(value);
+        if(info) {
+          var oldIndex = info.index;
+          var hasChanged = oldIndex !== ev.index;
+          if(hasChanged) {
+            info.scope.model.index = info.index = ev.index;
+
+            var existingItem = indexMap.get(ev.index);
+            if(existingItem) {
+              indexMap.set(oldIndex, existingItem);
+            } else {
+              indexMap.delete(oldIndex);
+            }
+            indexMap.set(ev.index, info);
+
+            var ref = indexMap.get(ev.index + 1);
+            if(ref) {
+              ref = ref.nodes[0];
+            }
+
+            var nodeIdx = info.nodes.length - 1;
+            while(nodeIdx >= 0) {
+              placeholder.parentNode.insertBefore(info.nodes[nodeIdx], ref);
+              nodeIdx--;
+            }
+          }
+        } else {
+          remove(ev.index);
+          render(value, ev.index);
+        }
       });
     };
 
-    array.forEach(render);
-
-    Bram.addEventListener(array, Bram.arrayChange, function(ev, value){
-      if(ev.type === 'delete') {
-        //deleteChild(ev.index);
-        //children.splice(index, 1);
-        return;
-      }
-
-      var child;
-      var index = ev.index;
-      var oldIndex = comp.indexOf(value);
-      if(oldIndex !== -1) {
-        var currentChild = children[index];
-        child = children[oldIndex];
-        if(currentChild) {
-          //deleteChild(index);
-        }
-
-        children[index] = child;
-        children[oldIndex] = undefined;
-        child.scope.model.index = index;
-      } else if((child = children[index])) {
-        child.scope.model.item = value;
-      } else {
-        render(value, index);
-      }
-      comp = slice.call(array);
-    });
+    observe(compute());
   },
   if: function(node, parentScope){
     var hydrate = Bram.template(node);
@@ -143,121 +213,114 @@ var live = {
   }
 };
 
-function setupBinding(scope, prop, fn){
-  var set = function(ev, newVal){
-    fn(newVal);
+function setupBinding(scope, parseResult, fn){
+  var compute = parseResult.compute(scope);
+
+  var set = function(){
+    fn(compute());
   };
 
-  var info = scope.read(prop);
-  var model = info.model;
-  if(info.bindable === false) {
-    set({}, model);
-  } else {
-    Bram.addEventListener(model, prop, set);
-    set({}, model[prop]);
-  }
-}
-
-function setupArrayBinding(scope, prop, fn) {
-  var model = scope.read(prop).model,
-    array = model[prop],
-    length = array.length,
-    key = Symbol('bram-array-binding');
-
-  // Change the list when the list itself changes
-  Bram.addEventListener(model, prop, function setArray(){
-    array = model[prop];
-  });
-
-  array.forEach(function(item, i){
-    item[key] = true;
-    setupBinding(array, i, fn);
-  });
-
-  Bram.addEventListener(array, 'length', function(ev, newLength){
-    // TODO new thing to set up.
-    var i, item;
-
-    // Push, look for new items added to the end.
-    if(newLength > length) {
-      i = newLength - 1;
-
-      while((item = array[i]) && !item[key]) {
-        setupBinding(new Scope(array), i, fn);
-
-        i--;
-      }
+  parseResult.props().forEach(function(prop){
+    var info = scope.read(prop);
+    var model = info.model;
+    if(info.bindable !== false) {
+      Bram.addEventListener(model, prop, set);
     }
   });
+
+  set();
 }
 
-var bindingTypes = {
-  auto: 0,
-  oneway: 1
+function ParseResult(){
+  this.values = {};
+  this.raw = '';
+  this.hasBinding = false;
+}
+
+ParseResult.prototype.getValue = function(scope){
+  var prop = this.props()[0];
+  return scope.read(prop).value;
+}
+
+ParseResult.prototype.getStringValue = function(scope){
+  var asc = Object.keys(this.values).sort();
+  var out = this.raw;
+  var i, value;
+  while(asc.length) {
+    i = asc.pop();
+    value = scope.read(this.values[i]).value;
+    out = value ? out.substr(0, i) + value + out.substr(i) : undefined;
+  }
+  return out;
 };
 
-var isBindingChar = makeCharChecker("{}[]");
-var isCallChar = makeCharChecker("()");
+ParseResult.prototype.compute = function(model){
+  return this.count() > 1
+    ? this.getStringValue.bind(this, model)
+    : this.getValue.bind(this, model);
+};
 
-function makeCharChecker(str){
-  var bindingChars = str.split("").reduce(function(acc, cur){
-    acc[cur] = true;
-    return acc;
-  }, {});
-  return function(char){
-    return !!bindingChars[char];
-  };
-}
+ParseResult.prototype.props = function(){
+  return Bram.values(this.values);
+};
 
-function getBindingType(bindingType) {
-  switch(bindingType) {
-    case bindingTypes.auto:
-      return "auto";
-    case bindingTypes.oneway:
-      return "oneway";
+ParseResult.prototype.count = function(){
+  return this.hasBinding === false ? 0 : Object.keys(this.values).length;
+};
+
+ParseResult.prototype.throwIfMultiple = function(msg){
+  if(this.count() > 1) {
+    msg = msg || 'Only a single binding is allowed in this context.';
+    throw new Error(msg);
   }
-}
+};
 
-function parse(expr){
-  var pos = 0, len = expr.length;
-  var inBinding = false;
-  var inCall = false;
-  var char, bindingType;
-  var args = "";
-  var value = "";
-  while(pos < len) {
-    char = expr[pos];
+Bram.parse = parse;
+
+function parse(str){
+  var i = 0,
+    len = str.length,
+    result = new ParseResult(),
+    inBinding = false,
+    lastChar = '',
+    pos = 0,
+    char;
+
+  while(i < len) {
+    lastChar = char;
+    char = str[i];
+
     if(!inBinding) {
-      if(char === "{") {
-        inBinding = true;
-        bindingType = bindingTypes.auto;
-      } else if(char === "[") {
-        inBinding = true;
-        bindingType = bindingTypes.oneway;
-      }
-    } else if(!isBindingChar(char)){
-      if(isCallChar(char) && value) {
-        inCall = true;
-      } else if(inCall) {
-        if(char !== " ") {
-          args += char;
+      if(char === '{') {
+        if(lastChar === '{') {
+          result.hasBinding = true;
+          pos = result.raw.length;
+          if(result.values[pos] != null) {
+            pos++;
+          }
+          result.values[pos] = '';
+          inBinding = true;
         }
-      } else {
-        value += char;
+
+        i++;
+        continue;
       }
+      result.raw += char;
+    } else {
+      if(char === '}') {
+        if(lastChar === '}') {
+          inBinding = false;
+        }
+        i++;
+        continue;
+      }
+      result.values[pos] += char;
     }
-    pos++;
+
+    i++;
   }
 
-  var bindingTypeStr = getBindingType(bindingType);
-
-  return {
-    hasBinding: !!bindingTypeStr,
-    hasCall: inCall,
-    bindingType: bindingTypeStr,
-    args: args.split(","),
-    value: value
-  };
+  return result;
 }
 
 function inspect(node, ref, paths) {
@@ -270,12 +333,13 @@ function inspect(node, ref, paths) {
       if(node.nodeName === 'TEMPLATE' && (templateAttr = specialTemplateAttr(node))) {
         var result = parse(node.getAttribute(templateAttr));
         if(result.hasBinding) {
+          result.throwIfMultiple();
           ignoredAttrs[templateAttr] = true;
           paths[ref.id] = function(node, model){
             if(templateAttr === 'each') {
-              live.each(node, model, result.value, node);
+              live.each(node, model, result, node);
             } else {
-              setupBinding(model, result.value, live[templateAttr](node, model));
+              setupBinding(model, result, live[templateAttr](node, model));
             }
           };
         }
@@ -286,7 +350,7 @@ function inspect(node, ref, paths) {
       var result = parse(node.nodeValue);
       if(result.hasBinding) {
         paths[ref.id] = function(node, model){
-          setupBinding(model, result.value, live.text(node));
+          setupBinding(model, result, live.text(node));
         };
       }
       break;
@@ -302,8 +366,9 @@ function inspect(node, ref, paths) {
 
     var result = parse(attrNode.value);
     if(result.hasBinding) {
+      result.throwIfMultiple();
       paths[ref.id] = function(node, model){
-        setupBinding(model, result.value, live.attr(node, attrNode.name));
+        setupBinding(model, result, live.attr(node, attrNode.name));
       };
     }
   });
@@ -369,6 +434,8 @@ function hydrate(frag, callbacks, scope) {
     return !exit;
   }
 }
+
+Bram.Scope = Scope;
 
 function Scope(model, parent) {
   this.model = model;
@@ -443,14 +510,14 @@ function observe(o, fn) {
   })
 }
 
-var events = Symbol('bram-events');
-Bram.arrayChange = Symbol('bram-array-change');
+var events = Bram.symbol('bram-events');
+Bram.arrayChange = Bram.symbol('bram-array-change');
 
 Bram.model = function(o){
-  o = deepModel(o);
+  o = deepModel(o) || {};
 
   var callback = function(ev, value){
-    var fns = proxy[events][ev.prop];
+    var fns = o[events][ev.prop];
     if(fns) {
       fns.forEach(function(fn){
         fn(ev, value);
@@ -458,20 +525,18 @@ Bram.model = function(o){
     }
   };
 
-  var proxy = observe(o || {}, callback);
-
-  Object.defineProperty(proxy, events, {
+  Object.defineProperty(o, events, {
     value: {},
     enumerable: false
   });
 
-  return proxy;
+  return observe(o, callback);
 };
 
 function deepModel(o) {
   return !o ? o : Object.keys(o).reduce(function(acc, prop){
     var val = o[prop];
-    acc[prop] = (Array.isArray(val) || typeof val === "object")
+    acc[prop] = (Array.isArray(val) || typeof val === 'object')
       ? Bram.model(val)
       : val;
     return acc;
@@ -494,6 +559,13 @@ Bram.addEventListener = function(model, prop, callback){
 
 Bram.off = function(model){
   model[events] = {};
+
+  Object.keys(model).forEach(function(key){
+    var val = model[key];
+    if(Array.isArray(val) || typeof val === 'object') {
+      Bram.off(val);
+    }
+  });
 };
 
 })();

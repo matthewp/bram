@@ -8,12 +8,13 @@ function inspect(node, ref, paths) {
       if(node.nodeName === 'TEMPLATE' && (templateAttr = specialTemplateAttr(node))) {
         var result = parse(node.getAttribute(templateAttr));
         if(result.hasBinding) {
+          result.throwIfMultiple();
           ignoredAttrs[templateAttr] = true;
           paths[ref.id] = function(node, model){
             if(templateAttr === 'each') {
-              live.each(node, model, result.value, node);
+              live.each(node, model, result, node);
             } else {
-              setupBinding(model, result.value, live[templateAttr](node, model));
+              setupBinding(model, result, live[templateAttr](node, model));
             }
           };
         }
@@ -24,7 +25,7 @@ function inspect(node, ref, paths) {
       var result = parse(node.nodeValue);
       if(result.hasBinding) {
         paths[ref.id] = function(node, model){
-          setupBinding(model, result.value, live.text(node));
+          setupBinding(model, result, live.text(node));
         };
       }
       break;
@@ -40,8 +41,9 @@ function inspect(node, ref, paths) {
 
     var result = parse(attrNode.value);
     if(result.hasBinding) {
+      result.throwIfMultiple();
       paths[ref.id] = function(node, model){
-        setupBinding(model, result.value, live.attr(node, attrNode.name));
+        setupBinding(model, result, live.attr(node, attrNode.name));
       };
     }
   });

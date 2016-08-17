@@ -79,6 +79,36 @@
         assert.equal(second.nodeValue, 'Anne');
         assert.equal(third.nodeValue, 'Wilbur');
       });
+
+      it('Can splice out items', function(){
+        data.names.splice(0, 1);
+
+        var first = host.firstChild.nextSibling,
+          second = first.nextSibling;
+
+        assert.equal(first.nodeValue, 'Anne');
+        assert.equal(second.nodeValue, 'Wilbur');
+
+        data.names.splice(0, 1);
+
+        first = host.firstChild.nextSibling;
+        assert.equal(first.nodeValue, 'Wilbur');
+
+        data.names.splice(0, 1);
+
+        first = host.firstChild.nextSibling;
+        assert.equal(first, undefined);
+      });
+
+      it('can replace items with splice', function(){
+        data.names.splice(0, 0, 'French');
+
+        var first = host.firstChild.nextSibling,
+          second = first.nextSibling;
+
+        assert.equal(first.nodeValue, 'French');
+        assert.equal(second.nodeValue, 'Matthew');
+      });
     });
   });
 </script>

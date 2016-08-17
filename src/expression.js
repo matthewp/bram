@@ -1,68 +1,91 @@
-var bindingTypes = {
-  auto: 0,
-  oneway: 1
+function ParseResult(){
+  this.values = {};
+  this.raw = '';
+  this.hasBinding = false;
+}
+
+ParseResult.prototype.getValue = function(scope){
+  var prop = this.props()[0];
+  return scope.read(prop).value;
+}
+
+ParseResult.prototype.getStringValue = function(scope){
+  var asc = Object.keys(this.values).sort();
+  var out = this.raw;
+  var i, value;
+  while(asc.length) {
+    i = asc.pop();
+    value = scope.read(this.values[i]).value;
+    out = value ? out.substr(0, i) + value + out.substr(i) : undefined;
+  }
+  return out;
 };
 
-var isBindingChar = makeCharChecker("{}[]");
-var isCallChar = makeCharChecker("()");
+ParseResult.prototype.compute = function(model){
+  return this.count() > 1
+    ? this.getStringValue.bind(this, model)
+    : this.getValue.bind(this, model);
+};
 
-function makeCharChecker(str){
-  var bindingChars = str.split("").reduce(function(acc, cur){
-    acc[cur] = true;
-    return acc;
-  }, {});
-  return function(char){
-    return !!bindingChars[char];
-  };
-}
+ParseResult.prototype.props = function(){
+  return Bram.values(this.values);
+};
 
-function getBindingType(bindingType) {
-  switch(bindingType) {
-    case bindingTypes.auto:
-      return "auto";
-    case bindingTypes.oneway:
-      return "oneway";
+ParseResult.prototype.count = function(){
+  return this.hasBinding === false ? 0 : Object.keys(this.values).length;
+};
+
+ParseResult.prototype.throwIfMultiple = function(msg){
+  if(this.count() > 1) {
+    msg = msg || 'Only a single binding is allowed in this context.';
+    throw new Error(msg);
   }
-}
+};
 
-function parse(expr){
-  var pos = 0, len = expr.length;
-  var inBinding = false;
-  var inCall = false;
-  var char, bindingType;
-  var args = "";
-  var value = "";
-  while(pos < len) {
-    char = expr[pos];
+Bram.parse = parse;
+
+function parse(str){
+  var i = 0,
+    len = str.length,
+    result = new ParseResult(),
+    inBinding = false,
+    lastChar = '',
+    pos = 0,
+    char;
+
+  while(i < len) {
+    lastChar = char;
+    char = str[i];
+
     if(!inBinding) {
-      if(char === "{") {
-        inBinding = true;
-        bindingType = bindingTypes.auto;
-      } else if(char === "[") {
-        inBinding = true;
-        bindingType = bindingTypes.oneway;
-      }
-    } else if(!isBindingChar(char)){
-      if(isCallChar(char) && value) {
-        inCall = true;
-      } else if(inCall) {
-        if(char !== " ") {
-          args += char;
+      if(char === '{') {
+        if(lastChar === '{') {
+          result.hasBinding = true;
+          pos = result.raw.length;
+          if(result.values[pos] != null) {
+            pos++;
+          }
+          result.values[pos] = '';
+          inBinding = true;
         }
-      } else {
-        value += char;
+
+        i++;
+        continue;
       }
+      result.raw += char;
+    } else {
+      if(char === '}') {
+        if(lastChar === '}') {
+          inBinding = false;
+        }
+        i++;
+        continue;
+      }
+      result.values[pos] += char;
     }
-    pos++;
+
+    i++;
   }
 
-  var bindingTypeStr = getBindingType(bindingType);
-
-  return {
-    hasBinding: !!bindingTypeStr,
-    hasCall: inCall,
-    bindingType: bindingTypeStr,
-    args: args.split(","),
-    value: value
-  };
+  return result;
 }

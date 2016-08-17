@@ -1,3 +1,5 @@
+Bram.Scope = Scope;
+
 function Scope(model, parent) {
   this.model = model;
   this.parent = parent;

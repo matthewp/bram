@@ -41,14 +41,14 @@ function observe(o, fn) {
   })
 }
 
-var events = Symbol('bram-events');
-Bram.arrayChange = Symbol('bram-array-change');
+var events = Bram.symbol('bram-events');
+Bram.arrayChange = Bram.symbol('bram-array-change');
 
 Bram.model = function(o){
-  o = deepModel(o);
+  o = deepModel(o) || {};
 
   var callback = function(ev, value){
-    var fns = proxy[events][ev.prop];
+    var fns = o[events][ev.prop];
     if(fns) {
       fns.forEach(function(fn){
         fn(ev, value);
@@ -56,20 +56,18 @@ Bram.model = function(o){
     }
   };
 
-  var proxy = observe(o || {}, callback);
-
-  Object.defineProperty(proxy, events, {
+  Object.defineProperty(o, events, {
     value: {},
     enumerable: false
   });
 
-  return proxy;
+  return observe(o, callback);
 };
 
 function deepModel(o) {
   return !o ? o : Object.keys(o).reduce(function(acc, prop){
     var val = o[prop];
-    acc[prop] = (Array.isArray(val) || typeof val === "object")
+    acc[prop] = (Array.isArray(val) || typeof val === 'object')
       ? Bram.model(val)
       : val;
     return acc;
@@ -92,4 +90,11 @@ Bram.addEventListener = function(model, prop, callback){
 
 Bram.off = function(model){
   model[events] = {};
+
+  Object.keys(model).forEach(function(key){
+    var val = model[key];
+    if(Array.isArray(val) || typeof val === 'object') {
+      Bram.off(val);
+    }
+  });
 };
