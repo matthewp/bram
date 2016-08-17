@@ -1,23 +1,36 @@
-Bram.element({
-  tag: "click-count",
-  template: "#click-template",
 
-  props: ["count"],
+var template = document.querySelector('#click-template');
 
-  created: function(bind, shadow){
-    var clicks = Rx.Observable.fromEvent(shadow.querySelector('button'), 'click')
-      .map(() => ({ type: 'click' }));
-    Bram.send(this, clicks);
-
-    bind(".count").text(this.count);
+class ClickCount extends HTMLElement {
+  createdCallback() {
+    this.hydrate = Bram.template(template);
+    this.model = Bram.model({
+      count: 0
+    });
   }
-});
 
-var messages = Bram.listen();
+  attachedCallback() {
+    var tree = this.hydrate(this.model);
+    this.appendChild(tree);
 
-var count = messages
-  .filter(ev => ev.type === 'click')
-  .startWith(0)
-  .scan(value => value + 1);
+    this.querySelector('button').addEventListener('click', this);
+  }
 
-document.querySelector('click-count').count = count;
+  detachedCallback() {
+    this.querySelector('button').removeEventListener('click', this);
+  }
+
+  handleEvent(ev){
+    this.count++;
+  }
+
+  get count() {
+    return this.model.count;
+  }
+
+  set count(val){
+    this.model.count = val;
+  }
+}
+
+document.registerElement('click-count', ClickCount);

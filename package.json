@@ -1,10 +1,10 @@
 {
   "name": "bram",
-  "version": "0.3.0",
+  "version": "0.4.0-alpha.0",
   "description": "Web component architecture with Observables",
-  "main": "dist/bram.js",
+  "main": "bram.js",
   "scripts": {
-    "test": "testee test/test.html --browsers firefox"
+    "test": "testee test/simple.html test/lists.html test/model.html test/conditional.html --browsers firefox"
   },
   "keywords": [
     "web",
@@ -12,7 +12,7 @@
     "observables"
   ],
   "files": [
-    "dist/bram.js"
+    "bram.js"
   ],
   "author": "Matthew Phillips",
   "license": "BSD-2-Clause",
@@ -23,5 +23,9 @@
   "homepage": "https://github.com/matthewp/bram",
   "bugs": {
     "url": "https://github.com/matthewp/bram/issues"
+  },
+  "devDependencies": {
+    "mocha-test": "^1.0.3",
+    "webcomponents.js": "^0.7.22"
   }
 }

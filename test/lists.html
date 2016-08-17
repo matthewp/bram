@@ -1,0 +1,118 @@
+<html>
+<head>
+  <title>lists tests</title>
+
+  <script src="../node_modules/webcomponents.js/webcomponents-lite.min.js"></script>
+  <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
+  <script src="../bram.js"></script>
+</head>
+<body>
+<template id="each"><template each="{{names}}">{{item}}</template></template>
+<div id="host"></div>
+<mocha-test>
+<template>
+<script>
+  describe('template[each]', function(){
+    var hydrate = Bram.template(each);
+
+    afterEach(function(){
+      host.innerHTML = '';
+    });
+
+    describe('Existing arrays works', function(){
+      var data;
+
+      beforeEach(function(){
+        data = window.data = Bram.model({
+          names: ['Matthew', 'Anne', 'Wilbur']
+        });
+        var tree = hydrate(data);
+        host.appendChild(tree);
+      });
+
+      it('All items added', function(){
+        var first = host.firstChild.nextSibling,
+          second = first.nextSibling,
+          third = second.nextSibling;
+
+        assert.equal(first.nodeValue, 'Matthew');
+        assert.equal(second.nodeValue, 'Anne');
+        assert.equal(third.nodeValue, 'Wilbur');
+      });
+
+      it('Can unshift an item to the front', function(){
+        data.names.unshift('French');
+
+        var first = host.firstChild.nextSibling,
+          second = first.nextSibling,
+          third = second.nextSibling,
+          fourth = third.nextSibling;
+
+        assert.equal(first.nodeValue, 'French');
+        assert.equal(second.nodeValue, 'Matthew');
+        assert.equal(third.nodeValue, 'Anne');
+        assert.equal(fourth.nodeValue, 'Wilbur');
+      });
+
+      it('Can push an item on the end', function(){
+        data.names.push('French');
+
+        var first = host.firstChild.nextSibling,
+          second = first.nextSibling,
+          third = second.nextSibling,
+          fourth = third.nextSibling;
+
+        assert.equal(first.nodeValue, 'Matthew');
+        assert.equal(second.nodeValue, 'Anne');
+        assert.equal(third.nodeValue, 'Wilbur');
+        assert.equal(fourth.nodeValue, 'French');
+      });
+
+      it('Can change the reference', function(){
+        data.names[0] = 'French';
+
+        var first = host.firstChild.nextSibling,
+          second = first.nextSibling,
+          third = second.nextSibling;
+
+        assert.equal(first.nodeValue, 'French');
+        assert.equal(second.nodeValue, 'Anne');
+        assert.equal(third.nodeValue, 'Wilbur');
+      });
+
+      it('Can splice out items', function(){
+        data.names.splice(0, 1);
+
+        var first = host.firstChild.nextSibling,
+          second = first.nextSibling;
+
+        assert.equal(first.nodeValue, 'Anne');
+        assert.equal(second.nodeValue, 'Wilbur');
+
+        data.names.splice(0, 1);
+
+        first = host.firstChild.nextSibling;
+        assert.equal(first.nodeValue, 'Wilbur');
+
+        data.names.splice(0, 1);
+
+        first = host.firstChild.nextSibling;
+        assert.equal(first, undefined);
+      });
+
+      it('can replace items with splice', function(){
+        data.names.splice(0, 0, 'French');
+
+        var first = host.firstChild.nextSibling,
+          second = first.nextSibling;
+
+        assert.equal(first.nodeValue, 'French');
+        assert.equal(second.nodeValue, 'Matthew');
+      });
+    });
+  });
+</script>
+</template>
+</mocha-test>
+</body>
+</html>

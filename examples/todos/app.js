@@ -1,5 +1,95 @@
 "use strict";
 
+class TodoForm extends HTMLElement {
+  createdCallback() {
+    this.hydrate = Bram.template(document.querySelector('#tmpl-todo-form'));
+  }
+
+  attachedCallback() {
+    var tree = this.hydrate();
+    this.appendChild(tree);
+    this.input = document.querySelector('input');
+
+    this.querySelector('form').addEventListener('submit', this);
+  }
+
+  detachedCallback() {
+    this.querySelector('form').removeEventListener('submit', this);
+  }
+
+  handleEvent(ev) {
+    ev.preventDefault();
+
+    var newEvent = new CustomEvent('new-todo', {
+      bubbles: true,
+      detail: this.input.value
+    });
+    this.dispatchEvent(newEvent);
+
+    this.input.value = '';
+  }
+}
+
+document.registerElement('todo-form', TodoForm);
+
+class TodoList extends HTMLElement {
+  createdCallback() {
+    this.hydrate = Bram.template(document.querySelector('#tmpl-todo-list'));
+    this.model = Bram.model({
+      todos: []
+    });
+  }
+
+  attachedCallback() {
+    var tree = this.hydrate(this.model);
+    this.appendChild(tree);
+
+    this.addEventListener('click', this);
+  }
+
+  detachedCallback() {
+    this.removeEventListener('click', this);
+  }
+
+  handleEvent(ev) {
+    var el = ev.target;
+
+    if(el.nodeName === 'A') {
+      ev.preventDefault();
+
+      var index = +el.dataset.index;
+
+      this.todos.splice(index, 1);
+    }
+  }
+
+  get todos() {
+    return this.model.todos;
+  }
+}
+
+document.registerElement('todo-list', TodoList);
+
+class TodoApp extends HTMLElement {
+  attachedCallback() {
+    this.todoList = this.querySelector('todo-list');
+
+    this.addEventListener('new-todo', this);
+  }
+
+  detachedCallback() {
+    this.removeEventListener('new-todo', this);
+  }
+
+  handleEvent(ev) {
+    var newTodo = ev.detail;
+    this.todoList.todos.push(newTodo);
+  }
+}
+
+document.registerElement('todo-app', TodoApp);
+
+/*
 Bram.element({
   tag: "todo-form",
   template: "#tmpl-todo-form",
@@ -72,3 +162,4 @@ Bram.element({
     bind('#count').text(state.map(s => s.items.length));
   }
 });
+*/

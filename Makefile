@@ -2,9 +2,16 @@ define \n
 
 endef
 
-modules = lib/bram.js
+modules = src/bram.js \
+  src/map.js \
+	src/bindings.js \
+  src/expression.js \
+	src/inspect.js \
+  src/hydrate.js \
+  src/scope.js \
+  src/model.js
 
-dist/bram.js: ${modules}
+bram.js: ${modules}
 	echo ${\n} > $@
 	echo "(function(undefined) {" >> $@
 	echo "'use strict';" >> $@
@@ -13,10 +20,10 @@ dist/bram.js: ${modules}
 	done
 	echo "})();" >> $@
 
-all: dist/bram.js
+all: bram.js
 
-release: dist/bram.js
-	uglifyjs dist/bram.js > dist/bram.min.js
+release: bram.js
+	uglifyjs bram.js > bram.min.js
 
 watch:
-	find lib -name "*.js" | entr make all
+	find src -name "*.js" | entr make all
