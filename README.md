@@ -187,4 +187,4 @@ model.foo = 'bar';
 
 ## License
 
-BSD 2 Clause)
+[BSD 2-Clause](https://opensource.org/licenses/BSD-2-Clause)
