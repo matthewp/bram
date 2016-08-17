@@ -1,8 +1,8 @@
 {
   "name": "bram",
-  "version": "0.3.0",
+  "version": "0.4.0-alpha.0",
   "description": "Web component architecture with Observables",
-  "main": "dist/bram.js",
+  "main": "bram.js",
   "scripts": {
     "test": "testee test/simple.html test/lists.html test/model.html test/conditional.html --browsers firefox"
   },
