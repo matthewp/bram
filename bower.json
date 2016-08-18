@@ -18,6 +18,9 @@
     "node_modules",
     "bower_components",
     "test",
-    "tests"
+    "src",
+    "examples",
+    "Makefile",
+    "package.json"
   ]
 }

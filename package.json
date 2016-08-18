@@ -12,7 +12,9 @@
     "observables"
   ],
   "files": [
-    "bram.js"
+    "bram.js",
+    "bram.min.js",
+    "bram.html"
   ],
   "author": "Matthew Phillips",
   "license": "BSD-2-Clause",
