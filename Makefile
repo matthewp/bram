@@ -9,7 +9,8 @@ modules = src/bram.js \
 	src/inspect.js \
   src/hydrate.js \
   src/scope.js \
-  src/model.js
+  src/model.js \
+  src/onchildren.js
 
 bram.js: ${modules}
 	echo ${\n} > $@

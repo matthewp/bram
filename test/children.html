@@ -1,0 +1,163 @@
+<!doctype html>
+<html>
+<head>
+  <title>Bram.onChildren tests</title>
+
+  <script src="../node_modules/webcomponents.js/webcomponents-lite.min.js"></script>
+  <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
+  <script src="../bram.js"></script>
+</head>
+<body>
+<foo-bar><div class="foobar">Foo bar</div></foo-bar>
+
+<div id="host"></div>
+<mocha-test>
+<template>
+  <script>
+    describe('Upgrades', function(){
+      afterEach(function(){
+        host.innerHTML = '';
+      });
+
+      it('Reports children', function(done){
+        class FooBar extends HTMLElement {
+          attachedCallback() {
+            Bram.onChildren(this, children => {
+              assert.equal(children.length, 1);
+              assert.equal(children.item(0).className, 'foobar');
+              done();
+            });
+          }
+        }
+        document.registerElement('foo-bar', FooBar);
+      });
+    });
+
+    describe('Dynamically created', function(){
+      function later(cb) {
+        setTimeout(cb, 0);
+      }
+
+      it('doesn\'t report if no children', function(done){
+        class MyEl extends HTMLElement {
+          attachedCallback() {
+            Bram.onChildren(this, () => {
+              assert.ok(false, 'This callback shouldn\'t have been called');
+            });
+          }
+        }
+
+        document.registerElement('dynamic-no-children', MyEl);
+
+        var el = document.createElement('dynamic-no-children');
+        host.appendChild(el);
+
+        later(done);
+      });
+
+      it('reports if children exist before insertion', function(done){
+        class MyEl extends HTMLElement {
+          attachedCallback() {
+            Bram.onChildren(this, children => {
+              assert.equal(children.length, 1);
+              assert.equal(children[0].className, 'foobar');
+              done();
+            });
+          }
+        }
+
+        document.registerElement('dynamic-with-children', MyEl);
+
+        var el = document.createElement('dynamic-with-children');
+        var span = document.createElement('span');
+        span.className = 'foobar';
+        el.appendChild(span);
+
+        host.appendChild(el);
+      });
+
+      it('reports if children are added later', function(done){
+        var i = 0;
+
+        class MyEl extends HTMLElement {
+          attachedCallback() {
+            // This is just for timing, to make sure this callback
+            // is called before children are added.
+            assert.equal(i, 0);
+
+            Bram.onChildren(this, children => {
+              assert.equal(children.length, 1);
+              assert.equal(children[0].className, 'foobar');
+              done();
+            });
+          }
+        }
+
+        document.registerElement('dynamic-children', MyEl);
+
+        var el = document.createElement('dynamic-children');
+        host.appendChild(el);
+
+        later(function(){
+          i++;
+          var span = document.createElement('span');
+          span.className = 'foobar';
+          el.appendChild(span);
+        });
+      });
+
+      describe('Called the returned function to unregister', function(){
+        it('Works when elements are added later', function(done){
+          class MyEl extends HTMLElement {
+            attachedCallback() {
+              this.unlisten = Bram.onChildren(this, () => {
+                assert.ok(false, 'this should not have been called');
+              });
+            }
+          }
+
+          document.registerElement('dynamic-unlisten', MyEl);
+
+          var el = document.createElement('dynamic-unlisten');
+          host.appendChild(el);
+
+          later(function(){
+            // Calling this should prevent the callback from being called
+            el.unlisten();
+
+            el.appendChild(document.createElement('span'));
+            later(done);
+          });
+        });
+
+        it.skip('Works to prevent the initial callback call', function(done){
+          var success = true;
+
+          class MyEl extends HTMLElement {
+            attachedCallback() {
+              this.unlisten = Bram.onChildren(this, () => {
+                success = false;
+              });
+            }
+          }
+
+          document.registerElement('dynamic-initial-unregister', MyEl);
+
+          var el = document.createElement('dynamic-initial-unregister');
+          el.appendChild(document.createElement('span'));
+
+          host.appendChild(el);
+
+          el.unlisten();
+          later(function(){
+            assert.ok(success);
+            done();
+          });
+        });
+      });
+    });
+  </script>
+</template>
+</mocha-test>
+</body>
+</html>

@@ -185,6 +185,33 @@ var model = Bram.model();
 model.foo = 'bar';
 ```
 
+### Bram.onChildren
+
+Use **Bram.onChildren** to be notified when your element has received children. This allows you to write more resilent custom elements that take into account the dynamic nature of HTML in the case where you have special behavior depending on children.
+
+```js
+class SortableList extends HTMLElement {
+  attachedCallback() {
+    this.unlisten = Bram.onChildren(this, children => {
+      // children is a NodeList
+      this.sort();
+    });
+  }
+
+  detachedCallback() {
+    // removes the event listener created in attachedCallback
+    this.unlisten();
+  }
+
+  sort() {
+    // Perform some kind of sorting operation
+    var childNodes = this.childNodes;
+  }
+}
+
+document.registerElement('sortable-list', SortableList);
+```
+
 ## License
 
 [BSD 2-Clause](https://opensource.org/licenses/BSD-2-Clause)
