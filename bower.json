@@ -2,7 +2,6 @@
   "name": "bram",
   "description": "Web component architecture with Observables",
   "main": "bram.js",
-  "version": "0.4.0-alpha.1",
   "authors": [
     "Matthew Phillips"
   ],
