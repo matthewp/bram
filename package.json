@@ -13,7 +13,6 @@
   ],
   "files": [
     "bram.js",
-    "bram.min.js",
     "bram.html"
   ],
   "author": "Matthew Phillips",

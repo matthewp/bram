@@ -23,8 +23,5 @@ bram.js: ${modules}
 
 all: bram.js
 
-release: bram.js
-	uglifyjs bram.js > bram.min.js
-
 watch:
 	find src -name "*.js" | entr make all
