@@ -174,6 +174,27 @@ document.body.appendChild(render(model));
 
 Will show all three players as separate `<li>` elements.
 
+#### Properties
+
+You can set properties on an element using the special colon character like `:foo` on attributes. This allows you to pass non-string data to elements.
+
+```html
+<template>
+  <div :foo="{{foo}}">Foo!</div>
+</template>
+```
+
+```js
+var render = Bram.template(document.querySelector('template'));
+var model = Bram.model({
+  foo: 'bar'
+});
+
+document.body.appendChild(render(model));
+```
+
+Will render the `<div>` and set its `foo` property to the string `"bar"`.
+
 ### Bram.model
 
 Use **Bram.model** to create an observable model for use with your templates. If using a browser that doesn't supports [proxies](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) you must pass in initial values for all of your properties so that they can be observed.
