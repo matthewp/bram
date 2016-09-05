@@ -1,0 +1,59 @@
+<html>
+<head>
+  <title>A simple test</title>
+  <script src="../node_modules/webcomponents.js/webcomponents-lite.min.js"></script>
+  <script src="../bram.js"></script>
+  <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
+  <style>
+    .green { background: green; }
+    .red { background: red; }
+    .blue { background: blue; }
+  </style>
+</head>
+<body>
+<template>
+  <div id="tester" :foo="{{foo}}"></div>
+</template>
+<div id="host"></div>
+
+  <script>
+  (function(){
+    var template = document.querySelector('template');
+    var model = window.model = Bram.model({
+      foo: 'bar'
+    });
+
+    var hydrate = Bram.template(template);
+    var tree = hydrate(model);
+    host.appendChild(tree);
+  })();
+  </script>
+  <mocha-test>
+  <template>
+    <script>
+      describe('Setting properties', function(){
+        it('are setting using :prop notation', function(){
+          assert.equal(tester.foo, 'bar', 'was set');
+        });
+
+        it('prop is not included in the resulting fragment', function(){
+          var val = tester.getAttribute(':foo');
+          assert.ok(!val);
+        });
+
+        describe('live-bound', function(){
+          after(function(){
+            model.foo = 'bar';
+          });
+
+          it('works', function(){
+            model.foo = 'qux';
+            assert.equal(tester.foo, 'qux');
+          });
+        });
+      });
+    </script>
+  </template>
+  </mocha-test>
+</body>
+</html>

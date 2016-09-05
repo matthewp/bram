@@ -356,7 +356,6 @@ function inspect(node, ref, paths) {
       break;
   }
 
-
   forEach.call(node.attributes || [], function(attrNode){
     // TODO see if this is important
     ref.id++;
@@ -364,12 +363,21 @@ function inspect(node, ref, paths) {
     if(ignoredAttrs[attrNode.name])
       return;
 
+    var name = attrNode.name;
+    var property = isPropAttr(name);
     var result = parse(attrNode.value);
     if(result.hasBinding) {
       result.throwIfMultiple();
       paths[ref.id] = function(node, model){
-        setupBinding(model, result, live.attr(node, attrNode.name));
+        if(property) {
+          node.removeAttribute(name);
+          setupBinding(model, result, live.prop(node, name.substr(1)));
+          return;
+        }
+        setupBinding(model, result, live.attr(node, name));
       };
+    } else if(property) {
+      console.log('still do this');
     }
   });
 
@@ -390,6 +398,10 @@ function specialTemplateAttr(template){
     if(template.getAttribute(attrName))
       return attrName;
   }
+}
+
+function isPropAttr(name) {
+  return name && name[0] === ':';
 }
 
 
