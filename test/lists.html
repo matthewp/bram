@@ -110,6 +110,33 @@
         assert.equal(second.nodeValue, 'Matthew');
       });
     });
+
+    describe('replacing a list', function(){
+      var data;
+
+      beforeEach(function(){
+        data = Bram.model({
+          names: ['Matthew', 'Anne', 'Wilbur']
+        });
+        var tree = hydrate(data);
+        host.appendChild(tree);
+      });
+
+      it('updates itself', function(){
+        data.names = ['Foo', 'Bar'];
+
+        var first = host.firstChild.nextSibling,
+          second = first.nextSibling;
+
+        assert.equal(first.nodeValue, 'Foo');
+        assert.equal(second.nodeValue, 'Bar');
+
+        data.names.push('Baz');
+        var third = second.nextSibling;
+
+        assert.equal(third.nodeValue, 'Baz');
+      });
+    });
   });
 </script>
 </template>

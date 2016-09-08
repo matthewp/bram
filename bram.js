@@ -94,14 +94,14 @@ var live = {
   },
   each: function(node, parentScope, parseResult){
     var hydrate = Bram.template(node);
-    var compute = parseResult.compute(parentScope);
+    var prop = parseResult.props()[0];
+    var scopeResult = parentScope.read(prop);
+    var placeholder = document.createTextNode('');
+    node.parentNode.replaceChild(placeholder, node);
 
     var observe = function(list){
       var itemMap = new Map();
       var indexMap = new Map();
-
-      var placeholder = document.createTextNode('');
-      node.parentNode.replaceChild(placeholder, node);
 
       var render = function(item, i){
         var scope = parentScope.add(item).add({ item: item, index: i});
@@ -139,7 +139,7 @@ var live = {
 
       list.forEach(render);
 
-      Bram.addEventListener(list, Bram.arrayChange, function(ev, value){
+      var onarraychange = function(ev, value){
         if(ev.type === 'delete') {
           remove(ev.index);
           return;
@@ -175,10 +175,26 @@ var live = {
           remove(ev.index);
           render(value, ev.index);
         }
-      });
+      };
+
+      Bram.addEventListener(list, Bram.arrayChange, onarraychange);
+
+      return function(){
+        for(var i = 0, len = list.length; i < len; i++) {
+          remove(i);
+        }
+        Bram.removeEventListener(list, Bram.arrayChange, onarraychange);
+        itemMap = null;
+        indexMap = null;
+      };
     };
 
-    observe(compute());
+    var teardown = observe(scopeResult.value);
+
+    Bram.addEventListener(scopeResult.model, prop, function(ev, newValue){
+      teardown();
+      teardown = observe(newValue);
+    });
   },
   if: function(node, parentScope){
     var hydrate = Bram.template(node);
@@ -483,10 +499,17 @@ function isArraySet(object, property){
   return Array.isArray(object) && !isNaN(+property);
 }
 
+function isArrayOrObject(object) {
+  return Array.isArray(object) || typeof object === 'object';
+}
+
 function observe(o, fn) {
   return new Proxy(o, {
     set: function(target, property, value) {
       var oldValue = target[property];
+      if(!Bram.isModel(value) && isArrayOrObject(value)) {
+        value = Bram.model(value);
+      }
       target[property] = value;
 
       // If the value hasn't changed, nothing else to do
@@ -567,6 +590,19 @@ Bram.addEventListener = function(model, prop, callback){
     ev = evs[prop] = [];
   }
   ev.push(callback);
+};
+
+Bram.removeEventListener = function(model, prop, callback){
+  var evs = model[events];
+  if(!evs) return;
+  var ev = evs[prop];
+  if(!ev) return;
+  var idx = ev.indexOf(callback);
+  if(idx === -1) return;
+  ev.splice(idx, 1);
+  if(!ev.length) {
+    delete evs[prop];
+  }
 };
 
 Bram.off = function(model){

@@ -17,14 +17,14 @@ var live = {
   },
   each: function(node, parentScope, parseResult){
     var hydrate = Bram.template(node);
-    var compute = parseResult.compute(parentScope);
+    var prop = parseResult.props()[0];
+    var scopeResult = parentScope.read(prop);
+    var placeholder = document.createTextNode('');
+    node.parentNode.replaceChild(placeholder, node);
 
     var observe = function(list){
       var itemMap = new Map();
       var indexMap = new Map();
-
-      var placeholder = document.createTextNode('');
-      node.parentNode.replaceChild(placeholder, node);
 
       var render = function(item, i){
         var scope = parentScope.add(item).add({ item: item, index: i});
@@ -62,7 +62,7 @@ var live = {
 
       list.forEach(render);
 
-      Bram.addEventListener(list, Bram.arrayChange, function(ev, value){
+      var onarraychange = function(ev, value){
         if(ev.type === 'delete') {
           remove(ev.index);
           return;
@@ -98,10 +98,26 @@ var live = {
           remove(ev.index);
           render(value, ev.index);
         }
-      });
+      };
+
+      Bram.addEventListener(list, Bram.arrayChange, onarraychange);
+
+      return function(){
+        for(var i = 0, len = list.length; i < len; i++) {
+          remove(i);
+        }
+        Bram.removeEventListener(list, Bram.arrayChange, onarraychange);
+        itemMap = null;
+        indexMap = null;
+      };
     };
 
-    observe(compute());
+    var teardown = observe(scopeResult.value);
+
+    Bram.addEventListener(scopeResult.model, prop, function(ev, newValue){
+      teardown();
+      teardown = observe(newValue);
+    });
   },
   if: function(node, parentScope){
     var hydrate = Bram.template(node);
