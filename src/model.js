@@ -2,10 +2,17 @@ function isArraySet(object, property){
   return Array.isArray(object) && !isNaN(+property);
 }
 
+function isArrayOrObject(object) {
+  return Array.isArray(object) || typeof object === 'object';
+}
+
 function observe(o, fn) {
   return new Proxy(o, {
     set: function(target, property, value) {
       var oldValue = target[property];
+      if(!Bram.isModel(value) && isArrayOrObject(value)) {
+        value = Bram.model(value);
+      }
       target[property] = value;
 
       // If the value hasn't changed, nothing else to do
@@ -86,6 +93,19 @@ Bram.addEventListener = function(model, prop, callback){
     ev = evs[prop] = [];
   }
   ev.push(callback);
+};
+
+Bram.removeEventListener = function(model, prop, callback){
+  var evs = model[events];
+  if(!evs) return;
+  var ev = evs[prop];
+  if(!ev) return;
+  var idx = ev.indexOf(callback);
+  if(idx === -1) return;
+  ev.splice(idx, 1);
+  if(!ev.length) {
+    delete evs[prop];
+  }
 };
 
 Bram.off = function(model){
