@@ -2,6 +2,7 @@ function ParseResult(){
   this.values = {};
   this.raw = '';
   this.hasBinding = false;
+  this.includesNonBindings = false;
 }
 
 ParseResult.prototype.getValue = function(scope){
@@ -22,7 +23,8 @@ ParseResult.prototype.getStringValue = function(scope){
 };
 
 ParseResult.prototype.compute = function(model){
-  return this.count() > 1
+  var useString = this.includesNonBindings || this.count() > 1;
+  return useString
     ? this.getStringValue.bind(this, model)
     : this.getValue.bind(this, model);
 };
@@ -87,5 +89,6 @@ function parse(str){
     i++;
   }
 
+  result.includesNonBindings = result.raw.length > 0;
   return result;
 }
