@@ -78,7 +78,7 @@ function deepModel(o) {
       ? Bram.model(val)
       : val;
     return acc;
-  }, Object.create(o))
+  }, Array.isArray(o) ? [] : Object.create(o))
 }
 
 Bram.isModel = function(object){
