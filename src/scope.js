@@ -26,6 +26,17 @@ Scope.prototype._read = function(prop){
 }
 
 Scope.prototype.add = function(object){
-  var model = Bram.isModel(object) ? object : Bram.model(object);
+  var model;
+  if(Bram.isModel(object)) {
+    model = object;
+  } else {
+    var type = typeof object;
+    if(Array.isArray(object) || type === "object") {
+      model = Bram.model(object);
+    } else {
+      model = object;
+    }
+  }
+
   return new Scope(model, this);
 };
