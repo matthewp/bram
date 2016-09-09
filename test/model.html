@@ -28,6 +28,50 @@
         model.prop = 'foo';
       });
     });
+
+    describe('Bram.model()', function(){
+      describe('Types', function(){
+        it('getters/setters work', function(){
+          class Animal {
+            get kingdom() {
+              return this.type;
+            }
+          }
+
+          class Person extends Animal {
+            constructor(first, last) {
+              super();
+              this.first = first;
+              this.last = last;
+              this.type = 'mammal';
+            }
+
+            get fullname() {
+              return this.first + ' ' + this.last;
+            }
+          }
+
+          var person = new Person('Wilbur', 'Phillips');
+          var model = Bram.model(person);
+
+          assert.equal(model.fullname, 'Wilbur Phillips');
+          assert.equal(model.kingdom, 'mammal');
+        });
+
+        it('works with extended arrays', function(){
+          class List extends Array {
+            get count() {
+              return this.length;
+            }
+          }
+
+          var list = new List(1, 2);
+          var model = Bram.model(list);
+
+          assert.equal(model.count, 2);
+        });
+      });
+    });
   </script>
 </template>
 </mocha-test>
