@@ -42,7 +42,6 @@ function inspect(node, ref, paths) {
     var property = isPropAttr(name);
     var result = parse(attrNode.value);
     if(result.hasBinding) {
-      result.throwIfMultiple();
       paths[ref.id] = function(node, model){
         if(property) {
           node.removeAttribute(name);

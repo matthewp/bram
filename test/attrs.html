@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <title>attributes tests</title>
+
+  <script src="../node_modules/webcomponents.js/webcomponents-lite.min.js"></script>
+  <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
+  <script src="../bram.js"></script>
+</head>
+<body>
+<template>
+  <a href="/{{foo}}/and/{{bar}}">Hello world</a>
+</template>
+<div id="host"></div>
+<mocha-test>
+<template>
+  <script>
+    describe('multiple values', function(){
+      var anchor;
+
+      beforeEach(function(){
+        var hydrate = Bram.template(document.querySelector('template'));
+        var tree = hydrate(Bram.model({
+          foo: 'baz',
+          bar: 'qux'
+        }));
+        host.appendChild(tree);
+        anchor = host.querySelector('a');
+      });
+
+      afterEach(function(){
+        host.innerHTML = '';
+      });
+
+      it('Parses both values', function(){
+        assert.equal(anchor.getAttribute('href'), '/baz/and/qux');
+      });
+    });
+  </script>
+</template>
+</mocha-test>
+</body>
+</html>
