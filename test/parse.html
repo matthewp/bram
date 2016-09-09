@@ -11,6 +11,18 @@
 <mocha-test>
 <template>
   <script>
+    describe('parse()', function(){
+      it('works with bindings at the end of the string', function(){
+        var result = Bram.parse('/some/{{foo}}');
+        assert.equal(result.hasBinding, true);
+        assert.equal(result.props()[0], 'foo');
+
+        var scope = new Bram.Scope({ foo: 'bar' });
+        var compute = result.compute(scope);
+        assert.equal(compute(), '/some/bar');
+      });
+    });
+
     describe('Parsing text with no magic tags', function(){
       it('hasBinding is false', function(){
         var result = Bram.parse('hello world');
