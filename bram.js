@@ -582,13 +582,21 @@ Bram.model = function(o){
 };
 
 function deepModel(o) {
+  var copy;
+  if(Array.isArray(o)) {
+    copy = slice.call(o);
+  } else {
+    var proto = Object.getPrototypeOf(o),
+    copy = Object.create(proto);
+  }
+
   return !o ? o : Object.keys(o).reduce(function(acc, prop){
     var val = o[prop];
     acc[prop] = (Array.isArray(val) || typeof val === 'object')
       ? Bram.model(val)
       : val;
     return acc;
-  }, Array.isArray(o) ? [] : Object.create(o))
+  }, copy);
 }
 
 Bram.isModel = function(object){
