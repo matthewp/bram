@@ -4,7 +4,7 @@
   "description": "Web component architecture with Observables",
   "main": "bram.js",
   "scripts": {
-    "test": "testee test/simple.html test/model.html test/conditional.html test/lists.html test/texts.html test/parse.html test/children.html test/props.html --browsers firefox"
+    "test": "testee test/simple.html test/model.html test/conditional.html test/lists.html test/texts.html test/parse.html test/children.html test/props.html test/attrs.html --browsers firefox"
   },
   "keywords": [
     "web",
