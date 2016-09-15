@@ -35,6 +35,7 @@ Bram is a small utility for building user interfaces using [web components](http
 
     class ClickCount extends HTMLElement {
       constructor() {
+        super();
         this.hydrate = Bram.template(template);
         this.model = Bram.model({
           count: 0
