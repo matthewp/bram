@@ -31,22 +31,24 @@ Bram is a small utility for building user interfaces using [web components](http
   </template>
   <script src="node_modules/bram/bram.js"></script>
   <script>
+    const template = document.querySelector('#click-template');
+
     class ClickCount extends HTMLElement {
-      createdCallback() {
+      constructor() {
         this.hydrate = Bram.template(template);
         this.model = Bram.model({
           count: 0
         });
       }
 
-      attachedCallback() {
+      connectedCallback() {
         var tree = this.hydrate(this.model);
         this.appendChild(tree);
 
         this.querySelector('button').addEventListener('click', this);
       }
 
-      detachedCallback() {
+      disconnectedCallback() {
         this.querySelector('button').removeEventListener('click', this);
       }
 
@@ -63,7 +65,7 @@ Bram is a small utility for building user interfaces using [web components](http
       }
     }
 
-    document.registerElement('click-count', ClickCount);
+    customElements.define('click-count', ClickCount);
   </script>
 </body>
 </html>
@@ -212,15 +214,15 @@ Use **Bram.onChildren** to be notified when your element has received children. 
 
 ```js
 class SortableList extends HTMLElement {
-  attachedCallback() {
+  connectedCallback() {
     this.unlisten = Bram.onChildren(this, children => {
       // children is a NodeList
       this.sort();
     });
   }
 
-  detachedCallback() {
-    // removes the event listener created in attachedCallback
+  disconnectedCallback() {
+    // removes the event listener created in connectedCallback
     this.unlisten();
   }
 
@@ -230,7 +232,7 @@ class SortableList extends HTMLElement {
   }
 }
 
-document.registerElement('sortable-list', SortableList);
+customElements.define('sortable-list', SortableList);
 ```
 
 ## License
