@@ -585,7 +585,7 @@ function deepModel(o) {
   var copy;
   if(Array.isArray(o)) {
     copy = slice.call(o);
-  } else {
+  } else if(o) {
     var proto = Object.getPrototypeOf(o),
     copy = Object.create(proto);
   }
