@@ -1,23 +1,25 @@
 
-var template = document.querySelector('#click-template');
-
-class ClickCount extends HTMLElement {
-  createdCallback() {
-    this.hydrate = Bram.template(template);
-    this.model = Bram.model({
+class ClickCount extends Bram.Element {
+  static model() {
+    return {
       count: 0
-    });
+    };
   }
 
-  attachedCallback() {
-    var tree = this.hydrate(this.model);
-    this.appendChild(tree);
-
-    this.querySelector('button').addEventListener('click', this);
+  static template() {
+    return document.querySelector('#click-template');
   }
 
-  detachedCallback() {
-    this.querySelector('button').removeEventListener('click', this);
+  connectedCallback() {
+    super.connectedCallback();
+
+    let root = this.shadowRoot;
+    root.querySelector('button').addEventListener('click', this);
+  }
+
+  disconnectedCallback() {
+    let root = this.shadowRoot;
+    root.querySelector('button').removeEventListener('click', this);
   }
 
   handleEvent(ev){
@@ -33,4 +35,4 @@ class ClickCount extends HTMLElement {
   }
 }
 
-document.registerElement('click-count', ClickCount);
+customElements.define('click-count', ClickCount);

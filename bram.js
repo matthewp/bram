@@ -1,7 +1,33 @@
 
 (function(undefined) {
 'use strict';
-var Bram = {};
+function Bram(Element) {
+  return class extends Element {
+    constructor() {
+      super();
+
+      let modelFn = new.target.model;
+      this.model = Bram.model(modelFn ? modelFn() : {});
+
+      let tmplFn = new.target.template;
+      if(tmplFn) {
+        this._hydrate = Bram.template(tmplFn());
+      }
+      this._hasRendered = false;
+    }
+
+    connectedCallback() {
+      if(this._hydrate && !this._hasRendered) {
+        let tree = this._hydrate(this.model);
+        // TODO determine where to render
+        this.attachShadow({ mode: 'open' });
+        this.shadowRoot.appendChild(tree);
+      }
+    }
+  }
+}
+
+Bram.Element = Bram(HTMLElement);
 
 var forEach = Array.prototype.forEach;
 var some = Array.prototype.some;
