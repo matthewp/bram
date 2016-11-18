@@ -1,13 +1,12 @@
 
 class ClickCount extends Bram.Element {
-  static model() {
-    return {
-      count: 0
-    };
-  }
-
   static template() {
     return document.querySelector('#click-template');
+  }
+
+  constructor() {
+    super();
+    this.count = 0;
   }
 
   connectedCallback() {
@@ -24,14 +23,6 @@ class ClickCount extends Bram.Element {
 
   handleEvent(ev){
     this.count++;
-  }
-
-  get count() {
-    return this.model.count;
-  }
-
-  set count(val){
-    this.model.count = val;
   }
 }
 

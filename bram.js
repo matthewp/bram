@@ -6,9 +6,6 @@ function Bram(Element) {
     constructor() {
       super();
 
-      let modelFn = new.target.model;
-      this.model = Bram.model(modelFn ? modelFn() : {});
-
       let tmplFn = new.target.template;
       if(tmplFn) {
         this._hydrate = Bram.template(tmplFn());
@@ -18,10 +15,15 @@ function Bram(Element) {
 
     connectedCallback() {
       if(this._hydrate && !this._hasRendered) {
-        let tree = this._hydrate(this.model);
-        // TODO determine where to render
-        this.attachShadow({ mode: 'open' });
-        this.shadowRoot.appendChild(tree);
+        var model = Bram.model(this);
+        var tree = this._hydrate(model);
+        var renderMode = this.constructor.renderMode;
+        if(renderMode === 'light') {
+          this.appendChild(tree);
+        } else {
+          this.attachShadow({ mode: 'open' });
+          this.shadowRoot.appendChild(tree);
+        }
       }
     }
   }
