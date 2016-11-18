@@ -15,6 +15,13 @@ var live = {
       node[prop] = val;
     };
   },
+  event: function(node, eventName, scope, parseResult){
+    var prop = parseResult.raw;
+    node.addEventListener(eventName, function(ev){
+      var readResult = scope.read(prop);
+      readResult.value.call(readResult.model, ev);
+    });
+  },
   each: function(node, parentScope, parseResult){
     var hydrate = Bram.template(node);
     var prop = parseResult.props()[0];

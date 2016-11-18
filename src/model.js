@@ -51,8 +51,8 @@ function observe(o, fn) {
 var events = Bram.symbol('bram-events');
 Bram.arrayChange = Bram.symbol('bram-array-change');
 
-Bram.model = function(o){
-  o = deepModel(o) || {};
+Bram.model = function(o, skipClone){
+  o = deepModel(o, skipClone) || {};
 
   var callback = function(ev, value){
     var fns = o[events][ev.prop];
@@ -71,9 +71,11 @@ Bram.model = function(o){
   return observe(o, callback);
 };
 
-function deepModel(o) {
+function deepModel(o, skipClone) {
   var copy;
-  if(Array.isArray(o)) {
+  if(skipClone) {
+    copy = o;
+  } else if(Array.isArray(o)) {
     copy = slice.call(o);
   } else if(o) {
     var proto = Object.getPrototypeOf(o),

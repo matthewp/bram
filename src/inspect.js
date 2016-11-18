@@ -51,7 +51,13 @@ function inspect(node, ref, paths) {
         setupBinding(model, result, live.attr(node, name));
       };
     } else if(property) {
-      console.log('still do this');
+      // TODO do something here
+    } else if(name.substr(0, 3) === 'on-') {
+      var eventName = name.substr(3);
+      paths[ref.id] = function(node, model){
+        node.removeAttribute(name);
+        live.event(node, eventName, model, result);
+      };
     }
   });
 

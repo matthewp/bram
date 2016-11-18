@@ -1,6 +1,11 @@
 
 (function(undefined) {
 'use strict';
+var ignoredProps = {
+  _hydrate: true,
+  _hasRendered: true
+};
+
 function Bram(Element) {
   return class extends Element {
     constructor() {
@@ -11,12 +16,17 @@ function Bram(Element) {
         this._hydrate = Bram.template(tmplFn());
       }
       this._hasRendered = false;
+
+      let events = new.target.events;
+      if(events && !new.target._hasSetupEvents) {
+        installEvents(new.target);
+      }
     }
 
     connectedCallback() {
       if(this._hydrate && !this._hasRendered) {
-        var model = Bram.model(this);
-        var tree = this._hydrate(model);
+        this.model = Bram.model(this, true);
+        var tree = this._hydrate(this.model);
         var renderMode = this.constructor.renderMode;
         if(renderMode === 'light') {
           this.appendChild(tree);
@@ -34,6 +44,26 @@ Bram.Element = Bram(HTMLElement);
 var forEach = Array.prototype.forEach;
 var some = Array.prototype.some;
 var slice = Array.prototype.slice;
+
+function installEvents(Element) {
+  Element._hasSetupEvents = true;
+  Element.events().forEach(function(eventName){
+    Object.defineProperty(Element.prototype, 'on' + eventName, {
+      get: function(){
+        return this['_on' + eventName];
+      },
+      set: function(fn){
+        var prop = '_on' + eventName;
+        var cur = this[prop];
+        if(cur) {
+          this.removeEventListener(eventName, cur);
+        }
+        this[prop] = fn;
+        this.addEventListener(eventName, fn);
+      }
+    });
+  });
+}
 
 Bram.values = Object.values || function(obj){
   return Object.keys(obj).reduce(function(acc, key){
@@ -119,6 +149,13 @@ var live = {
     return function(val){
       node[prop] = val;
     };
+  },
+  event: function(node, eventName, scope, parseResult){
+    var prop = parseResult.raw;
+    node.addEventListener(eventName, function(ev){
+      var readResult = scope.read(prop);
+      readResult.value.call(readResult.model, ev);
+    });
   },
   each: function(node, parentScope, parseResult){
     var hydrate = Bram.template(node);
@@ -423,7 +460,13 @@ function inspect(node, ref, paths) {
         setupBinding(model, result, live.attr(node, name));
       };
     } else if(property) {
-      console.log('still do this');
+      // TODO do something here
+    } else if(name.substr(0, 3) === 'on-') {
+      var eventName = name.substr(3);
+      paths[ref.id] = function(node, model){
+        node.removeAttribute(name);
+        live.event(node, eventName, model, result);
+      };
     }
   });
 
@@ -589,8 +632,8 @@ function observe(o, fn) {
 var events = Bram.symbol('bram-events');
 Bram.arrayChange = Bram.symbol('bram-array-change');
 
-Bram.model = function(o){
-  o = deepModel(o) || {};
+Bram.model = function(o, skipClone){
+  o = deepModel(o, skipClone) || {};
 
   var callback = function(ev, value){
     var fns = o[events][ev.prop];
@@ -609,9 +652,11 @@ Bram.model = function(o){
   return observe(o, callback);
 };
 
-function deepModel(o) {
+function deepModel(o, skipClone) {
   var copy;
-  if(Array.isArray(o)) {
+  if(skipClone) {
+    copy = o;
+  } else if(Array.isArray(o)) {
     copy = slice.call(o);
   } else if(o) {
     var proto = Object.getPrototypeOf(o),

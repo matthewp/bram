@@ -9,19 +9,7 @@ class ClickCount extends Bram.Element {
     this.count = 0;
   }
 
-  connectedCallback() {
-    super.connectedCallback();
-
-    let root = this.shadowRoot;
-    root.querySelector('button').addEventListener('click', this);
-  }
-
-  disconnectedCallback() {
-    let root = this.shadowRoot;
-    root.querySelector('button').removeEventListener('click', this);
-  }
-
-  handleEvent(ev){
+  inc() {
     this.count++;
   }
 }
