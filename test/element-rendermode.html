@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+<head>
+  <title>elements tests</title>
+
+  <script src="../node_modules/webcomponents.js/webcomponents-lite.min.js"></script>
+  <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
+  <script src="../bram.js"></script>
+</head>
+<body>
+  <template id="someTemplate">
+    <span>{{msg}}</span>
+  </template>
+  <default-element id="defaultElement"></default-element>
+  <light-element id="lightElement"></light-element>
+  <shadow-element id="shadowElement"></shadow-element>
+<div id="host"></div>
+<mocha-test>
+<template>
+  <script>
+    describe("renderMode", function(){
+      describe('default', function(){
+        before(function(){
+          class MyElement extends Bram.Element {
+            static template(){
+              return someTemplate;
+            }
+            constructor() {
+              super();
+              this.msg = 'default';
+            }
+          }
+          customElements.define('default-element', MyElement);
+        });
+
+        it('Renders to shadowRoot by default', function(){
+          let root = defaultElement.shadowRoot;
+          let txt = root.firstElementChild.textContent;
+
+          assert.equal(txt, 'default');
+        });
+      });
+
+      describe('light', function(){
+        before(function(){
+          class LightElement extends Bram.Element {
+            static template() {
+              return "#someTemplate";
+            }
+            static get renderMode() {
+              return 'light';
+            }
+            constructor() {
+              super();
+              this.msg = 'light';
+            }
+          }
+
+          customElements.define('light-element', LightElement);
+        });
+
+        it('"light" renders to the element\'s light DOM', function(){
+          let root = lightElement;
+          let txt = root.firstElementChild.textContent;
+
+          assert.equal(txt, 'light');
+        });
+      });
+
+      describe('shadow', function(){
+        before(function(){
+          class ShadowElement extends Bram.Element {
+            static template() {
+              return '#someTemplate';
+            }
+            static get renderMode() {
+              return 'shadow';
+            }
+            constructor() {
+              super();
+              this.msg = 'shadow';
+            }
+          }
+          customElements.define('shadow-element', ShadowElement);
+        });
+
+        it('renders the the element\'s shadowRoot', function(){
+          let root = shadowElement.shadowRoot;
+          let txt = root.firstElementChild.textContent;
+
+          assert.equal(txt, 'shadow');
+        });
+      });
+    });
+  </script>
+</template>
+</mocha-test>
+</body>
+</html>

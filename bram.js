@@ -1,25 +1,21 @@
 
 (function(undefined) {
 'use strict';
-var ignoredProps = {
-  _hydrate: true,
-  _hasRendered: true
-};
-
 function Bram(Element) {
   return class extends Element {
     constructor() {
       super();
 
-      let tmplFn = new.target.template;
+      var Element = this.constructor;
+      let tmplFn = Element.template;
       if(tmplFn) {
         this._hydrate = Bram.template(tmplFn());
       }
       this._hasRendered = false;
 
-      let events = new.target.events;
-      if(events && !new.target._hasSetupEvents) {
-        installEvents(new.target);
+      let events = Element.events;
+      if(events && !Element._hasSetupEvents) {
+        installEvents(Element);
       }
     }
 
@@ -653,23 +649,13 @@ Bram.model = function(o, skipClone){
 };
 
 function deepModel(o, skipClone) {
-  var copy;
-  if(skipClone) {
-    copy = o;
-  } else if(Array.isArray(o)) {
-    copy = slice.call(o);
-  } else if(o) {
-    var proto = Object.getPrototypeOf(o),
-    copy = Object.create(proto);
-  }
-
   return !o ? o : Object.keys(o).reduce(function(acc, prop){
     var val = o[prop];
     acc[prop] = (Array.isArray(val) || typeof val === 'object')
       ? Bram.model(val)
       : val;
     return acc;
-  }, copy);
+  }, o);
 }
 
 Bram.isModel = function(object){

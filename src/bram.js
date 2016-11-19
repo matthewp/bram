@@ -1,22 +1,18 @@
-var ignoredProps = {
-  _hydrate: true,
-  _hasRendered: true
-};
-
 function Bram(Element) {
   return class extends Element {
     constructor() {
       super();
 
-      let tmplFn = new.target.template;
+      var Element = this.constructor;
+      let tmplFn = Element.template;
       if(tmplFn) {
         this._hydrate = Bram.template(tmplFn());
       }
       this._hasRendered = false;
 
-      let events = new.target.events;
-      if(events && !new.target._hasSetupEvents) {
-        installEvents(new.target);
+      let events = Element.events;
+      if(events && !Element._hasSetupEvents) {
+        installEvents(Element);
       }
     }
 

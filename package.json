@@ -4,7 +4,7 @@
   "description": "Web component architecture with Observables",
   "main": "bram.js",
   "scripts": {
-    "test": "testee test/simple.html test/model.html test/conditional.html test/lists.html test/texts.html test/parse.html test/children.html test/props.html test/attrs.html --browsers firefox"
+    "test": "testee test/simple.html test/model.html test/conditional.html test/lists.html test/texts.html test/parse.html test/children.html test/props.html test/attrs.html test/element.html test/element-rendermode.html test/element-event-prop.html test/declarative-events.html --browsers firefox"
   },
   "keywords": [
     "web",
@@ -26,7 +26,8 @@
     "url": "https://github.com/matthewp/bram/issues"
   },
   "devDependencies": {
-    "mocha-test": "^1.0.3",
+    "mocha-test": "^2.0.1",
+    "rollup": "^0.36.0",
     "webcomponents.js": "^0.7.22"
   }
 }
