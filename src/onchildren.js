@@ -1,3 +1,5 @@
+// TODO make this part of the main API
+
 Bram.onChildren = function(element, callback){
   var cancelled = false;
   var report = function(){

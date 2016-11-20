@@ -1,3 +1,10 @@
+import stamp from './stamp.js';
+import {
+  arrayChange,
+  on,
+  off
+} from './model.js';
+import { slice } from './util.js';
 
 var live = {
   attr: function(node, attrName){
@@ -23,7 +30,7 @@ var live = {
     });
   },
   each: function(node, parentScope, parseResult){
-    var hydrate = Bram.template(node);
+    var hydrate = stamp(node);
     var prop = parseResult.props()[0];
     var scopeResult = parentScope.read(prop);
     var placeholder = document.createTextNode('');
@@ -107,13 +114,13 @@ var live = {
         }
       };
 
-      Bram.addEventListener(list, Bram.arrayChange, onarraychange);
+      on(list, arrayChange, onarraychange);
 
       return function(){
         for(var i = 0, len = list.length; i < len; i++) {
           remove(i);
         }
-        Bram.removeEventListener(list, Bram.arrayChange, onarraychange);
+        off(list, arrayChange, onarraychange);
         itemMap = null;
         indexMap = null;
       };
@@ -121,13 +128,13 @@ var live = {
 
     var teardown = observe(scopeResult.value);
 
-    Bram.addEventListener(scopeResult.model, prop, function(ev, newValue){
+    on(scopeResult.model, prop, function(ev, newValue){
       teardown();
       teardown = observe(newValue);
     });
   },
   if: function(node, parentScope){
-    var hydrate = Bram.template(node);
+    var hydrate = stamp(node);
     var rendered = false;
     var child = {};
     var placeholder = document.createTextNode('');
@@ -167,12 +174,16 @@ function setupBinding(scope, parseResult, fn){
   };
 
   parseResult.props().forEach(function(prop){
-    var info = scope.read(prop);
+    var info = scope.readInTransaction(prop);
     var model = info.model;
     if(info.bindable !== false) {
-      Bram.addEventListener(model, prop, set);
+      info.reads.forEach(function(read){
+        on(read[0], read[1], set);
+      });
     }
   });
 
   set();
 }
+
+export { live, setupBinding };

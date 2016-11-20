@@ -1,27 +1,16 @@
-define \n
+.PHONY: bram bram-umd minify
 
-endef
+bram:
+	node_modules/.bin/rollup -o bram.js src/bram.js
 
-modules = src/bram.js \
-  src/map.js \
-	src/bindings.js \
-  src/expression.js \
-	src/inspect.js \
-  src/hydrate.js \
-  src/scope.js \
-  src/model.js \
-  src/onchildren.js
+bram-umd:
+	node_modules/.bin/rollup -o bram.umd.js -f umd -n Bram src/global.js
 
-bram.js: ${modules}
-	echo ${\n} > $@
-	echo "(function(undefined) {" >> $@
-	echo "'use strict';" >> $@
-	for mod in ${modules} ; do \
-    cat >> $@ $$mod && echo ${\n} >> $@ ; \
-	done
-	echo "})();" >> $@
+minify:
+	node_modules/.bin/babili bram.js > bram.min.js
+	node_modules/.bin/babili bram.umd.js > bram.umd.min.js
 
-all: bram.js
+all: bram bram-umd minify
 
 watch:
-	find src -name "*.js" | entr make all
+	find src -name "*.js" | entr make bram-umd

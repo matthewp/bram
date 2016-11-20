@@ -11,16 +11,22 @@ ParseResult.prototype.getValue = function(scope){
 }
 
 ParseResult.prototype.getStringValue = function(scope){
-  var asc = Object.keys(this.values).sort();
+  var asc = Object.keys(this.values).sort(function(a, b) {
+    return +a > +b ? 1 : -1;
+  })
   var out = this.raw;
   var i, value;
   while(asc.length) {
     i = asc.pop();
     value = scope.read(this.values[i]).value;
-    out = value ? out.substr(0, i) + value + out.substr(i) : undefined;
+    if(value != null) {
+      out = out.substr(0, i) + (value || '') + out.substr(i);
+    }
+    //out = value ? out.substr(0, i) + value + out.substr(i) : undefined;
   }
   return out;
 };
+import { values as collectValues } from './util.js';
 
 ParseResult.prototype.compute = function(model){
   var useString = this.includesNonBindings || this.count() > 1;
@@ -30,7 +36,7 @@ ParseResult.prototype.compute = function(model){
 };
 
 ParseResult.prototype.props = function(){
-  return Bram.values(this.values);
+  return collectValues(this.values);
 };
 
 ParseResult.prototype.count = function(){
@@ -43,8 +49,6 @@ ParseResult.prototype.throwIfMultiple = function(msg){
     throw new Error(msg);
   }
 };
-
-Bram.parse = parse;
 
 function parse(str){
   var i = 0,
@@ -73,6 +77,8 @@ function parse(str){
 
         i++;
         continue;
+      } else if(lastChar === '{') {
+        result.raw += lastChar;
       }
       result.raw += char;
     } else {
@@ -92,3 +98,5 @@ function parse(str){
   result.includesNonBindings = result.raw.length > 0;
   return result;
 }
+
+export default parse;

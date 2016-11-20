@@ -1,4 +1,5 @@
-Bram.Scope = Scope;
+import { isModel, toModel } from './model.js';
+import Transaction from './transaction.js';
 
 function Scope(model, parent) {
   this.model = model;
@@ -10,6 +11,14 @@ Scope.prototype.read = function(prop){
     model: this.model,
     value: undefined
   };
+};
+
+Scope.prototype.readInTransaction = function(prop) {
+  var transaction = new Transaction();
+  transaction.start();
+  var info = this.read(prop);
+  info.reads = transaction.stop();
+  return info;
 };
 
 Scope.prototype._read = function(prop){
@@ -27,12 +36,12 @@ Scope.prototype._read = function(prop){
 
 Scope.prototype.add = function(object){
   var model;
-  if(Bram.isModel(object)) {
+  if(isModel(object)) {
     model = object;
   } else {
     var type = typeof object;
     if(Array.isArray(object) || type === "object") {
-      model = Bram.model(object);
+      model = toModel(object);
     } else {
       model = object;
     }
@@ -40,3 +49,5 @@ Scope.prototype.add = function(object){
 
   return new Scope(model, this);
 };
+
+export default Scope;

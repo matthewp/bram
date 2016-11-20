@@ -1,3 +1,7 @@
+import { on, off, toModel } from './model.js';
+import Scope from './scope.js';
+import stamp from './stamp.js';
+
 function Bram(Element) {
   return class extends Element {
     constructor() {
@@ -6,9 +10,12 @@ function Bram(Element) {
       var Element = this.constructor;
       let tmplFn = Element.template;
       if(tmplFn) {
-        this._hydrate = Bram.template(tmplFn());
+        this._hydrate = stamp(tmplFn());
       }
       this._hasRendered = false;
+
+      let model = Element.model;
+      this.model = toModel(model ? model() : {});
 
       let events = Element.events;
       if(events && !Element._hasSetupEvents) {
@@ -18,8 +25,8 @@ function Bram(Element) {
 
     connectedCallback() {
       if(this._hydrate && !this._hasRendered) {
-        this.model = Bram.model(this, true);
-        var tree = this._hydrate(this.model);
+        var scope = new Scope(this).add(this.model);
+        var tree = this._hydrate(scope);
         var renderMode = this.constructor.renderMode;
         if(renderMode === 'light') {
           this.appendChild(tree);
@@ -32,11 +39,12 @@ function Bram(Element) {
   }
 }
 
-Bram.Element = Bram(HTMLElement);
-
-var forEach = Array.prototype.forEach;
-var some = Array.prototype.some;
-var slice = Array.prototype.slice;
+var Element = Bram(HTMLElement);
+Bram.Element = Element;
+Bram.model = toModel;
+Bram.on = on;
+Bram.off = off;
+Bram.template = stamp;
 
 function installEvents(Element) {
   Element._hasSetupEvents = true;
@@ -58,35 +66,7 @@ function installEvents(Element) {
   });
 }
 
-Bram.values = Object.values || function(obj){
-  return Object.keys(obj).reduce(function(acc, key){
-    acc.push(obj[key]);
-    return acc;
-  }, []);
+export {
+  Element,
+  Bram as default
 };
-
-Bram.template = function(template){
-  template = (template instanceof HTMLTemplateElement) ? template : document.querySelector(template);
-  var paths = inspect(template.content, {id:0}, {});
-
-  return function(scope){
-    if(!(scope instanceof Scope)) {
-      scope = new Scope(scope);
-    }
-
-    var frag = document.importNode(template.content, true);
-    hydrate(frag, paths, scope);
-    return frag;
-  };
-};
-
-Bram.symbol = typeof Symbol === 'function' ? Symbol :
-  function(str){
-    return '@@-' + str;
-  };
-
-if(typeof module === "object" && module.exports) {
-  module.exports = Bram;
-} else {
-  window.Bram = Bram;
-}
