@@ -1,5 +1,5 @@
 class Hand extends Bram.Element {
-  static template() {
+  static get template() {
     return handTemplate;
   }
 

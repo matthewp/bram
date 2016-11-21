@@ -1,4 +1,4 @@
-import { on, off, toModel } from './model.js';
+import { on, off, isModel, toModel } from './model.js';
 import Scope from './scope.js';
 import stamp from './stamp.js';
 import { asap } from './util.js';
@@ -9,14 +9,14 @@ function Bram(Element) {
       super();
 
       var Element = this.constructor;
-      let tmplFn = Element.template;
-      if(tmplFn) {
-        this._hydrate = stamp(tmplFn());
+      let tmpl = Element.template;
+      if(tmpl) {
+        this._hydrate = stamp(tmpl);
       }
       this._hasRendered = false;
 
-      let model = Element.model;
-      this.model = toModel(model ? model() : {});
+      // Initially an empty object
+      this.model = {};
 
       let events = Element.events;
       if(events && !Element._hasSetupEvents) {
@@ -26,6 +26,10 @@ function Bram(Element) {
 
     connectedCallback() {
       if(this._hydrate && !this._hasRendered) {
+        if(!isModel(this.model)) {
+          this.model = toModel(this.model);
+        }
+
         var scope = new Scope(this).add(this.model);
         var tree = this._hydrate(scope);
         var renderMode = this.constructor.renderMode;
