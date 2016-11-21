@@ -2,7 +2,8 @@
   "name": "bram",
   "version": "0.4.0-alpha.7",
   "description": "Web component architecture with Observables",
-  "main": "bram.js",
+  "main": "bram.umd.js",
+  "esnext:main": "bram.js",
   "scripts": {
     "build-es": "rollup -o b.js src/bram.js",
     "build-umd": "rollup -o b.js -f umd -n Bram src/global.js",

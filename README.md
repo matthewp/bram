@@ -194,14 +194,56 @@ form.onnamechanged = function(ev){
 
 ### templating
 
+#### Conditionals
 
+To conditionally render, use an **if** attribute on an inner template.
+
+```html
+<template id="user-template">
+  <h1>User {{name}}</h1>
+
+  <template if="{{isAdmin}}"> 
+    <h2>Admin section</h2>
+  </template>
+</template>
+
+<user-page></user-page>
+```
+
+Any time `isAdmin` changes value, the template will either be removed or readded.
+
+```js
+class UserPage extends Bram.Element {
+  static get template() {
+    return '#user-template';
+  }
+
+  constructor() {
+    // Not an admin by default
+    this.model.isAdmin = false;
+  }
+
+  set isAdmin(val) {
+    this.model.isAdmin = !!val;
+  }
+}
+
+customElements.define('user-page', UserPage);
+
+let page = new UserPage();
+document.body.appendChild(page);
+
+page.isAdmin = true; // Admin section is shown.
+
+page.isAdmin = false; // Admin section is removed.
+```
 
 #### Looping over arrays
 
-To loop over an array use an inner template with the `each` attribute. Like so:
+To loop over an array use an inner template with the **each** attribute. Like so:
 
 ```html
-<template>
+<template id="player-template">
   <h2>Volleyball players</h2>
 
   <ul>
@@ -212,21 +254,28 @@ To loop over an array use an inner template with the `each` attribute. Like so:
     </template>
   </ul>
 </template>
+
+<player-list></player-list>
 ```
 
 Rendered with this data:
 
 ```js
-var render = Bram.template(document.querySelector('template'));
-var model = Bram.model({
-  players: [
-    { name: 'Matthew' },
-    { name: 'Anne' },
-    { name: 'Wilbur' }
-  ]
-});
+class PlayerList extends Bram.Element {
+  static get template() {
+    return '#player-template';
+  }
 
-document.body.appendChild(render(model));
+  constructor() {
+    this.model.players = [
+      { name: 'Matthew' },
+      { name: 'Anne' },
+      { name: 'Wilbur' }
+    ];
+  }
+}
+
+customElements.define('player-list', PlayerList);
 ```
 
 Will show all three players as separate `<li>` elements.
@@ -236,18 +285,25 @@ Will show all three players as separate `<li>` elements.
 You can set properties on an element using the special colon character like `:foo` on attributes. This allows you to pass non-string data to elements.
 
 ```html
-<template>
+<template id="foo-template">
   <div :foo="{{foo}}">Foo!</div>
 </template>
+
+<foo-el></foo-el>
 ```
 
 ```js
-var render = Bram.template(document.querySelector('template'));
-var model = Bram.model({
-  foo: 'bar'
-});
+class Foo extends Bram.Element {
+  static get template() {
+    return '#foo-template';
+  }
 
-document.body.appendChild(render(model));
+  constructor() {
+    this.model.foo = 'bar';
+  }
+}
+
+customElements.define('foo-el', Foo);
 ```
 
 Will render the `<div>` and set its `foo` property to the string `"bar"`.
