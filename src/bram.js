@@ -1,6 +1,7 @@
 import { on, off, toModel } from './model.js';
 import Scope from './scope.js';
 import stamp from './stamp.js';
+import { asap } from './util.js';
 
 function Bram(Element) {
   return class extends Element {
@@ -35,6 +36,15 @@ function Bram(Element) {
           this.shadowRoot.appendChild(tree);
         }
       }
+      if(this.childrenConnectedCallback) {
+        this._disconnectChildMO = setupChildMO(this);
+      }
+    }
+
+    disconnectedCallback() {
+      if(this._disconnectChildMO) {
+        this._disconnectChildMO();
+      }
     }
   }
 }
@@ -64,6 +74,34 @@ function installEvents(Element) {
       }
     });
   });
+}
+
+var SUPPORTS_MO = typeof MutationObserver === 'function';
+
+function setupChildMO(inst) {
+  var cancelled = false;
+  var report = function(){
+    if(!cancelled) {
+      inst.childrenConnectedCallback();
+    }
+  };
+
+  if(!SUPPORTS_MO) {
+    asap(report);
+    return;
+  }
+
+  var mo = new MutationObserver(report);
+  mo.observe(inst, { childList: true });
+
+  if(inst.childNodes.length) {
+    asap(report);
+  }
+
+  return function(){
+    cancelled = true;
+    mo.disconnect();
+  };
 }
 
 export {
