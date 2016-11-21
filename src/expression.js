@@ -20,9 +20,8 @@ ParseResult.prototype.getStringValue = function(scope){
     i = asc.pop();
     value = scope.read(this.values[i]).value;
     if(value != null) {
-      out = out.substr(0, i) + (value || '') + out.substr(i);
+      out = out.substr(0, i) + value + out.substr(i);
     }
-    //out = value ? out.substr(0, i) + value + out.substr(i) : undefined;
   }
   return out;
 };

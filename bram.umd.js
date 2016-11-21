@@ -280,9 +280,8 @@ ParseResult.prototype.getStringValue = function(scope){
     i = asc.pop();
     value = scope.read(this.values[i]).value;
     if(value != null) {
-      out = out.substr(0, i) + (value || '') + out.substr(i);
+      out = out.substr(0, i) + value + out.substr(i);
     }
-    //out = value ? out.substr(0, i) + value + out.substr(i) : undefined;
   }
   return out;
 };
@@ -647,14 +646,14 @@ function Bram$1(Element) {
       super();
 
       var Element = this.constructor;
-      let tmplFn = Element.template;
-      if(tmplFn) {
-        this._hydrate = stamp(tmplFn());
+      let tmpl = Element.template;
+      if(tmpl) {
+        this._hydrate = stamp(tmpl);
       }
       this._hasRendered = false;
 
-      let model = Element.model;
-      this.model = toModel(model ? model() : {});
+      // Initially an empty object
+      this.model = {};
 
       let events = Element.events;
       if(events && !Element._hasSetupEvents) {
@@ -664,6 +663,10 @@ function Bram$1(Element) {
 
     connectedCallback() {
       if(this._hydrate && !this._hasRendered) {
+        if(!isModel(this.model)) {
+          this.model = toModel(this.model);
+        }
+
         var scope = new Scope(this).add(this.model);
         var tree = this._hydrate(scope);
         var renderMode = this.constructor.renderMode;

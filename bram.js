@@ -12,6 +12,39 @@ var forEach = Array.prototype.forEach;
 var some = Array.prototype.some;
 var slice = Array.prototype.slice;
 
+class Transaction {
+  static add(t) {
+    this.current = t;
+    this.stack.push(t);
+  }
+
+  static remove() {
+    this.stack.pop();
+    this.current = this.stack[this.stack.length - 1];
+  }
+
+  static observe(model, prop) {
+    if(this.current) {
+      this.current.stack.push([model, prop]);
+    }
+  }
+
+  constructor() {
+    this.stack = [];
+  }
+
+  start() {
+    Transaction.add(this);
+  }
+
+  stop() {
+    Transaction.remove();
+    return this.stack;
+  }
+}
+
+Transaction.stack = [];
+
 function isArraySet(object, property){
   return Array.isArray(object) && !isNaN(+property);
 }
@@ -21,7 +54,11 @@ function isArrayOrObject(object) {
 }
 
 function observe(o, fn) {
-  return new Proxy(o, {
+  var proxy = new Proxy(o, {
+    get: function(target, property) {
+      Transaction.observe(proxy, property);
+      return target[property];
+    },
     set: function(target, property, value) {
       var oldValue = target[property];
       if(!isModel(value) && isArrayOrObject(value)) {
@@ -59,7 +96,8 @@ function observe(o, fn) {
 
       return true;
     }
-  })
+  });
+  return proxy;
 }
 
 var events = symbol('bram-events');
@@ -134,6 +172,14 @@ Scope.prototype.read = function(prop){
   };
 };
 
+Scope.prototype.readInTransaction = function(prop) {
+  var transaction = new Transaction();
+  transaction.start();
+  var info = this.read(prop);
+  info.reads = transaction.stop();
+  return info;
+};
+
 Scope.prototype._read = function(prop){
   var val = this.model[prop];
   if(val != null) {
@@ -182,7 +228,8 @@ function hydrate(frag, callbacks, scope) {
 
   function traverse(node){
     var exit;
-    some.call(node.attributes || [], function(){
+    var attributes = slice.call(node.attributes || []);
+    some.call(attributes, function(){
       exit = check(node);
       if(exit) {
         return true;
@@ -218,13 +265,17 @@ ParseResult.prototype.getValue = function(scope){
 };
 
 ParseResult.prototype.getStringValue = function(scope){
-  var asc = Object.keys(this.values).sort();
+  var asc = Object.keys(this.values).sort(function(a, b) {
+    return +a > +b ? 1 : -1;
+  });
   var out = this.raw;
   var i, value;
   while(asc.length) {
     i = asc.pop();
     value = scope.read(this.values[i]).value;
-    out = value ? out.substr(0, i) + value + out.substr(i) : undefined;
+    if(value != null) {
+      out = out.substr(0, i) + value + out.substr(i);
+    }
   }
   return out;
 };
@@ -277,6 +328,8 @@ function parse(str){
 
         i++;
         continue;
+      } else if(lastChar === '{') {
+        result.raw += lastChar;
       }
       result.raw += char;
     } else {
@@ -465,10 +518,12 @@ function setupBinding(scope, parseResult, fn){
   };
 
   parseResult.props().forEach(function(prop){
-    var info = scope.read(prop);
+    var info = scope.readInTransaction(prop);
     var model = info.model;
     if(info.bindable !== false) {
-      on(model, prop, set);
+      info.reads.forEach(function(read){
+        on(read[0], read[1], set);
+      });
     }
   });
 
@@ -516,19 +571,22 @@ function inspect(node, ref, paths) {
       return;
 
     var name = attrNode.name;
-    var property = isPropAttr(name);
+    var property = propAttr(name);
     var result = parse(attrNode.value);
     if(result.hasBinding) {
       paths[ref.id] = function(node, model){
         if(property) {
           node.removeAttribute(name);
-          setupBinding(model, result, live.prop(node, name.substr(1)));
+          setupBinding(model, result, live.prop(node, property));
           return;
         }
         setupBinding(model, result, live.attr(node, name));
       };
     } else if(property) {
-      // TODO do something here
+      paths[ref.id] = function(node){
+        node.removeAttribute(name);
+        live.prop(node, property)(attrNode.value);
+      };
     } else if(name.substr(0, 3) === 'on-') {
       var eventName = name.substr(3);
       paths[ref.id] = function(node, model){
@@ -557,8 +615,8 @@ function specialTemplateAttr(template){
   }
 }
 
-function isPropAttr(name) {
-  return name && name[0] === ':';
+function propAttr(name) {
+  return (name && name[0] === ':') && name.substr(1);
 }
 
 var stamp = function(template){
@@ -582,11 +640,14 @@ function Bram(Element) {
       super();
 
       var Element = this.constructor;
-      let tmplFn = Element.template;
-      if(tmplFn) {
-        this._hydrate = stamp(tmplFn());
+      let tmpl = Element.template;
+      if(tmpl) {
+        this._hydrate = stamp(tmpl);
       }
       this._hasRendered = false;
+
+      // Initially an empty object
+      this.model = {};
 
       let events = Element.events;
       if(events && !Element._hasSetupEvents) {
@@ -596,8 +657,12 @@ function Bram(Element) {
 
     connectedCallback() {
       if(this._hydrate && !this._hasRendered) {
-        this.model = toModel(this, true);
-        var tree = this._hydrate(this.model);
+        if(!isModel(this.model)) {
+          this.model = toModel(this.model);
+        }
+
+        var scope = new Scope(this).add(this.model);
+        var tree = this._hydrate(scope);
         var renderMode = this.constructor.renderMode;
         if(renderMode === 'light') {
           this.appendChild(tree);
@@ -613,6 +678,8 @@ function Bram(Element) {
 var Element = Bram(HTMLElement);
 Bram.Element = Element;
 Bram.model = toModel;
+Bram.on = on;
+Bram.off = off;
 Bram.template = stamp;
 
 function installEvents(Element) {

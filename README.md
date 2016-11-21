@@ -20,49 +20,30 @@ Bram is a small utility for building user interfaces using [web components](http
 <html>
 <head>
   <title>Click counter</title>
+  <script src="node_modules/bram/bram.umd.js"></script>
 </head>
 <body>
   <click-count></click-count>
 
   <template id="click-template">
-    <button type="button">Click me</button>
+    <button type="button" on-click="increment">Click me</button>
 
-    {{count}}
+    <h1>Clicks: {{count}}</h1>
   </template>
-  <script src="node_modules/bram/bram.js"></script>
+  
   <script>
-    const template = document.querySelector('#click-template');
-
-    class ClickCount extends HTMLElement {
+    class ClickCount extends Bram.Element {
+      static get template() {
+        return '#click-template';
+      }
+      
       constructor() {
         super();
-        this.hydrate = Bram.template(template);
-        this.model = Bram.model({
-          count: 0
-        });
+        this.model.count = 0;
       }
 
-      connectedCallback() {
-        var tree = this.hydrate(this.model);
-        this.appendChild(tree);
-
-        this.querySelector('button').addEventListener('click', this);
-      }
-
-      disconnectedCallback() {
-        this.querySelector('button').removeEventListener('click', this);
-      }
-
-      handleEvent(ev){
-        this.count++;
-      }
-
-      get count() {
-        return this.model.count;
-      }
-
-      set count(val){
-        this.model.count = val;
+      increment() {
+        this.model.count++;
       }
     }
 
@@ -93,54 +74,127 @@ Then add the scripts to your page at the end of the `<body>` tag.
 ```html
 <html>
 <body>
-  <script src="path/to/bram.js"></script>
+  <script src="path/to/bram.umd.js"></script>
 </body>
 </html>
 ```
 
 ## API
 
-### Bram.template
+### Bram.Element
 
-Given a `<template>` element, creates a function that can be called to render the template based on some model (using Bram.model, below).
-
-Templates support the magic tag `{{` and `}}` that should be familiar if you've used Mustache or Handlebars. A template might look like:
-
-```html
-<template>
-  <span>Hello {{name}}</span>
-</template>
-```
-
-When can be rendered like:
+The primary base class for extending elements. Deriving your classes from **Bram.Element** gives you templating, observable models and more.
 
 ```js
-var render = Bram.template(document.querySelector('template'));
-var model = Bram.model();
+class MyWidget extends Bram.Element {
 
-document.body.appendChild(render(model));
-
-model.name = 'World!';
+}
 ```
 
-Which will cause the page to display "Hello World!". The model can be modified at any time and the live-binding will cause the page to be updated to reflect those changes.
+If using the ES6 build you can do either of these:
 
-#### Conditionals
+```js
+import Bram from './path/to/bram.js';
 
-Bram templates support conditionals using inner templates with an `if` attribute like so:
 
-```html
-<template>
-  <h1>User {{name}}</h1>
+class MyWidget extends Bram.Element {
 
-  <template if="{{isAdmin}}">
-    <h2>Admin stuff here</h2>
-  </template>
-
-</template>
+}
 ```
 
-In this example, the inner template will be rendered only if `isAdmin` resolves to a truthy value.
+or
+
+```js
+import { Element } from './path/to/bram.js';
+
+class MyWidget extends Element {
+
+}
+```
+
+#### Bram
+
+Additionally **Bram** is a function that takes an element and returns an extended version. This can be used to extend elements other than HTMLElement:
+
+```js
+class FancyButton extends Bram(HTMLButtonElement) {
+
+}
+```
+
+#### template
+
+The static getter **template** is used if you want to render a template to your element. You can return either a selector like:
+
+```js
+class MyWidget extends Bram.Element {
+  static get template() {
+    return '#my-template';
+  }
+}
+```
+
+Or the template element itself:
+
+```js
+const myTemplate = document.querySelector('#my-template');
+
+class MyWidget extends Bram.Element {
+  static get template() {
+    return myTemplate;
+  }
+}
+```
+
+#### renderMode
+
+By default Bram renders to the element's `shadowRoot`, but you can change this if you don't want to use Shadow DOM. You might do this if you don't want to add the Shadow DOM polyfill, or your element depends on global styles.
+
+```js
+class MyWidget {
+  static get renderMode() {
+    return 'light';
+  }
+}
+```
+
+Valid options are:
+
+* **shadow** (the default) renders to the Shadow DOM. You never need to add this unless you just want to be explicit.
+* **light** renders to the element itself (the template becomes a child).
+
+#### events
+
+Specify custom events that your element emits. Bram will set up `onevent` properties for each of these events, as is common with most built in elements. This also will make your component compatible with React, see [this thread](https://github.com/facebook/react/issues/7901).
+
+```js
+class UserForm extends Bram.Element {
+  static get events() {
+    return ['namechanged']
+  }
+
+  ...
+
+  changeName(newName) {
+    this.name = newName;
+    this.dispatchEvent(new CustomEvents('namechanged', {
+      detail: newName
+    }));
+  }
+}
+
+customElements.define('user-form', UserForm);
+
+let form = new UserForm();
+form.onnamechanged = function(ev){
+  // This is called when the user's name changes
+  console.log(ev.detail);
+};
+```
+
+### templating
+
+
 
 #### Looping over arrays
 
