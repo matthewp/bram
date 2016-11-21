@@ -2,7 +2,7 @@
 
 ![Bram Stoker](http://i.imgur.com/VaBL9oL.jpg)
 
-Bram is a small utility for building user interfaces using [web components](http://webcomponents.org/). Unlike other libraries in this space, Bram is not a framework and instead encourages you to use the browser's own apis. Today Bram provides observable models and simple templates.
+Bram is a 3k [web components](http://webcomponents.org/) library with everything you need to build reactive user interfaces. Bram embraces ES2015, the `<template>` element, and [Proxys](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy).
 
 [![build status](https://img.shields.io/travis/matthewp/bram/master.svg?style=flat-square)](https://travis-ci.org/matthewp/bram)
 [![npm version](https://img.shields.io/npm/v/bram.svg?style=flat-square)](https://www.npmjs.com/package/bram)
@@ -192,7 +192,32 @@ form.onnamechanged = function(ev){
 };
 ```
 
-### templating
+#### childrenConnectedCallback
+
+The **childrenConnectedCallback** is a callback on the element's prototype. Use this to be notified when your element has received children. This allows you to write more resilent custom elements that take into account the dynamic nature of HTML in the case where you have special behavior depending on children.
+
+```js
+class SortableList extends Bram.Element {
+  childrenConnectedCallback() {
+    this.sort();
+  }
+
+  sort() {
+    // Perform some kind of sorting operation
+    var childNodes = this.childNodes;
+  }
+}
+
+customElements.define('sortable-list', SortableList);
+```
+
+### Templating
+
+One of Bram's biggest advantages is its declarative template syntax with automatic binding.
+
+Each `Bram.Element` contains an object called `this.model` which drives the template. Any changes to `this.model`, whether they change a property, add a new property, remove a property, or reorder an Array, will result in the template being updated to reflect those changes.
+
+Bram's templates support conditionals and loops, and allow declarative binding on *properties*, *attributes*, *text*, and *events*.
 
 #### Conditionals
 
@@ -308,42 +333,36 @@ customElements.define('foo-el', Foo);
 
 Will render the `<div>` and set its `foo` property to the string `"bar"`.
 
-### Bram.model
+#### Events
 
-Use **Bram.model** to create an observable model for use with your templates. If using a browser that doesn't supports [proxies](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) you must pass in initial values for all of your properties so that they can be observed.
+Events can be assigned to an element using the `on-` notation on attributes. This example handle a form being submitted:
 
-```js
-var model = Bram.model();
+```html
+<template id="user-form">
+  <form on-submit="handleSubmit">
+    <input name="user-name" placeholder="Your name">
+  </form>
+</template>
 
-// The template will know about this change.
-model.foo = 'bar';
+<user-form></user-form>
 ```
 
-### Bram.onChildren
-
-Use **Bram.onChildren** to be notified when your element has received children. This allows you to write more resilent custom elements that take into account the dynamic nature of HTML in the case where you have special behavior depending on children.
+This will call the `handleSubmit` method on the user-form element:
 
 ```js
-class SortableList extends HTMLElement {
-  connectedCallback() {
-    this.unlisten = Bram.onChildren(this, children => {
-      // children is a NodeList
-      this.sort();
-    });
+class UserForm extends Bram.Element {
+  static get template() {
+    return '#user-form';
   }
 
-  disconnectedCallback() {
-    // removes the event listener created in connectedCallback
-    this.unlisten();
-  }
+  handleSubmit(ev) {
+    ev.preventDefault();
 
-  sort() {
-    // Perform some kind of sorting operation
-    var childNodes = this.childNodes;
+    // User fetch() or something instead
   }
 }
 
-customElements.define('sortable-list', SortableList);
+customElements.define('user-form', UserForm);
 ```
 
 ## License
