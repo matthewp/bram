@@ -1,33 +1,23 @@
 <html>
 <head>
   <title>Todo app</title>
+  <script src="../../../bram.umd.js" defer></script>
+  <script src="./app.js" defer></script>
 </head>
 <body>
-  <todo-app>
-    <todo-form></todo-form>
-    <todo-list></todo-list>
-  </todo-app>
-
-  <template id="tmpl-todo-app">
-    <content></content>
-    <strong>Count: <span id="count"></span></strong>
-  </template>
-  <template id="tmpl-todo-form">
-    <form>
-      <input type="text" name="item" placeholder="What todo?" />
+  <template id="todo-template">
+    <form on-submit="addTodo">
+      <input type="text" name="todo" placeholder="What to do?">
+      <button type="submit">Add</button>
     </form>
-  </template>
-  <template id="tmpl-todo-list">
+
     <ul>
-    <template each="{{todos}}">
-      <li>
-        <a href="#" data-index="{{index}}">x</a>
-        <span class="todo">{{item}}</span>
-      </li>
-    </template>
+      <template each="{{todos}}">
+        <li>{{item}}</li>
+      </template>
     </ul>
   </template>
-  <script src="../../bram.js"></script>
-  <script src="./app.js"></script>
+
+  <todo-list></todo-list>
 </body>
 </html>

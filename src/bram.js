@@ -22,6 +22,12 @@ function Bram(Element) {
       if(events && !Element._hasSetupEvents) {
         installEvents(Element);
       }
+
+      let props = !Element._hasInstalledProps && Element.observedProperties;
+      if(props) {
+        Element._hasInstalledProps = true;
+        installProps(Element, props, Element.observedAttributes);
+      }
     }
 
     connectedCallback() {
@@ -48,6 +54,14 @@ function Bram(Element) {
     disconnectedCallback() {
       if(this._disconnectChildMO) {
         this._disconnectChildMO();
+      }
+    }
+
+    attributeChangedCallback(name, oldVal, newVal) {
+      var sa = this.constructor._syncedAttrs;
+      var synced = sa && sa[name];
+      if(synced && this[name] !== newVal) {
+        this[name] = newVal;
       }
     }
   }
@@ -77,6 +91,41 @@ function installEvents(Element) {
         this.addEventListener(eventName, fn);
       }
     });
+  });
+}
+
+function installProps(Element, props, attributes = []) {
+  Element._syncedAttrs = {};
+  var proto = Element.prototype;
+  props.forEach(function(prop){
+    var desc = Object.getOwnPropertyDescriptor(proto, prop);
+    if(!desc) {
+      var hasAttr = attributes.indexOf(prop) !== -1;
+      if(hasAttr) {
+        Element._syncedAttrs[prop] = true;
+      }
+      Object.defineProperty(proto, prop, {
+        get: function() {
+          return this.model[prop];
+        },
+        set: function(val) {
+          this.model[prop] = val;
+          if(hasAttr) {
+            var cur = this.getAttribute(prop);
+            if(typeof val === 'boolean') {
+              if(val && cur !== '') {
+                this.setAttribute(prop, '');
+              } else if(cur === '' && !val) {
+                this.removeAttribute(prop);
+              }
+              return;
+            } else if(cur !== val) {
+              this.setAttribute(prop, val);
+            }
+          }
+        }
+      });
+    }
   });
 }
 

@@ -3,8 +3,13 @@
 <head>
   <title>Bram</title>
   <link rel="stylesheet" href="./styles.css">
+
+  <script src="../bram.umd.js" defer></script>
+  <script src="./examples/tabs/tabs.js" defer></script>
+  <script src="./examples/todos/app.js" defer></script>
 </head>
 <body>
+  <link rel="stylesheet" href="./index.css">
   <div class="hero">
     <div class="hero-container">
       <figure>
@@ -14,16 +19,77 @@
         <figcaption>Bram</figcaption>
       </figure>
 
-      <h1 class="hero-caption">A fast 3kb web components library</h1>
+      <h1 class="hero-caption">A fast 3kB web components library</h1>
     </div>
   </div>
   <main>
-    <div class="installation">
+    <section class="installation">
       <h1>Install the latest:</h1>
       <div class="install-command">npm install bram --save</div>
-    </div>
+    </section>
 
-    <h1>Bram</h1>
+    <section class="example example-todo">
+      <div class="example-code">
+        <bram-tabs>
+          <bram-panel title="HTML">
+            <pre><code class="html">
+&lt;template id=&quot;todo-template&quot;&gt;
+  &lt;form on-submit=&quot;addTodo&quot;&gt;
+    &lt;input type=&quot;text&quot; name=&quot;todo&quot;
+      placeholder=&quot;What to do?&quot;&gt;
+    &lt;button type=&quot;submit&quot;&gt;Add&lt;/button&gt;
+  &lt;/form&gt;
+
+  &lt;ul&gt;
+    &lt;template each=&quot;{{todos}}&quot;&gt;
+      &lt;li&gt;{{item}}&lt;/li&gt;
+    &lt;/template&gt;
+  &lt;/ul&gt;
+&lt;/template&gt;
+            </code></pre>
+          </bram-panel>
+          <bram-panel title="JavaScript">
+            <pre><code>
+class TodoList extends Bram.Element {
+  static get template() {
+    return '#todo-template';
+  }
+
+  constructor() {
+    super();
+    this.model.todos = [];
+  }
+
+  addTodo(ev) {
+    ev.preventDefault();
+    let input = ev.target.todo;
+    let value = input.value;
+    this.model.todos.push(value);
+    input.value = '';
+  }
+}
+
+customElements.define('todo-list', TodoList);
+            </code></pre>
+          </bram-panel>
+        </bram-tabs>
+      </div>
+      <div class="example-live">
+        <todo-list></todo-list>
+      </div>
+      <template id="todo-template">
+        <form on-submit="addTodo">
+          <input type="text" name="todo" placeholder="What to do?">
+          <button type="submit">Add</button>
+        </form>
+
+        <ul>
+          <template each="{{todos}}">
+            <li>{{item}}</li>
+          </template>
+        </ul>
+      </template>
+    </section>
 
     <p>Bacon ipsum dolor amet sausage tenderloin hamburger turkey, pork loin tongue venison beef ground round jowl ham hock swine cupim kielbasa frankfurter. Cupim flank chicken salami shank meatball pork chop short ribs pig. Frankfurter pork loin turkey kielbasa short ribs jowl sausage bacon pastrami tail andouille leberkas bresaola chuck. Frankfurter fatback pork chop, ball tip chuck meatloaf tail picanha shank jerky ribeye sirloin pancetta chicken swine. Corned beef short ribs drumstick ham cow. Shank landjaeger t-bone, short ribs sausage andouille leberkas spare ribs.
 
@@ -47,9 +113,42 @@ Meatloaf kielbasa corned beef, sirloin biltong ball tip andouille shank salami j
 
 Does your lorem ipsum text long for something a little meatier? Give our generator a try… it’s tasty!</p>
   </main>
+  <template id="tabs-template">
+    <style>
+      ul {
+        list-style-type: none;
+        padding: 0;
+        margin-bottom: 0;
+      }
+      li {
+        background: var(--alt-bg-color, #000);
+        display: inline-block;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+      }
+
+      li a {
+        color: var(--spec-fg-color, #fff);
+        text-decoration: none;
+        padding: 0 1.3em;
+        line-height: 2.1em;
+      }
+    </style>
+    <ul>
+      <template each="{{titles}}">
+        <li>
+          <a href="#" on-click="setActive" data-index="{{index}}">{{item}}</a>
+        </li>
+      </template>
+    </ul>
+    <slot></slot>
+  </template>
+  <script src="./scripts/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
   <!-- For reference:
     http://www.colorcombos.com/color-schemes/244/ColorCombo244.html
     https://color.adobe.com/create/color-wheel/?base=2&rule=Shades&selected=1&name=My%20Color%20Theme&mode=rgb&rgbvalues=0.5454545454545454,0.7159090909090289,0.75,0.3636363636363636,0.47727272727268594,0.5,0.7272727272727272,0.9545454545453719,1,0.18823529411764706,0.24705882352941178,0.25882352941176473,0.6545454545454544,0.8590909090908347,0.9&swatchOrder=0,1,2,3,4
   -->
+
 </body>
 </html>

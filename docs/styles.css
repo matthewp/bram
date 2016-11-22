@@ -26,16 +26,16 @@ body {
   text-align: center;
 }
 
-.hero .logo {
+.logo {
   height: 160px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   background: #fff;
-  /*transform: scale(.75, .75);*/
+  box-shadow: 0 0 30px #F8A50E;
 }
 
-.hero .logo img {
+.logo img {
   width: 160px;
   height: 105px;
 }
@@ -47,7 +47,7 @@ body {
 .hero-container figcaption {
   font-size: 200%;
   font-weight: bold;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
 .hero-caption {

@@ -8,7 +8,7 @@ var values = Object.values || function(obj){
   }, []);
 };
 
-var asap = typeof Promise === 'object' ? cb => Promise.resolve().then(cb) : cb => setTimeout(_ => cb(), 0);
+var asap = typeof Promise === 'function' ? cb => Promise.resolve().then(cb) : cb => setTimeout(_ => cb(), 0);
 
 var forEach = Array.prototype.forEach;
 var some = Array.prototype.some;
