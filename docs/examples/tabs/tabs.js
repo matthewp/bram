@@ -28,6 +28,8 @@ class BramTabs extends Bram.Element {
       if(!this.active && i === 0) {
         child.active = true;
         this.active = child;
+        this.activeTab = this.shadowRoot.querySelector('li');
+        this.activeTab.classList.add('active');
       }
     });
   }
@@ -37,9 +39,12 @@ class BramTabs extends Bram.Element {
     var idx = +ev.target.dataset.index;
     if(this.active) {
       this.active.active = false;
+      this.activeTab.classList.remove('active');
     }
     this.active = this.children[idx];
     this.active.active = true;
+    this.activeTab = ev.target.parentNode;
+    this.activeTab.classList.add('active');
   }
 }
 

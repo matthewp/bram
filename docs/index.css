@@ -2,6 +2,10 @@
 
 @import "./styles/hljs/atom-one-dark.css";
 
+:root {
+  --code-bg-color: #282c34;
+}
+
 section {
   margin-bottom: 64px;
 }

@@ -13,9 +13,7 @@
   <div class="hero">
     <div class="hero-container">
       <figure>
-        <div class="logo">
-          <img src="./images/bats-4.png" />
-        </div>
+        <img class="logo" src="./images/bram.svg" height="180" width="180" />
         <figcaption>Bram</figcaption>
       </figure>
 
@@ -23,6 +21,16 @@
     </div>
   </div>
   <main>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="./api.html">API</a></li>
+        <li><a href="./guide.html">Guide</a></li>
+        <li><a href="https://github.com/matthewp/bram">GitHub</a></li>
+      </ul>
+    </nav>
+    <hr class="nav-rule" />
+
     <section class="installation">
       <h1>Install the latest:</h1>
       <div class="install-command">npm install bram --save</div>
@@ -126,12 +134,15 @@ Does your lorem ipsum text long for something a little meatier? Give our generat
         border-top-left-radius: 5px;
         border-top-right-radius: 5px;
       }
+      li.active {
+        background: var(--code-bg-color, #000);
+      }
 
       li a {
+        display: block;
         color: var(--spec-fg-color, #fff);
         text-decoration: none;
-        padding: 0 1.3em;
-        line-height: 2.1em;
+        padding: .5em 1.3em;
       }
     </style>
     <ul>

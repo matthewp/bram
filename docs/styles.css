@@ -26,20 +26,6 @@ body {
   text-align: center;
 }
 
-.logo {
-  height: 160px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  background: #fff;
-  box-shadow: 0 0 30px #F8A50E;
-}
-
-.logo img {
-  width: 160px;
-  height: 105px;
-}
-
 .hero-container figure {
   margin-top: 8em;
 }
@@ -47,7 +33,7 @@ body {
 .hero-container figcaption {
   font-size: 200%;
   font-weight: bold;
-  margin-top: 15px;
+  margin-top: 5px;
 }
 
 .hero-caption {
@@ -61,6 +47,40 @@ main {
   color: var(--main-fg-color);
   padding: 3em;
 }
+
+/* Navigation */
+.main-nav ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+}
+
+.main-nav li {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.main-nav a,
+.main-nav a:visited {
+  color: #fff;
+  text-decoration: none;
+}
+
+.main-nav a:hover {
+  color: var(--main-fg-color);
+}
+
+.nav-rule {
+  border-style: solid;
+  background: var(--spec-fg-color);
+  border-color: var(--spec-fg-color);
+  margin-bottom: 30px;
+  margin-top: 15px;
+  width: 80%;
+}
+/* End navigation */
 
 /* Installation */
 .installation {
