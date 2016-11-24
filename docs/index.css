@@ -6,8 +6,21 @@
   --code-bg-color: #282c34;
 }
 
+.subtext {
+  font-size: .8em;
+}
+
+.subtext a,
+.subtext a:visited {
+  color: var(--main-fg-color);
+}
+
 section {
   margin-bottom: 64px;
+}
+
+.section-header {
+  text-align: center;
 }
 
 bram-tabs {
@@ -37,4 +50,10 @@ bram-panel pre {
   flex: 1;
   padding-top: 50px;
   margin-left: 30px;
+}
+
+todo-list {
+  display: block;
+  background: var(--alt-bg-color);
+  padding: 10px 15px;
 }

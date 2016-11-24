@@ -34,8 +34,12 @@
     <section class="installation">
       <h1>Install the latest:</h1>
       <div class="install-command">npm install bram --save</div>
+      <p class="subtext">Or download a <a href="https://github.com/matthewp/bram/releases">release</a>.</p>
     </section>
 
+    <h1 class="section-header">Examples</h1>
+
+    <h2 class="example-header">Todo app</h2>
     <section class="example example-todo">
       <div class="example-code">
         <bram-tabs>
@@ -54,6 +58,8 @@
     &lt;/template&gt;
   &lt;/ul&gt;
 &lt;/template&gt;
+
+&lt;todo-list&gt;&lt;/todo-list&gt;
             </code></pre>
           </bram-panel>
           <bram-panel title="JavaScript">
@@ -86,6 +92,22 @@ customElements.define('todo-list', TodoList);
         <todo-list></todo-list>
       </div>
       <template id="todo-template">
+        <style>
+          input {
+            padding: 5px 10px;
+            border: 1px solid var(--code-bg-color);
+            font-size: 100%;
+          }
+          button {
+            background-color: var(--code-bg-color);
+            border: none;
+            color: #fff;
+            font-size: 100%;
+            font-family: var(--serif-family);
+            padding: 5px 13px;
+            outline: none;
+          }
+        </style>
         <form on-submit="addTodo">
           <input type="text" name="todo" placeholder="What to do?">
           <button type="submit">Add</button>

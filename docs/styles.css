@@ -2,6 +2,7 @@
   --main-fg-color: #A7DBE5;
   --spec-fg-color: #B9F3FF;
   --alt-bg-color: #5D7A7F;
+  --serif-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 html, body {
