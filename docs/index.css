@@ -10,11 +10,6 @@
   font-size: .8em;
 }
 
-.subtext a,
-.subtext a:visited {
-  color: var(--main-fg-color);
-}
-
 section {
   margin-bottom: 64px;
 }
@@ -47,6 +42,7 @@ bram-panel pre {
   flex: 1.5;
 }
 .example-live {
+  position: relative;
   flex: 1;
   padding-top: 50px;
   margin-left: 30px;
@@ -57,3 +53,17 @@ todo-list {
   background: var(--alt-bg-color);
   padding: 10px 15px;
 }
+
+/* Advantage section */
+.why-bram {
+  display: flex;
+}
+
+.advantage {
+  flex: 1;
+  margin: 0 10px;
+}
+.advantage h2 {
+  text-align: center;
+}
+/* End advantage section */

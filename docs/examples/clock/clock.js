@@ -1,6 +1,6 @@
 class AnalogClock extends Bram.Element {
   static get template() {
-    return clockTemplate;
+    return '#clock-template';
   }
 
   constructor() {

@@ -1,6 +1,10 @@
 class Hand extends Bram.Element {
   static get template() {
-    return handTemplate;
+    return '#hand-template';
+  }
+
+  static get observedProperties() {
+    return ['width', 'degree', 'color']
   }
 
   static get observedAttributes() {
@@ -9,24 +13,7 @@ class Hand extends Bram.Element {
 
   constructor() {
     super();
-
     this.color = '#aaa';
-  }
-
-  attributeChangedCallback(attr, oldVal, newVal) {
-    this[attr] = newVal;
-  }
-
-  set color(val) {
-    this.model.color = val;
-  }
-
-  get width() {
-    return this.model.width;
-  }
-
-  set width(val) {
-    this.model.width = val;
   }
 
   get height() {
@@ -35,14 +22,6 @@ class Hand extends Bram.Element {
 
   get borderRadius() {
     return this.width / 2;
-  }
-
-  get degree() {
-    return this.model.degree;
-  }
-
-  set degree(val) {
-    this.model.degree = val;
   }
 
   get handTransform() {
