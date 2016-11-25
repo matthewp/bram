@@ -48,6 +48,36 @@ bram-panel pre {
   margin-left: 30px;
 }
 
+@media only screen and (max-device-width: 767px) {
+  .main-hero {
+    display: flex;
+    align-items: center;
+  }
+
+  .example {
+    flex-wrap: wrap;
+  }
+
+  .example-code {
+    max-width: 100%;
+  }
+
+  .example-live {
+    margin-left: 0;
+    padding-top: 0;
+  }
+
+  bram-panel pre {
+    font-size: 1em;
+  }
+}
+
+@media only screen and (min-device-width: 768px) {
+  .main-hero {
+    display: none;
+  }
+}
+
 todo-list {
   display: block;
   background: var(--alt-bg-color);
@@ -65,5 +95,14 @@ todo-list {
 }
 .advantage h2 {
   text-align: center;
+}
+
+@media only screen and (max-device-width: 767px) {
+  .why-bram {
+    flex-flow: column;
+  }
+  .advantage {
+    height: 100%;
+  }
 }
 /* End advantage section */

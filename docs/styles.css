@@ -1,8 +1,9 @@
 :root {
+  --alt-bg-color: #5D7A7F;
   --main-fg-color: #A7DBE5;
   --spec-fg-color: #B9F3FF;
-  --alt-bg-color: #5D7A7F;
   --alt-fg-color: #CCC580;
+  --link-fg-color: #FFD3E5;
   --serif-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -110,4 +111,18 @@ main {
 
 @media only screen and (min-device-width : 768px) {
 
+}
+
+@media only screen and (max-device-width: 767px) {
+  body {
+    display: block;
+  }
+
+  .hero {
+    display: none;
+  }
+
+  main {
+    padding: 1em;
+  }
 }
