@@ -5,10 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./styles.css">
 
-  <script src="./bram.umd.js" defer></script>
-  <script src="./examples/tabs/tabs.js" defer></script>
-  <script src="./examples/todos/app.js" defer></script>
-  <script src="./examples/pull-requests/prs.js" defer></script>
+  <link rel="preload" href="./examples/tabs/tabs.js" as="script">
+  <link rel="preload" href="./examples/todos/app.js" as="script">
+  <link rel="preload" href="./examples/pull-requests/prs.js" as="script">
+  <link rel="preload" href="./bram.umd.js" as="script">
+  <script>
+  (function(){
+    let sd = typeof ShadowRoot === 'function';
+    let ce = typeof customElements === 'object';
+
+    let waiting = [];
+    if(!sd) {
+      waiting.push(load('./scripts/shadydom.min.js'));
+    }
+    if(!ce) {
+      waiting.push(load('./scripts/custom-elements.min.js'));
+    }
+
+    Promise.all(waiting)
+    .then(function(){
+      return load('./bram.umd.js');
+    })
+    .then(function(){
+      return Promise.all([
+        './examples/tabs/tabs.js',
+        './examples/todos/app.js',
+        'examples/pull-requests/prs.js'
+      ].map(function(url){
+        return load(url);
+      }));
+    })
+    .then(function(){
+      return load('./scripts/highlight.pack.js');
+    }).then(function(){
+      hljs.initHighlighting();
+    });
+
+    function load(pth){
+      let script = document.createElement('script');
+      script.src = pth;
+
+      return new Promise(function(resolve, reject){
+        script.onload = function(){
+          resolve();
+        };
+        document.head.appendChild(script);
+      });
+    }
+  })();
+  </script>
 </head>
 <body>
   <link rel="stylesheet" href="./index.css">
@@ -72,7 +117,7 @@
             </code></pre>
           </bram-panel>
           <bram-panel title="JavaScript">
-            <pre><code>
+            <pre><code class="javascript">
 class TodoList extends Bram.Element {
   static get template() {
     return '#todo-template';
@@ -156,7 +201,7 @@ customElements.define('todo-list', TodoList);
             </code></pre>
           </bram-panel>
           <bram-panel title="JavaScript">
-            <pre><code class="js">
+            <pre><code class="javascript">
 class GitHubStars extends Bram.Element {
   static events() {
     return ['pullrequest'];
@@ -280,8 +325,6 @@ gh.onpullrequest = function(ev){
       </template>
     </ul>
   </template>
-  <script src="./scripts/highlight.pack.js"></script>
-  <script>hljs.initHighlightingOnLoad();</script>
   <!-- For reference:
     http://www.colorcombos.com/color-schemes/244/ColorCombo244.html
 

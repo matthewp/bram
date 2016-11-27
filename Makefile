@@ -12,6 +12,8 @@ minify:
 
 site:
 	cp bram.umd.js docs/
+	cp node_modules/@webcomponents/custom-elements/custom-elements.min.js docs/scripts
+	cp node_modules/@webcomponents/shadydom/shadydom.min.js docs/scripts
 
 all: bram bram-umd minify
 
