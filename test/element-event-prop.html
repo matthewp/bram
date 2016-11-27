@@ -3,7 +3,9 @@
 <head>
   <title>Element event property tests</title>
 
-  <script src="../node_modules/webcomponents.js/webcomponents-lite.min.js"></script>
+  <script src="../node_modules/webcomponents.js/HTMLImports.min.js"></script>
+  <script src="../node_modules/@webcomponents/custom-elements/custom-elements.min.js"></script>
+  <script src="../node_modules/@webcomponents/shadydom/shadydom.min.js"></script>
   <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
   <script src="../bram.umd.js"></script>
 </head>
@@ -15,7 +17,7 @@
     describe('Event properties', function(){
       before(function(){
         class EventedElement extends Bram.Element {
-          static events() {
+          static get events() {
             return ['foo'];
           }
 

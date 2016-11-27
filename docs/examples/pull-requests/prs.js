@@ -1,5 +1,5 @@
 class GitHubStars extends Bram.Element {
-  static events() {
+  static get events() {
     return ['pullrequest'];
   }
 

@@ -106,6 +106,8 @@ var events = symbol('bram-events');
 var arrayChange = symbol('bram-array-change');
 
 var toModel = function(o, skipClone){
+  if(isModel(o)) return o;
+
   o = deepModel(o, skipClone) || {};
 
   var callback = function(ev, value){
@@ -709,7 +711,7 @@ Bram.template = stamp;
 
 function installEvents(Element) {
   Element._hasSetupEvents = true;
-  Element.events().forEach(function(eventName){
+  Element.events.forEach(function(eventName){
     Object.defineProperty(Element.prototype, 'on' + eventName, {
       get: function(){
         return this['_on' + eventName];

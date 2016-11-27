@@ -3,7 +3,9 @@
 <head>
   <title>elements tests</title>
 
-  <script src="../node_modules/webcomponents.js/webcomponents-lite.min.js"></script>
+  <script src="../node_modules/webcomponents.js/HTMLImports.min.js"></script>
+  <script src="../node_modules/@webcomponents/custom-elements/custom-elements.min.js"></script>
+  <script src="../node_modules/@webcomponents/shadydom/shadydom.min.js"></script>
   <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
   <script src="../bram.umd.js"></script>
 </head>
@@ -22,7 +24,7 @@
       describe('default', function(){
         before(function(){
           class MyElement extends Bram.Element {
-            static template(){
+            static get template(){
               return someTemplate;
             }
             constructor() {
@@ -44,7 +46,7 @@
       describe('light', function(){
         before(function(){
           class LightElement extends Bram.Element {
-            static template() {
+            static get template() {
               return "#someTemplate";
             }
             static get renderMode() {
@@ -70,7 +72,7 @@
       describe('shadow', function(){
         before(function(){
           class ShadowElement extends Bram.Element {
-            static template() {
+            static get template() {
               return '#someTemplate';
             }
             static get renderMode() {
