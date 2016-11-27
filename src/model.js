@@ -1,3 +1,6 @@
+import { symbol } from './util.js';
+import Transaction from './transaction.js';
+
 function isArraySet(object, property){
   return Array.isArray(object) && !isNaN(+property);
 }
@@ -7,11 +10,15 @@ function isArrayOrObject(object) {
 }
 
 function observe(o, fn) {
-  return new Proxy(o, {
+  var proxy = new Proxy(o, {
+    get: function(target, property) {
+      Transaction.observe(proxy, property);
+      return target[property];
+    },
     set: function(target, property, value) {
       var oldValue = target[property];
-      if(!Bram.isModel(value) && isArrayOrObject(value)) {
-        value = Bram.model(value);
+      if(!isModel(value) && isArrayOrObject(value)) {
+        value = toModel(value);
       }
       target[property] = value;
 
@@ -21,7 +28,7 @@ function observe(o, fn) {
 
       if(isArraySet(target, property)) {
         fn({
-          prop: Bram.arrayChange,
+          prop: arrayChange,
           index: +property,
           type: 'set'
         }, value);
@@ -37,7 +44,7 @@ function observe(o, fn) {
     deleteProperty: function(target, property, value){
       if(isArraySet(target, property)) {
         fn({
-          prop: Bram.arrayChange,
+          prop: arrayChange,
           index: +property,
           type: 'delete'
         });
@@ -45,14 +52,17 @@ function observe(o, fn) {
 
       return true;
     }
-  })
+  });
+  return proxy;
 }
 
-var events = Bram.symbol('bram-events');
-Bram.arrayChange = Bram.symbol('bram-array-change');
+var events = symbol('bram-events');
+var arrayChange = symbol('bram-array-change');
 
-Bram.model = function(o){
-  o = deepModel(o) || {};
+var toModel = function(o, skipClone){
+  if(isModel(o)) return o;
+
+  o = deepModel(o, skipClone) || {};
 
   var callback = function(ev, value){
     var fns = o[events][ev.prop];
@@ -71,29 +81,21 @@ Bram.model = function(o){
   return observe(o, callback);
 };
 
-function deepModel(o) {
-  var copy;
-  if(Array.isArray(o)) {
-    copy = slice.call(o);
-  } else if(o) {
-    var proto = Object.getPrototypeOf(o),
-    copy = Object.create(proto);
-  }
-
+function deepModel(o, skipClone) {
   return !o ? o : Object.keys(o).reduce(function(acc, prop){
     var val = o[prop];
     acc[prop] = (Array.isArray(val) || typeof val === 'object')
-      ? Bram.model(val)
+      ? toModel(val)
       : val;
     return acc;
-  }, copy);
+  }, o);
 }
 
-Bram.isModel = function(object){
+var isModel = function(object){
   return object && !!object[events];
 };
 
-Bram.addEventListener = function(model, prop, callback){
+var on = function(model, prop, callback){
   var evs = model[events];
   if(!evs) return;
   var ev = evs[prop];
@@ -103,7 +105,7 @@ Bram.addEventListener = function(model, prop, callback){
   ev.push(callback);
 };
 
-Bram.removeEventListener = function(model, prop, callback){
+var off = function(model, prop, callback){
   var evs = model[events];
   if(!evs) return;
   var ev = evs[prop];
@@ -116,13 +118,10 @@ Bram.removeEventListener = function(model, prop, callback){
   }
 };
 
-Bram.off = function(model){
-  model[events] = {};
-
-  Object.keys(model).forEach(function(key){
-    var val = model[key];
-    if(Array.isArray(val) || typeof val === 'object') {
-      Bram.off(val);
-    }
-  });
+export {
+  arrayChange,
+  on,
+  off,
+  isModel,
+  toModel
 };

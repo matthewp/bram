@@ -1,0 +1,23 @@
+<html>
+<head>
+  <title>Todo app</title>
+  <script src="../../../bram.umd.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <template id="todo-template">
+    <form on-submit="addTodo">
+      <input type="text" name="todo" placeholder="What to do?">
+      <button type="submit">Add</button>
+    </form>
+
+    <ul>
+      <template each="{{todos}}">
+        <li>{{item}}</li>
+      </template>
+    </ul>
+  </template>
+
+  <todo-list></todo-list>
+</body>
+</html>

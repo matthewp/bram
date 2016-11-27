@@ -1,0 +1,108 @@
+/*@import "./styles/hljs/atom-one-dark.css";*/
+
+@import "./styles/hljs/atom-one-dark.css";
+
+:root {
+  --code-bg-color: #282c34;
+}
+
+.subtext {
+  font-size: .8em;
+}
+
+section {
+  margin-bottom: 64px;
+}
+
+.section-header {
+  text-align: center;
+}
+
+bram-tabs {
+  display: block;
+}
+
+bram-panel {
+  display: none;
+}
+bram-panel[active] {
+  display: block;
+}
+
+bram-panel pre {
+  font-size: 1.2em;
+  margin-top: 0;
+}
+
+.example {
+  display: flex;
+}
+
+.example-code {
+  flex: 1.5;
+}
+.example-live {
+  position: relative;
+  flex: 1;
+  padding-top: 50px;
+  margin-left: 30px;
+}
+
+@media only screen and (max-device-width: 767px) {
+  .main-hero {
+    display: flex;
+    align-items: center;
+  }
+
+  .example {
+    flex-wrap: wrap;
+  }
+
+  .example-code {
+    max-width: 100%;
+  }
+
+  .example-live {
+    margin-left: 0;
+    padding-top: 0;
+  }
+
+  bram-panel pre {
+    font-size: 1em;
+  }
+}
+
+@media only screen and (min-device-width: 768px) {
+  .main-hero {
+    display: none;
+  }
+}
+
+todo-list {
+  display: block;
+  background: var(--alt-bg-color);
+  padding: 10px 15px;
+}
+
+/* Advantage section */
+.why-bram {
+  display: flex;
+}
+
+.advantage {
+  flex: 1;
+  margin: 0 10px;
+}
+.advantage h2 {
+  text-align: center;
+}
+
+@media only screen and (max-device-width: 767px) {
+  .why-bram {
+    flex-flow: column;
+  }
+  .advantage {
+    height: 100%;
+  }
+}
+/* End advantage section */

@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+  <title>Bram clock</title>
+
+  <script src="../../../bram.umd.js" defer></script>
+  <script src="./hand.js" defer></script>
+  <script src="./clock.js"defer></script>
+</head>
+<body>
+  <template id="hand-template">
+    <style>
+      :host {
+        background: {{color}};
+        position: absolute;
+        width: {{width}}px;
+        height: {{height}};
+        left: 50%;
+        top: 50%;
+        border-radius: {{borderRadius}}px;
+        transform-origin: 50% 0;
+        transform: {{handTransform}};
+      }
+    </style>
+  </template>
+  <template id="clock-template">
+      <style>
+        :host {
+          width: 200px;
+          height: 200px;
+          border-radius: 50%;
+          background: #FFF;
+          border: 3px solid #CCC;
+          position:absolute;
+          left:50%;
+          top:50%;
+          margin:-100px 0 0 -100px;
+        }
+      </style>
+
+      <clock-hand :width="5" :degree="{{hourDegree}}"></clock-hand>
+      <clock-hand :width="3" color="black" :degree="{{minuteDegree}}"></clock-hand>
+      <clock-hand :width="1" color="red" :degree="{{secondDegree}}"></clock-hand>
+  </template>
+
+  <analog-clock></analog-clock>
+</body>
+</html>

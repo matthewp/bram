@@ -1,0 +1,336 @@
+<!doctype html>
+<html>
+<head>
+  <title>Bram</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./styles.css">
+
+  <link rel="preload" href="./examples/tabs/tabs.js" as="script">
+  <link rel="preload" href="./examples/todos/app.js" as="script">
+  <link rel="preload" href="./examples/pull-requests/prs.js" as="script">
+  <link rel="preload" href="./bram.umd.js" as="script">
+  <script>
+  (function(){
+    let sd = typeof ShadowRoot === 'function';
+    let ce = typeof customElements === 'object';
+
+    let waiting = [];
+    if(!sd) {
+      waiting.push(load('./scripts/shadydom.min.js'));
+    }
+    if(!ce) {
+      waiting.push(load('./scripts/custom-elements.min.js'));
+    }
+
+    Promise.all(waiting)
+    .then(function(){
+      return load('./bram.umd.js');
+    })
+    .then(function(){
+      return Promise.all([
+        './examples/tabs/tabs.js',
+        './examples/todos/app.js',
+        'examples/pull-requests/prs.js'
+      ].map(function(url){
+        return load(url);
+      }));
+    })
+    .then(function(){
+      return load('./scripts/highlight.pack.js');
+    }).then(function(){
+      hljs.initHighlighting();
+    });
+
+    function load(pth){
+      let script = document.createElement('script');
+      script.src = pth;
+
+      return new Promise(function(resolve, reject){
+        script.onload = function(){
+          resolve();
+        };
+        document.head.appendChild(script);
+      });
+    }
+  })();
+  </script>
+</head>
+<body>
+  <link rel="stylesheet" href="./index.css">
+  <div class="hero">
+    <div class="hero-container">
+      <figure>
+        <img class="logo" src="./images/bram.svg" height="180" width="180" />
+        <figcaption>Bram</figcaption>
+      </figure>
+
+      <h1 class="hero-caption">A simple 3kB web components library</h1>
+    </div>
+  </div>
+  <main>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="https://github.com/matthewp/bram#api">API</a></li>
+        <li><a href="./guide.html">Guide</a></li>
+        <li><a href="https://github.com/matthewp/bram">GitHub</a></li>
+      </ul>
+    </nav>
+    <hr class="nav-rule" />
+
+    <div class="main-hero">
+      <figure>
+        <img src="./images/bram.svg" height="75" width="75" />
+      </figure>
+      <h1>Bram</h1>
+    </div>
+
+    <section class="installation">
+      <h1>Install the latest:</h1>
+      <div class="install-command">npm install bram --save</div>
+      <p class="subtext">Or download a <a href="https://github.com/matthewp/bram/releases">release</a>.</p>
+    </section>
+
+    <h1 class="section-header">Examples</h1>
+
+    <h2 class="example-header">Todo app</h2>
+    <section class="example example-todo">
+      <div class="example-code">
+        <bram-tabs>
+          <bram-panel title="HTML">
+            <pre><code class="html">
+&lt;template id=&quot;todo-template&quot;&gt;
+  &lt;form on-submit=&quot;addTodo&quot;&gt;
+    &lt;input type=&quot;text&quot; name=&quot;todo&quot;
+      placeholder=&quot;What to do?&quot;&gt;
+    &lt;button type=&quot;submit&quot;&gt;Add&lt;/button&gt;
+  &lt;/form&gt;
+
+  &lt;ul&gt;
+    &lt;template each=&quot;{{todos}}&quot;&gt;
+      &lt;li&gt;{{item}}&lt;/li&gt;
+    &lt;/template&gt;
+  &lt;/ul&gt;
+&lt;/template&gt;
+
+&lt;todo-list&gt;&lt;/todo-list&gt;
+            </code></pre>
+          </bram-panel>
+          <bram-panel title="JavaScript">
+            <pre><code class="javascript">
+class TodoList extends Bram.Element {
+  static get template() {
+    return '#todo-template';
+  }
+
+  constructor() {
+    super();
+    this.model.todos = [];
+  }
+
+  addTodo(ev) {
+    ev.preventDefault();
+    let input = ev.target.todo;
+    let value = input.value;
+    this.model.todos.push(value);
+    input.value = '';
+  }
+}
+
+customElements.define('todo-list', TodoList);
+            </code></pre>
+          </bram-panel>
+        </bram-tabs>
+      </div>
+      <div class="example-live">
+        <todo-list></todo-list>
+      </div>
+      <template id="todo-template">
+        <style>
+          input {
+            padding: 5px 10px;
+            border: 1px solid var(--code-bg-color);
+            font-size: 100%;
+          }
+          button {
+            background-color: var(--code-bg-color);
+            border: none;
+            color: #fff;
+            font-size: 100%;
+            font-family: var(--serif-family);
+            padding: 5px 13px;
+            outline: none;
+          }
+        </style>
+        <form on-submit="addTodo">
+          <input type="text" name="todo" placeholder="What to do?">
+          <button type="submit">Add</button>
+        </form>
+
+        <ul>
+          <template each="{{todos}}">
+            <li>{{item}}</li>
+          </template>
+        </ul>
+      </template>
+    </section>
+
+    <h2 class="example-header">GitHub Pull Requests</h2>
+    <section class="example example-gh">
+      <div class="example-code">
+        <bram-tabs>
+          <bram-panel title="HTML">
+            <pre><code class="html">
+&lt;template id="my-tmpl"&gt;
+  &lt;github-stars repo="matthewp/bram"
+    limit="3"&gt;&lt;/github-stars&gt;
+
+  &lt;h1&gt;Latest PRs&lt;/h1&gt;
+  &lt;ul&gt;
+    &lt;template each="{{prs}}"&gt;
+      &lt;li&gt;
+        ({{state}})
+
+        &lt;a href="{{url}}"&gt;{{title}}&lt;/a&gt;
+      &lt;/h1&gt;
+    &lt;/template&gt;
+  &lt;/ul&gt;
+&lt;/template&gt;
+
+&lt;div id="bram-info"&gt;&lt;/div&gt;
+            </code></pre>
+          </bram-panel>
+          <bram-panel title="JavaScript">
+            <pre><code class="javascript">
+class GitHubStars extends Bram.Element {
+  static events() {
+    return ['pullrequest'];
+  }
+
+  connectedCallback() {
+    let repo = this.getAttribute('repo');
+    let limit = this.getAttribute('limit') || 5;
+    this.fetch(repo, limit);
+  }
+
+  fetch(repo, limit) {
+    let url = `https://api.github.com/repos/
+      ${repo}/pulls?page=1&per_page=${limit}
+      &state=all`;
+
+    fetch(url).then(res => {
+      return res.json();
+    }).then(results => {
+      results.forEach(pr => {
+        let ev = new CustomEvent('pullrequest', {
+          detail: pr
+        });
+        this.dispatchEvent(ev);
+      });
+    });
+  }
+}
+
+customElements.define('github-stars', GitHubStars);
+
+
+let render = Bram.template('#my-tmpl');
+let model = Bram.model({
+  prs: []
+});
+
+let root = document.querySelector('#bram-info');
+root.appendChild(render(model));
+
+let gh = document.querySelector('github-stars');
+gh.onpullrequest = function(ev){
+  let pr = ev.detail;
+  model.prs.push(pr);
+};
+            </code></pre>
+          </bram-panel>
+        </bram-tabs>
+      </div>
+      <div class="example-live">
+        <div id="bram-info"></div>
+      </div>
+    </section>
+
+    <h1 class="section-header">Advantage</h1>
+    <section class="why-bram">
+      <div class="advantage">
+        <h2>Minimal layer</h2>
+        <p>Bram supplies only a minimal layer on top of the native web component standards; <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template">&lt;template&gt;</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/Web_Components/Custom_Elements">Custom Elements</a>, and <a href="https://developer.mozilla.org/en-US/docs/Web/Web_Components/Shadow_DOM">Shadow DOM</a>.</p>
+        <p>Bram allows you to still use these APIs, but enhances their capabilities, providing important missing pieces like template bindings.</p>
+      </div>
+      <div class="advantage">
+        <h2>Declarative</h2>
+        <p>Templates within Bram are completely declarative. You can bind to text and attributes. You can pass values to child components through property bindings. You can listen to events in any element and have those events call your components methods.</p>
+      </div>
+      <div class="advantage">
+        <h2>Tiny</h2>
+        <p>Thanks to the web component APIs doing all of the heavy lifting, Bram gives you a lot, for very little. At 3kB you can use Bram to distribute widgets and not feel back about it.</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>Built by <a href="https://github.com/matthewp/">@matthewp</a>. [<a href="https://twitter.com/matthewcp">twitter</a>]</p>
+    </footer>
+  </main>
+  <template id="tabs-template">
+    <style>
+      ul {
+        list-style-type: none;
+        padding: 0;
+        margin-bottom: 0;
+      }
+      li {
+        background: var(--alt-bg-color, #000);
+        display: inline-block;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+      }
+      li.active {
+        background: var(--code-bg-color, #000);
+      }
+
+      li a {
+        display: block;
+        color: var(--spec-fg-color, #fff);
+        text-decoration: none;
+        padding: .5em 1.3em;
+      }
+    </style>
+    <ul>
+      <template each="{{titles}}">
+        <li>
+          <a href="#" on-click="setActive" data-index="{{index}}">{{item}}</a>
+        </li>
+      </template>
+    </ul>
+    <slot></slot>
+  </template>
+  <template id="my-tmpl">
+    <github-stars repo="matthewp/bram"
+      limit="3"></github-stars>
+
+    <h1>Latest PRs</h1>
+    <ul>
+      <template each="{{prs}}">
+        <li>
+          ({{state}})
+
+          <a href="{{url}}">{{title}}</a>
+        </h1>
+      </template>
+    </ul>
+  </template>
+  <!-- For reference:
+    http://www.colorcombos.com/color-schemes/244/ColorCombo244.html
+
+    https://color.adobe.com/create/color-wheel/?base=2&rule=Shades&selected=1&name=My%20Color%20Theme&mode=rgb&rgbvalues=0.5454545454545454,0.7159090909090289,0.75,0.3636363636363636,0.47727272727268594,0.5,0.7272727272727272,0.9545454545453719,1,0.18823529411764706,0.24705882352941178,0.25882352941176473,0.6545454545454544,0.8590909090908347,0.9&swatchOrder=0,1,2,3,4
+
+    https://color.adobe.com/create/color-wheel/?base=2&rule=Triad&selected=1&name=My%20Color%20Theme&mode=rgb&rgbvalues=0.43909090909090903,0.6565151515150723,0.7,1,0.8272727272727272,0.8992424242423195,0.7272727272727272,0.9545454545453719,1,0.8,0.7709433040077619,0.5018181818181818,0.7,0.6779860092863683,0.47409090909090906&swatchOrder=0,1,2,3,4
+  -->
+</body>
+</html>

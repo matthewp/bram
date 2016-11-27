@@ -2,9 +2,12 @@
   "name": "bram",
   "version": "0.4.0-alpha.7",
   "description": "Web component architecture with Observables",
-  "main": "bram.js",
+  "main": "bram.umd.js",
+  "esnext:main": "bram.js",
   "scripts": {
-    "test": "testee test/simple.html test/model.html test/conditional.html test/lists.html test/texts.html test/parse.html test/children.html test/props.html test/attrs.html --browsers firefox"
+    "build-es": "rollup -o b.js src/bram.js",
+    "build-umd": "rollup -o b.js -f umd -n Bram src/global.js",
+    "test": "testee test/simple.html test/model.html test/conditional.html test/lists.html test/texts.html test/parse.html test/children.html test/props.html test/attrs.html test/element.html test/element-rendermode.html test/element-event-prop.html test/declarative-events.html --browsers firefox"
   },
   "keywords": [
     "web",
@@ -13,6 +16,9 @@
   ],
   "files": [
     "bram.js",
+    "bram.min.js",
+    "bram.umd.js",
+    "bram.umd.min.js",
     "bram.html"
   ],
   "author": "Matthew Phillips",
@@ -26,7 +32,12 @@
     "url": "https://github.com/matthewp/bram/issues"
   },
   "devDependencies": {
-    "mocha-test": "^1.0.3",
+    "@webcomponents/custom-elements": "^1.0.0-alpha.3",
+    "@webcomponents/shadydom": "webcomponents/shadydom#c162774c0ad1ffe9f97c663ad2ffd27d5cd6ade9",
+    "babili": "0.0.8",
+    "mocha-test": "^2.0.2",
+    "rollup": "^0.36.0",
+    "script-type-module": "^1.0.0",
     "webcomponents.js": "^0.7.22"
   }
 }

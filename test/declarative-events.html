@@ -1,0 +1,52 @@
+ <!doctype html>
+<html>
+<head>
+  <title>declarative event tests</title>
+
+  <script src="../node_modules/webcomponents.js/HTMLImports.min.js"></script>
+  <script src="../node_modules/@webcomponents/custom-elements/custom-elements.min.js"></script>
+  <script src="../node_modules/@webcomponents/shadydom/shadydom.min.js"></script>
+  <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
+  <script src="../bram.umd.js"></script>
+</head>
+<body>
+  <template id="clickTemplate">
+    <a href="#" on-click="doSomething">Click me</a>
+  </template>
+  <click-element id="clickElement"></click-element>
+<div id="host"></div>
+<mocha-test>
+<template>
+  <script>
+    describe('Declarative Events', function(){
+      it('Handlers are set up and work', function(){
+        class ClickElement extends Bram.Element {
+          static get template() {
+            return clickTemplate;
+          }
+
+          constructor() {
+            super();
+            this.clicks = 0;
+          }
+
+          doSomething(ev) {
+            this.clicks++;
+            ev.preventDefault();
+          }
+        }
+
+        customElements.define('click-element', ClickElement);
+
+        var clickElement = document.querySelector('click-element');
+        var el = clickElement.shadowRoot.querySelector('a');
+        el.dispatchEvent(new Event('click'));
+
+        assert.equal(clickElement.clicks, 1);
+      });
+    });
+  </script>
+</template>
+</mocha-test>
+</body>
+</html>

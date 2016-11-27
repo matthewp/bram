@@ -1,4 +1,8 @@
-function inspect(node, ref, paths) {
+import parse from './expression.js';
+import { live, setupBinding } from './bindings.js';
+import { forEach } from './util.js';
+
+export default function inspect(node, ref, paths) {
   var ignoredAttrs = {};
 
   switch(node.nodeType) {
@@ -39,19 +43,28 @@ function inspect(node, ref, paths) {
       return;
 
     var name = attrNode.name;
-    var property = isPropAttr(name);
+    var property = propAttr(name);
     var result = parse(attrNode.value);
     if(result.hasBinding) {
       paths[ref.id] = function(node, model){
         if(property) {
           node.removeAttribute(name);
-          setupBinding(model, result, live.prop(node, name.substr(1)));
+          setupBinding(model, result, live.prop(node, property));
           return;
         }
         setupBinding(model, result, live.attr(node, name));
       };
     } else if(property) {
-      console.log('still do this');
+      paths[ref.id] = function(node){
+        node.removeAttribute(name);
+        live.prop(node, property)(attrNode.value);
+      };
+    } else if(name.substr(0, 3) === 'on-') {
+      var eventName = name.substr(3);
+      paths[ref.id] = function(node, model){
+        node.removeAttribute(name);
+        live.event(node, eventName, model, result);
+      };
     }
   });
 
@@ -74,6 +87,6 @@ function specialTemplateAttr(template){
   }
 }
 
-function isPropAttr(name) {
-  return name && name[0] === ':';
+function propAttr(name) {
+  return (name && name[0] === ':') && name.substr(1);
 }

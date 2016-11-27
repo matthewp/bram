@@ -3,21 +3,25 @@
 <head>
   <title>Parsing tests</title>
 
-  <script src="../node_modules/webcomponents.js/webcomponents-lite.min.js"></script>
-  <script src="../bram.js"></script>
+  <script src="../node_modules/webcomponents.js/HTMLImports.min.js"></script>
+  <script src="../node_modules/@webcomponents/custom-elements/custom-elements.min.js"></script>
+  <script src="../node_modules/script-type-module/polyfill.js" data-no-sm></script>
   <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
 </head>
 <body>
 <mocha-test>
 <template>
-  <script>
+  <script type="module-polyfill">
+    import parse from '../src/expression.js';
+    import Scope from '../src/scope.js';
+
     describe('parse()', function(){
       it('works with bindings at the end of the string', function(){
-        var result = Bram.parse('/some/{{foo}}');
+        var result = parse('/some/{{foo}}');
         assert.equal(result.hasBinding, true);
         assert.equal(result.props()[0], 'foo');
 
-        var scope = new Bram.Scope({ foo: 'bar' });
+        var scope = new Scope({ foo: 'bar' });
         var compute = result.compute(scope);
         assert.equal(compute(), '/some/bar');
       });
@@ -25,14 +29,14 @@
 
     describe('Parsing text with no magic tags', function(){
       it('hasBinding is false', function(){
-        var result = Bram.parse('hello world');
+        var result = parse('hello world');
         assert.equal(result.hasBinding, false);
       });
     });
 
     describe('.props()', function(){
       it('returns the properties to bind to', function(){
-        var result = Bram.parse("hello {{name}} and {{dog}}");
+        var result = parse("hello {{name}} and {{dog}}");
         assert.deepEqual(result.props(),['name','dog']);
         //assert.equal(result.prop(), 'name');
       });
@@ -40,29 +44,70 @@
 
     describe('Parsing test with multiple magic tags', function(){
       it('gets the combined value of both', function(){
-        var result = Bram.parse('{{one}} and {{two}}');
-        var fn = result.compute(new Bram.Scope({one: 'hello', two: 'world'}));
+        var result = parse('{{one}} and {{two}}');
+        var fn = result.compute(new Scope({one: 'hello', two: 'world'}));
         assert.equal(fn(), 'hello and world');
       });
 
       it('count() returns the correct number', function(){
-        var result = Bram.parse('{{hello}}{{world}}');
-        var fn = result.compute(new Bram.Scope({hello:'aa',world:'bb'}));
+        var result = parse('{{hello}}{{world}}');
+        var fn = result.compute(new Scope({hello:'aa',world:'bb'}));
         assert.equal(result.count(), 2);
         assert.equal(fn(), 'aabb');
+      });
+
+      it('works with complex stylesheets', function(){
+        var scope = new Scope({
+          color: '#aaa',
+          height: '46%',
+          width: '1',
+          borderRadius: '0.5',
+          handTransform: 'translate(-0.5px,-0.5px) rotate(150deg)'
+        });
+        var txt = `
+          :host {
+            background: {{color}};
+            height: {{height}};
+            width: {{width}}px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            border-radius: {{borderRadius}};
+            transform-origin: 50% 0;
+            transform: {{handTransform}};
+          }
+        `;
+        var result = parse(txt);
+        var fn = result.compute(scope);
+
+        var out = fn();
+        var expected = `
+          :host {
+            background: #aaa;
+            height: 46%;
+            width: 1px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            border-radius: 0.5;
+            transform-origin: 50% 0;
+            transform: translate(-0.5px,-0.5px) rotate(150deg);
+          }
+        `;
+        assert.equal(expected, out);
       });
     });
 
     describe('.throwIfMultiple()', function(){
       it('throws an error if there are multiple magic tags', function(){
-        var result = Bram.parse('{{one}} and {{two}}');
+        var result = parse('{{one}} and {{two}}');
         assert.throws(function(){
           result.throwIfMultiple();
         });
       });
 
       it('doesn\'t throw if there is only one magic tag', function(){
-        var result = Bram.parse('{{one}}');
+        var result = parse('{{one}}');
         assert.doesNotThrow(function(){
           result.throwIfMultiple();
         });

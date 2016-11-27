@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+  <title>elements tests</title>
+
+  <script src="../node_modules/webcomponents.js/HTMLImports.min.js"></script>
+  <script src="../node_modules/@webcomponents/custom-elements/custom-elements.min.js"></script>
+  <script src="../node_modules/@webcomponents/shadydom/shadydom.min.js"></script>
+  <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
+  <script src="../bram.umd.js"></script>
+</head>
+<body>
+  <template id="someTemplate">
+    <span>{{hello}}</span>
+  </template>
+  <some-element id="someElement"></some-element>
+
+<mocha-test>
+<template>
+  <script>
+    describe("Bram.element", function(){
+      before(function(){
+        class SomeElement extends Bram.Element {
+          static get template() {
+            return "#someTemplate";
+          }
+
+          constructor() {
+            super();
+            this.hello = 'world';
+          }
+        }
+
+        customElements.define('some-element', SomeElement);
+      });
+
+      it("Renders to shadowRoot", function(){
+        let root = someElement.shadowRoot;
+        let txt = root.firstElementChild.textContent;
+
+        assert.equal(txt, 'world');
+      });
+    });
+  </script>
+</template>
+</mocha-test>
+</body>
+</html>

@@ -1,3 +1,4 @@
+import { some, slice } from './util.js';
 
 function hydrate(frag, callbacks, scope) {
   var paths = Object.keys(callbacks);
@@ -18,7 +19,8 @@ function hydrate(frag, callbacks, scope) {
 
   function traverse(node){
     var exit;
-    some.call(node.attributes || [], function(){
+    var attributes = slice.call(node.attributes || []);
+    some.call(attributes, function(){
       exit = check(node);
       if(exit) {
         return true;
@@ -40,3 +42,5 @@ function hydrate(frag, callbacks, scope) {
     return !exit;
   }
 }
+
+export default hydrate;
