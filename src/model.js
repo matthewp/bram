@@ -60,6 +60,8 @@ var events = symbol('bram-events');
 var arrayChange = symbol('bram-array-change');
 
 var toModel = function(o, skipClone){
+  if(isModel(o)) return o;
+
   o = deepModel(o, skipClone) || {};
 
   var callback = function(ev, value){

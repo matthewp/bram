@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./styles.css">
 
-  <script src="../bram.umd.js" defer></script>
+  <script src="./bram.umd.js" defer></script>
   <script src="./examples/tabs/tabs.js" defer></script>
   <script src="./examples/todos/app.js" defer></script>
+  <script src="./examples/pull-requests/prs.js" defer></script>
 </head>
 <body>
   <link rel="stylesheet" href="./index.css">
@@ -25,7 +26,7 @@
     <nav class="main-nav">
       <ul>
         <li><a href="/">Home</a></li>
-        <li><a href="./api.html">API</a></li>
+        <li><a href="https://github.com/matthewp/bram#api">API</a></li>
         <li><a href="./guide.html">Guide</a></li>
         <li><a href="https://github.com/matthewp/bram">GitHub</a></li>
       </ul>
@@ -129,6 +130,87 @@ customElements.define('todo-list', TodoList);
       </template>
     </section>
 
+    <h2 class="example-header">GitHub Pull Requests</h2>
+    <section class="example example-gh">
+      <div class="example-code">
+        <bram-tabs>
+          <bram-panel title="HTML">
+            <pre><code class="html">
+&lt;template id="my-tmpl"&gt;
+  &lt;github-stars repo="matthewp/bram"
+    limit="3"&gt;&lt;/github-stars&gt;
+
+  &lt;h1&gt;Latest PRs&lt;/h1&gt;
+  &lt;ul&gt;
+    &lt;template each="{{prs}}"&gt;
+      &lt;li&gt;
+        ({{state}})
+
+        &lt;a href="{{url}}"&gt;{{title}}&lt;/a&gt;
+      &lt;/h1&gt;
+    &lt;/template&gt;
+  &lt;/ul&gt;
+&lt;/template&gt;
+
+&lt;div id="bram-info"&gt;&lt;/div&gt;
+            </code></pre>
+          </bram-panel>
+          <bram-panel title="JavaScript">
+            <pre><code class="js">
+class GitHubStars extends Bram.Element {
+  static events() {
+    return ['pullrequest'];
+  }
+
+  connectedCallback() {
+    let repo = this.getAttribute('repo');
+    let limit = this.getAttribute('limit') || 5;
+    this.fetch(repo, limit);
+  }
+
+  fetch(repo, limit) {
+    let url = `https://api.github.com/repos/
+      ${repo}/pulls?page=1&per_page=${limit}
+      &state=all`;
+
+    fetch(url).then(res => {
+      return res.json();
+    }).then(results => {
+      results.forEach(pr => {
+        let ev = new CustomEvent('pullrequest', {
+          detail: pr
+        });
+        this.dispatchEvent(ev);
+      });
+    });
+  }
+}
+
+customElements.define('github-stars', GitHubStars);
+
+
+let render = Bram.template('#my-tmpl');
+let model = Bram.model({
+  prs: []
+});
+
+let root = document.querySelector('#bram-info');
+root.appendChild(render(model));
+
+let gh = document.querySelector('github-stars');
+gh.onpullrequest = function(ev){
+  let pr = ev.detail;
+  model.prs.push(pr);
+};
+            </code></pre>
+          </bram-panel>
+        </bram-tabs>
+      </div>
+      <div class="example-live">
+        <div id="bram-info"></div>
+      </div>
+    </section>
+
     <h1 class="section-header">Advantage</h1>
     <section class="why-bram">
       <div class="advantage">
@@ -147,7 +229,7 @@ customElements.define('todo-list', TodoList);
     </section>
 
     <footer>
-      Footer be here
+      <p>Built by <a href="https://github.com/matthewp/">@matthewp</a>. [<a href="https://twitter.com/matthewcp">twitter</a>]</p>
     </footer>
   </main>
   <template id="tabs-template">
@@ -183,6 +265,21 @@ customElements.define('todo-list', TodoList);
     </ul>
     <slot></slot>
   </template>
+  <template id="my-tmpl">
+    <github-stars repo="matthewp/bram"
+      limit="3"></github-stars>
+
+    <h1>Latest PRs</h1>
+    <ul>
+      <template each="{{prs}}">
+        <li>
+          ({{state}})
+
+          <a href="{{url}}">{{title}}</a>
+        </h1>
+      </template>
+    </ul>
+  </template>
   <script src="./scripts/highlight.pack.js"></script>
   <script>hljs.initHighlightingOnLoad();</script>
   <!-- For reference:
@@ -192,6 +289,5 @@ customElements.define('todo-list', TodoList);
 
     https://color.adobe.com/create/color-wheel/?base=2&rule=Triad&selected=1&name=My%20Color%20Theme&mode=rgb&rgbvalues=0.43909090909090903,0.6565151515150723,0.7,1,0.8272727272727272,0.8992424242423195,0.7272727272727272,0.9545454545453719,1,0.8,0.7709433040077619,0.5018181818181818,0.7,0.6779860092863683,0.47409090909090906&swatchOrder=0,1,2,3,4
   -->
-
 </body>
 </html>

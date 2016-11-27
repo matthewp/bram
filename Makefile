@@ -1,4 +1,4 @@
-.PHONY: bram bram-umd minify
+.PHONY: bram bram-umd minify site
 
 bram:
 	node_modules/.bin/rollup -o bram.js src/bram.js
@@ -9,6 +9,9 @@ bram-umd:
 minify:
 	node_modules/.bin/babili bram.js > bram.min.js
 	node_modules/.bin/babili bram.umd.js > bram.umd.min.js
+
+site:
+	cp bram.umd.js docs/
 
 all: bram bram-umd minify
 
