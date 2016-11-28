@@ -3,7 +3,7 @@ const rootDir = 'docs';
 
 swPrecache.write(__dirname + '/../service-worker.js', {
   staticFileGlobs: [
-    `${rootDir}/`,
+    `${rootDir}/index.html`,
     `${rootDir}/styles.css`,
     `${rootDir}/index.css`,
     `${rootDir}/styles/hljs/atom-one-dark.css`,
