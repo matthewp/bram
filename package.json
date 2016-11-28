@@ -38,6 +38,7 @@
     "mocha-test": "^2.0.2",
     "rollup": "^0.36.0",
     "script-type-module": "^1.0.0",
+    "sw-precache": "^4.2.3",
     "webcomponents.js": "^0.7.22"
   }
 }
