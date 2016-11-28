@@ -185,8 +185,8 @@ customElements.define('todo-list', TodoList);
           <bram-panel title="HTML">
             <pre><code class="html">
 &lt;template id="my-tmpl"&gt;
-  &lt;github-stars repo="matthewp/bram"
-    limit="3"&gt;&lt;/github-stars&gt;
+  &lt;github-prs repo="matthewp/bram"
+    limit="3"&gt;&lt;/github-prs&gt;
 
   &lt;h1&gt;Latest PRs&lt;/h1&gt;
   &lt;ul&gt;
@@ -314,8 +314,8 @@ gh.onpullrequest = function(ev){
     <slot></slot>
   </template>
   <template id="my-tmpl">
-    <github-stars repo="matthewp/bram"
-      limit="3"></github-stars>
+    <github-prs repo="matthewp/bram"
+      limit="3"></github-prs>
 
     <h1>Latest PRs</h1>
     <ul>
