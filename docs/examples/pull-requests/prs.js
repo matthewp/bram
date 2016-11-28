@@ -1,4 +1,4 @@
-class GitHubStars extends Bram.Element {
+class GitHubPRs extends Bram.Element {
   static get events() {
     return ['pullrequest'];
   }
@@ -25,7 +25,7 @@ class GitHubStars extends Bram.Element {
   }
 }
 
-customElements.define('github-stars', GitHubStars);
+customElements.define('github-prs', GitHubPRs);
 
 
 let render = Bram.template('#my-tmpl');
@@ -36,7 +36,7 @@ let model = Bram.model({
 let root = document.querySelector('#bram-info');
 root.appendChild(render(model));
 
-let gh = document.querySelector('github-stars');
+let gh = document.querySelector('github-prs');
 gh.onpullrequest = function(ev){
   let pr = ev.detail;
   model.prs.push(pr);
