@@ -9,7 +9,6 @@
   <link rel="preload" href="./examples/tabs/tabs.js" as="script">
   <link rel="preload" href="./examples/todos/app.js" as="script">
   <link rel="preload" href="./examples/pull-requests/prs.js" as="script">
-  <link rel="preload" href="./scripts/highlight.pack.js" as="script">
 
   <script>
   (function(){
@@ -36,11 +35,6 @@
       ].map(function(url){
         return load(url);
       }));
-    })
-    .then(function(){
-      return load('./scripts/highlight.pack.js');
-    }).then(function(){
-      hljs.initHighlighting();
     });
 
     function load(pth){
@@ -101,46 +95,47 @@
       <div class="example-code">
         <bram-tabs>
           <bram-panel title="HTML">
-            <pre><code class="html">
-&lt;template id=&quot;todo-template&quot;&gt;
-  &lt;form on-submit=&quot;addTodo&quot;&gt;
-    &lt;input type=&quot;text&quot; name=&quot;todo&quot;
-      placeholder=&quot;What to do?&quot;&gt;
-    &lt;button type=&quot;submit&quot;&gt;Add&lt;/button&gt;
-  &lt;/form&gt;
+            <pre><code class="html hljs xml">
+<span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"todo-template"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">form</span> <span class="hljs-attr">on-submit</span>=<span class="hljs-string">"addTodo"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"todo"</span>
+      <span class="hljs-attr">placeholder</span>=<span class="hljs-string">"What to do?"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"submit"</span>&gt;</span>Add<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span>
 
-  &lt;ul&gt;
-    &lt;template each=&quot;{{todos}}&quot;&gt;
-      &lt;li&gt;{{item}}&lt;/li&gt;
-    &lt;/template&gt;
-  &lt;/ul&gt;
-&lt;/template&gt;
+  <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">each</span>=<span class="hljs-string">"{{todos}}"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>{{item}}<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
 
-&lt;todo-list&gt;&lt;/todo-list&gt;
-            </code></pre>
+<span class="hljs-tag">&lt;<span class="hljs-name">todo-list</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">todo-list</span>&gt;</span>
+
+</code></pre>
           </bram-panel>
           <bram-panel title="JavaScript">
-            <pre><code class="javascript">
-class TodoList extends Bram.Element {
-  static get template() {
-    return '#todo-template';
+            <pre><code class="javascript hljs">
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TodoList</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
+  <span class="hljs-keyword">static</span> get template() {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">'#todo-template'</span>;
   }
 
-  constructor() {
-    super();
-    this.model.todos = [];
+  <span class="hljs-keyword">constructor</span>() {
+    <span class="hljs-keyword">super</span>();
+    <span class="hljs-keyword">this</span>.model.todos = [];
   }
 
   addTodo(ev) {
     ev.preventDefault();
-    let input = ev.target.todo;
-    let value = input.value;
-    this.model.todos.push(value);
-    input.value = '';
+    <span class="hljs-keyword">let</span> input = ev.target.todo;
+    <span class="hljs-keyword">let</span> value = input.value;
+    <span class="hljs-keyword">this</span>.model.todos.push(value);
+    input.value = <span class="hljs-string">''</span>;
   }
 }
 
-customElements.define('todo-list', TodoList);
+customElements.define(<span class="hljs-string">'todo-list'</span>, TodoList);
             </code></pre>
           </bram-panel>
         </bram-tabs>
@@ -183,71 +178,71 @@ customElements.define('todo-list', TodoList);
       <div class="example-code">
         <bram-tabs>
           <bram-panel title="HTML">
-            <pre><code class="html">
-&lt;template id="my-tmpl"&gt;
-  &lt;github-prs repo="matthewp/bram"
-    limit="3"&gt;&lt;/github-prs&gt;
+            <pre><code class="html hljs xml">
+<span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"my-tmpl"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">github-prs</span> <span class="hljs-attr">repo</span>=<span class="hljs-string">"matthewp/bram"</span>
+    <span class="hljs-attr">limit</span>=<span class="hljs-string">"3"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">github-prs</span>&gt;</span>
 
-  &lt;h1&gt;Latest PRs&lt;/h1&gt;
-  &lt;ul&gt;
-    &lt;template each="{{prs}}"&gt;
-      &lt;li&gt;
+  <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Latest PRs<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">each</span>=<span class="hljs-string">"{{prs}}"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>
         ({{state}})
 
-        &lt;a href="{{url}}"&gt;{{title}}&lt;/a&gt;
-      &lt;/h1&gt;
-    &lt;/template&gt;
-  &lt;/ul&gt;
-&lt;/template&gt;
+        <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"{{url}}"</span>&gt;</span>{{title}}<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
 
-&lt;div id="bram-info"&gt;&lt;/div&gt;
+<span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"bram-info"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
             </code></pre>
           </bram-panel>
           <bram-panel title="JavaScript">
-            <pre><code class="javascript">
-class GitHubStars extends Bram.Element {
-  static events() {
-    return ['pullrequest'];
+            <pre><code class="javascript hljs">
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">GitHubPRs</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
+  <span class="hljs-keyword">static</span> events() {
+    <span class="hljs-keyword">return</span> [<span class="hljs-string">'pullrequest'</span>];
   }
 
   connectedCallback() {
-    let repo = this.getAttribute('repo');
-    let limit = this.getAttribute('limit') || 5;
-    this.fetch(repo, limit);
+    <span class="hljs-keyword">let</span> repo = <span class="hljs-keyword">this</span>.getAttribute(<span class="hljs-string">'repo'</span>);
+    <span class="hljs-keyword">let</span> limit = <span class="hljs-keyword">this</span>.getAttribute(<span class="hljs-string">'limit'</span>) || <span class="hljs-number">5</span>;
+    <span class="hljs-keyword">this</span>.fetch(repo, limit);
   }
 
   fetch(repo, limit) {
-    let url = `https://api.github.com/repos/
-      ${repo}/pulls?page=1&per_page=${limit}
-      &state=all`;
+    <span class="hljs-keyword">let</span> url = <span class="hljs-string">`https://api.github.com/repos/
+      <span class="hljs-subst">${repo}</span>/pulls?page=1&amp;per_page=<span class="hljs-subst">${limit}</span>
+      &amp;state=all`</span>;
 
-    fetch(url).then(res => {
-      return res.json();
-    }).then(results => {
-      results.forEach(pr => {
-        let ev = new CustomEvent('pullrequest', {
-          detail: pr
+    fetch(url).then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> {
+      <span class="hljs-keyword">return</span> res.json();
+    }).then(<span class="hljs-function"><span class="hljs-params">results</span> =&gt;</span> {
+      results.forEach(<span class="hljs-function"><span class="hljs-params">pr</span> =&gt;</span> {
+        <span class="hljs-keyword">let</span> ev = <span class="hljs-keyword">new</span> CustomEvent(<span class="hljs-string">'pullrequest'</span>, {
+          <span class="hljs-attr">detail</span>: pr
         });
-        this.dispatchEvent(ev);
+        <span class="hljs-keyword">this</span>.dispatchEvent(ev);
       });
     });
   }
 }
 
-customElements.define('github-stars', GitHubStars);
+customElements.define(<span class="hljs-string">'github-stars'</span>, GitHubPRs);
 
 
-let render = Bram.template('#my-tmpl');
-let model = Bram.model({
-  prs: []
+<span class="hljs-keyword">let</span> render = Bram.template(<span class="hljs-string">'#my-tmpl'</span>);
+<span class="hljs-keyword">let</span> model = Bram.model({
+  <span class="hljs-attr">prs</span>: []
 });
 
-let root = document.querySelector('#bram-info');
+<span class="hljs-keyword">let</span> root = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#bram-info'</span>);
 root.appendChild(render(model));
 
-let gh = document.querySelector('github-stars');
-gh.onpullrequest = function(ev){
-  let pr = ev.detail;
+<span class="hljs-keyword">let</span> gh = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'github-stars'</span>);
+gh.onpullrequest = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">ev</span>)</span>{
+  <span class="hljs-keyword">let</span> pr = ev.detail;
   model.prs.push(pr);
 };
             </code></pre>
