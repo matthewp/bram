@@ -37,7 +37,7 @@
 /* eslint-disable indent, no-unused-vars, no-multiple-empty-lines, max-nested-callbacks, space-before-function-paren, quotes, comma-spacing */
 'use strict';
 
-var precacheConfig = [["/bram.umd.js","955718b0cd3e9cafe91ce1becf4f2512"],["/examples/pull-requests/prs.js","e6085663fbbea6a62326cb35ce449417"],["/examples/tabs/tabs.js","5c8b9401795da82bf5aa3a3c1b474210"],["/examples/todos/app.js","b0f56489e43573b5cc9a37ad4b846bdb"],["/images/bram.svg","d3798cfe4366ecc71e8ce500e7a7d0bc"],["/index.css","19cd6edfc3c8300adebc096273c2181e"],["/index.html","134c36c084de6dec007cfa6d5b1a95c3"],["/styles.css","7dd8b5bfdbfe20218cc482ada50a589b"],["/styles/hljs/atom-one-dark.css","e04d3287a76f861ed154658b42210d11"]];
+var precacheConfig = [["/bram.umd.js","955718b0cd3e9cafe91ce1becf4f2512"],["/examples/pull-requests/prs.js","e6085663fbbea6a62326cb35ce449417"],["/examples/tabs/tabs.js","5c8b9401795da82bf5aa3a3c1b474210"],["/examples/todos/app.js","b0f56489e43573b5cc9a37ad4b846bdb"],["/images/bram.svg","d3798cfe4366ecc71e8ce500e7a7d0bc"],["/index.css","19cd6edfc3c8300adebc096273c2181e"],["/index.html","33b43f6db572c46d8a80cd5c9c35a4d0"],["/styles.css","7dd8b5bfdbfe20218cc482ada50a589b"],["/styles/hljs/atom-one-dark.css","e04d3287a76f861ed154658b42210d11"]];
 var cacheName = 'sw-precache-v2--' + (self.registration ? self.registration.scope : '');
 
 
