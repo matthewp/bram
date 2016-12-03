@@ -7,6 +7,7 @@ swPrecache.write(__dirname + '/../service-worker.js', {
     `${rootDir}/api.html`,
     `${rootDir}/styles.css`,
     `${rootDir}/index.css`,
+    `${rootDir}/styles/api.css`,
     `${rootDir}/styles/hljs/atom-one-dark.css`,
     `${rootDir}/bram.umd.js`,
     `${rootDir}/examples/tabs/tabs.js`,
