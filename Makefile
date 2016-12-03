@@ -17,6 +17,7 @@ site:
 	cp bram.umd.js docs/
 	cp node_modules/@webcomponents/custom-elements/custom-elements.min.js docs/scripts
 	cp node_modules/@webcomponents/shadydom/shadydom.min.js docs/scripts
+	node docs/scripts/api.js > docs/api.html
 	node docs/scripts/sw-precache.js
 
 all: bram bram-umd minify
