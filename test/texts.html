@@ -20,7 +20,7 @@
       beforeEach(function(){
         model = Bram.model({one:'one', two: 'two'});
         var hydrate = Bram.template(doubleText);
-        host.appendChild(hydrate(model));
+        host.appendChild(hydrate(model).tree);
       });
 
       afterEach(function(){

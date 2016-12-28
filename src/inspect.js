@@ -14,11 +14,11 @@ export default function inspect(node, ref, paths) {
         if(result.hasBinding) {
           result.throwIfMultiple();
           ignoredAttrs[templateAttr] = true;
-          paths[ref.id] = function(node, model){
+          paths[ref.id] = function(node, model, link){
             if(templateAttr === 'each') {
-              live.each(node, model, result, node);
+              live.each(node, model, result, link);
             } else {
-              setupBinding(model, result, live[templateAttr](node, model));
+              setupBinding(model, result, link, live[templateAttr](node, model, link));
             }
           };
         }
@@ -28,8 +28,8 @@ export default function inspect(node, ref, paths) {
     case 3:
       var result = parse(node.nodeValue);
       if(result.hasBinding) {
-        paths[ref.id] = function(node, model){
-          setupBinding(model, result, live.text(node));
+        paths[ref.id] = function(node, model, link){
+          setupBinding(model, result, link, live.text(node));
         };
       }
       break;
@@ -46,13 +46,13 @@ export default function inspect(node, ref, paths) {
     var property = propAttr(name);
     var result = parse(attrNode.value);
     if(result.hasBinding) {
-      paths[ref.id] = function(node, model){
+      paths[ref.id] = function(node, model, link){
         if(property) {
           node.removeAttribute(name);
-          setupBinding(model, result, live.prop(node, property));
+          setupBinding(model, result, link, live.prop(node, property));
           return;
         }
-        setupBinding(model, result, live.attr(node, name));
+        setupBinding(model, result, link, live.attr(node, name));
       };
     } else if(property) {
       paths[ref.id] = function(node){
@@ -61,9 +61,9 @@ export default function inspect(node, ref, paths) {
       };
     } else if(name.substr(0, 3) === 'on-') {
       var eventName = name.substr(3);
-      paths[ref.id] = function(node, model){
+      paths[ref.id] = function(node, model, link){
         node.removeAttribute(name);
-        live.event(node, eventName, model, result);
+        live.event(node, eventName, model, result, link);
       };
     }
   });

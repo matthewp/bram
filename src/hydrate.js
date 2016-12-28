@@ -1,17 +1,17 @@
 import { some, slice } from './util.js';
 
-function hydrate(frag, callbacks, scope) {
+function hydrate(link, callbacks, scope) {
   var paths = Object.keys(callbacks);
   var id = +paths.shift();
   var cur = 0;
 
-  traverse(frag);
+  traverse(link.tree);
 
   function check(node) {
     cur++;
     if(id === cur) {
       var callback = callbacks[id];
-      callback(node, scope);
+      callback(node, scope, link);
       id = +paths.shift();
     }
     return !id;
