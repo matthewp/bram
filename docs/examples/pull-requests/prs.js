@@ -34,7 +34,7 @@ let model = Bram.model({
 });
 
 let root = document.querySelector('#bram-info');
-root.appendChild(render(model));
+root.appendChild(render(model).tree);
 
 let gh = document.querySelector('github-prs');
 gh.onpullrequest = function(ev){

@@ -241,7 +241,7 @@ customElements.define(<span class="hljs-string">'github-prs'</span>, GitHubPRs);
 });
 
 <span class="hljs-keyword">let</span> root = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#bram-info'</span>);
-root.appendChild(render(model));
+root.appendChild(render(model).tree);
 
 <span class="hljs-keyword">let</span> gh = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'github-stars'</span>);
 gh.onpullrequest = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">ev</span>)</span>{
