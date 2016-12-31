@@ -21,6 +21,10 @@ a, a:visited {
   color: var(--alt-fg-color);
 }
 
+pre code {
+  font-size: 1.2em;
+}
+
 .hero {
   display: flex;
   flex: 1;

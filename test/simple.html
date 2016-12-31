@@ -28,7 +28,7 @@
     });
 
     var hydrate = Bram.template(template);
-    var tree = hydrate(model);
+    var tree = hydrate(model).tree;
     document.querySelector('#main').appendChild(tree);
   })();
   </script>

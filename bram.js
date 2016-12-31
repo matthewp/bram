@@ -213,18 +213,18 @@ Scope.prototype.add = function(object){
   return new Scope(model, this);
 };
 
-function hydrate(frag, callbacks, scope) {
+function hydrate(link, callbacks, scope) {
   var paths = Object.keys(callbacks);
   var id = +paths.shift();
   var cur = 0;
 
-  traverse(frag);
+  traverse(link.tree);
 
   function check(node) {
     cur++;
     if(id === cur) {
       var callback = callbacks[id];
-      callback(node, scope);
+      callback(node, scope, link);
       id = +paths.shift();
     }
     return !id;
@@ -370,14 +370,14 @@ var live = {
       node[prop] = val;
     };
   },
-  event: function(node, eventName, scope, parseResult){
+  event: function(node, eventName, scope, parseResult, link){
     var prop = parseResult.raw;
-    node.addEventListener(eventName, function(ev){
+    link.bind(node, eventName, function(ev){
       var readResult = scope.read(prop);
       readResult.value.call(readResult.model, ev);
     });
   },
-  each: function(node, parentScope, parseResult){
+  each: function(node, parentScope, parseResult, parentLink){
     var hydrate = stamp(node);
     var prop = parseResult.props()[0];
     var scopeResult = parentScope.read(prop);
@@ -390,11 +390,14 @@ var live = {
 
       var render = function(item, i){
         var scope = parentScope.add(item).add({ item: item, index: i});
-        var frag = hydrate(scope);
+        var link = hydrate(scope);
+        parentLink.add(link);
+        var tree = link.tree;
 
         var info = {
           item: item,
-          nodes: slice.call(frag.childNodes),
+          link: link,
+          nodes: slice.call(tree.childNodes),
           scope: scope,
           index: i
         };
@@ -405,9 +408,9 @@ var live = {
         var parent = placeholder.parentNode;
         if(siblingInfo) {
           var firstChild = siblingInfo.nodes[0];
-          parent.insertBefore(frag, firstChild);
+          parent.insertBefore(tree, firstChild);
         } else {
-          parent.appendChild(frag);
+          parent.appendChild(tree);
         }
       };
 
@@ -417,6 +420,7 @@ var live = {
           info.nodes.forEach(function(node){
             node.parentNode.removeChild(node);
           });
+          parentLink.remove(info.link);
           itemMap.delete(info.item);
           indexMap.delete(index);
         }
@@ -462,13 +466,13 @@ var live = {
         }
       };
 
-      on(list, arrayChange, onarraychange);
+      parentLink.on(list, arrayChange, onarraychange);
 
       return function(){
         for(var i = 0, len = list.length; i < len; i++) {
           remove(i);
         }
-        off(list, arrayChange, onarraychange);
+        parentLink.off(list, arrayChange, onarraychange);
         itemMap = null;
         indexMap = null;
       };
@@ -476,12 +480,12 @@ var live = {
 
     var teardown = observe(scopeResult.value);
 
-    on(scopeResult.model, prop, function(ev, newValue){
+    parentLink.on(scopeResult.model, prop, function(ev, newValue){
       teardown();
       teardown = observe(newValue);
     });
   },
-  if: function(node, parentScope){
+  if: function(node, parentScope, parentLink){
     var hydrate = stamp(node);
     var rendered = false;
     var child = {};
@@ -491,10 +495,12 @@ var live = {
       if(!rendered) {
         if(val) {
           var scope = parentScope.add(val);
-          var frag = hydrate(scope);
-          child.children = slice.call(frag.childNodes);
+          var link = hydrate(scope);
+          parentLink.add(link);
+          var tree = link.tree;
+          child.children = slice.call(tree.childNodes);
           child.scope = scope;
-          placeholder.parentNode.insertBefore(frag, placeholder.nextSibling);
+          placeholder.parentNode.insertBefore(tree, placeholder.nextSibling);
           rendered = true;
         }
       } else {
@@ -514,7 +520,7 @@ var live = {
   }
 };
 
-function setupBinding(scope, parseResult, fn){
+function setupBinding(scope, parseResult, link, fn){
   var compute = parseResult.compute(scope);
 
   var set = function(){
@@ -526,7 +532,7 @@ function setupBinding(scope, parseResult, fn){
     var model = info.model;
     if(info.bindable !== false) {
       info.reads.forEach(function(read){
-        on(read[0], read[1], set);
+        link.on(read[0], read[1], set);
       });
     }
   });
@@ -546,11 +552,11 @@ function inspect(node, ref, paths) {
         if(result.hasBinding) {
           result.throwIfMultiple();
           ignoredAttrs[templateAttr] = true;
-          paths[ref.id] = function(node, model){
+          paths[ref.id] = function(node, model, link){
             if(templateAttr === 'each') {
-              live.each(node, model, result, node);
+              live.each(node, model, result, link);
             } else {
-              setupBinding(model, result, live[templateAttr](node, model));
+              setupBinding(model, result, link, live[templateAttr](node, model, link));
             }
           };
         }
@@ -560,8 +566,8 @@ function inspect(node, ref, paths) {
     case 3:
       var result = parse(node.nodeValue);
       if(result.hasBinding) {
-        paths[ref.id] = function(node, model){
-          setupBinding(model, result, live.text(node));
+        paths[ref.id] = function(node, model, link){
+          setupBinding(model, result, link, live.text(node));
         };
       }
       break;
@@ -578,13 +584,13 @@ function inspect(node, ref, paths) {
     var property = propAttr(name);
     var result = parse(attrNode.value);
     if(result.hasBinding) {
-      paths[ref.id] = function(node, model){
+      paths[ref.id] = function(node, model, link){
         if(property) {
           node.removeAttribute(name);
-          setupBinding(model, result, live.prop(node, property));
+          setupBinding(model, result, link, live.prop(node, property));
           return;
         }
-        setupBinding(model, result, live.attr(node, name));
+        setupBinding(model, result, link, live.attr(node, name));
       };
     } else if(property) {
       paths[ref.id] = function(node){
@@ -593,9 +599,9 @@ function inspect(node, ref, paths) {
       };
     } else if(name.substr(0, 3) === 'on-') {
       var eventName = name.substr(3);
-      paths[ref.id] = function(node, model){
+      paths[ref.id] = function(node, model, link){
         node.removeAttribute(name);
-        live.event(node, eventName, model, result);
+        live.event(node, eventName, model, result, link);
       };
     }
   });
@@ -623,6 +629,81 @@ function propAttr(name) {
   return (name && name[0] === ':') && name.substr(1);
 }
 
+class MapOfMap {
+  constructor() {
+    this.map = new Map();
+  }
+
+  set(key1, key2, val) {
+    let map = this.map.get(key1);
+    if(!map) {
+      map = new Map();
+      this.map.set(key1, map);
+    }
+    map.set(key2, val);
+  }
+
+  delete(key1, key2) {
+    let map = this.map.get(key1);
+    if(map) {
+      map.delete(key2);
+    }
+  }
+}
+
+class Link {
+  constructor(frag) {
+    this.tree = frag;
+    this.models = new MapOfMap();
+    this.elements = new MapOfMap();
+    this.children = [];
+  }
+
+  loop(map, cb) {
+    for(let [key, val] of map) {
+      cb(key, val[0], val[1]);
+    }
+  }
+
+  on(obj, event, fn, isModel$$1) {
+    this.models.set(obj, event, fn);
+    on(obj, event, fn);
+  }
+
+  off(obj, event, fn) {
+    this.models.delete(obj, event);
+    off(obj, event, fn);
+  }
+
+  bind(node, event, fn) {
+    this.elements.set(node, event, fn);
+    node.addEventListener(event, fn);
+  }
+
+  attach() {
+    this.loop(this.models, on);
+    this.children.forEach(function(link){
+      link.attach();
+    });
+  }
+
+  detach() {
+    this.loop(this.models, off);
+    this.children.forEach(function(link){
+      link.detach();
+    });
+  }
+
+  add(link) {
+    this.children.push(link);
+  }
+
+  remove(link) {
+    var idx = this.children.indexOf(link);
+    this.children.splice(idx, 1);
+  }
+}
+
 var stamp = function(template){
   template = (template instanceof HTMLTemplateElement) ? template : document.querySelector(template);
   var paths = inspect(template.content, {id:0}, {});
@@ -633,8 +714,9 @@ var stamp = function(template){
     }
 
     var frag = document.importNode(template.content, true);
-    hydrate(frag, paths, scope);
-    return frag;
+    var link = new Link(frag);
+    hydrate(link, paths, scope);
+    return link;
   };
 };
 
@@ -672,7 +754,8 @@ function Bram(Element) {
         }
 
         var scope = new Scope(this).add(this.model);
-        var tree = this._hydrate(scope);
+        this._link = this._hydrate(scope);
+        var tree = this._link.tree;
         var renderMode = this.constructor.renderMode;
         if(renderMode === 'light') {
           this.appendChild(tree);
@@ -680,6 +763,9 @@ function Bram(Element) {
           this.attachShadow({ mode: 'open' });
           this.shadowRoot.appendChild(tree);
         }
+        this._hasRendered = true;
+      } else if(this._hasRendered) {
+        this._link.attach();
       }
       if(this.childrenConnectedCallback) {
         this._disconnectChildMO = setupChildMO(this);
@@ -689,6 +775,9 @@ function Bram(Element) {
     disconnectedCallback() {
       if(this._disconnectChildMO) {
         this._disconnectChildMO();
+      }
+      if(this._link) {
+        this._link.detach();
       }
     }
 

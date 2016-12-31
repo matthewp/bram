@@ -37,7 +37,8 @@ function Bram(Element) {
         }
 
         var scope = new Scope(this).add(this.model);
-        var tree = this._hydrate(scope);
+        this._link = this._hydrate(scope);
+        var tree = this._link.tree;
         var renderMode = this.constructor.renderMode;
         if(renderMode === 'light') {
           this.appendChild(tree);
@@ -45,6 +46,9 @@ function Bram(Element) {
           this.attachShadow({ mode: 'open' });
           this.shadowRoot.appendChild(tree);
         }
+        this._hasRendered = true;
+      } else if(this._hasRendered) {
+        this._link.attach();
       }
       if(this.childrenConnectedCallback) {
         this._disconnectChildMO = setupChildMO(this);
@@ -54,6 +58,9 @@ function Bram(Element) {
     disconnectedCallback() {
       if(this._disconnectChildMO) {
         this._disconnectChildMO();
+      }
+      if(this._link) {
+        this._link.detach();
       }
     }
 

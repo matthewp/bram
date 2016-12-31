@@ -1,6 +1,7 @@
-import Scope from './scope.js';
 import hydrate from './hydrate.js';
 import inspect from './inspect.js';
+import Link from './link.js';
+import Scope from './scope.js';
 
 export default function(template){
   template = (template instanceof HTMLTemplateElement) ? template : document.querySelector(template);
@@ -12,7 +13,8 @@ export default function(template){
     }
 
     var frag = document.importNode(template.content, true);
-    hydrate(frag, paths, scope);
-    return frag;
+    var link = new Link(frag);
+    hydrate(link, paths, scope);
+    return link;
   };
 };

@@ -26,7 +26,7 @@
 
         beforeEach(function(){
           model = Bram.model({ val: 'Wilbur' });
-          host.appendChild(hydrate(model));
+          host.appendChild(hydrate(model).tree);
         });
 
         it('shows value when truthy', function(){

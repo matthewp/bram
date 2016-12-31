@@ -24,7 +24,7 @@
         var tree = hydrate(Bram.model({
           foo: 'baz',
           bar: 'qux'
-        }));
+        })).tree;
         host.appendChild(tree);
         anchor = host.querySelector('a');
       });

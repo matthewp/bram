@@ -365,6 +365,19 @@ class UserForm extends Bram.Element {
 customElements.define('user-form', UserForm);
 ```
 
+### Bram.template
+
+Creates a function that is used to hydrate (render) a template using a set of data.
+
+```js
+let hydrate = Bram.template('#some-template');
+let link = hydrate({foo: 'bar'});
+
+document.body.appendChild(link.tree);
+```
+
+Hydrating creates a *link* object which holds the data-bindings and the rendered DocumentFragment (the `.tree` property).
+
 ## License
 
 [BSD 2-Clause](https://opensource.org/licenses/BSD-2-Clause)
