@@ -1,4 +1,4 @@
-.PHONY: bram bram-umd minify site styles all
+.PHONY: bram bram-umd minify guide site styles all
 
 bram:
 	node_modules/.bin/rollup -o bram.js src/bram.js
@@ -13,7 +13,10 @@ minify:
 styles:
 	node_modules/.bin/cleancss -o docs/styles/styles.min.css docs/styles.css
 
-site:
+guide:
+	node docs/scripts/guide.js > docs/guide.html
+
+site: guide
 	cp bram.umd.js docs/
 	cp node_modules/@webcomponents/custom-elements/custom-elements.min.js docs/scripts
 	cp node_modules/@webcomponents/shadydom/shadydom.min.js docs/scripts
