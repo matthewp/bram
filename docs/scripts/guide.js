@@ -4,8 +4,8 @@ const fs = require('fs');
 const cheerio = require('cheerio');
 const highlight = require('./lib/highlight');
 
-function getGuide() {
-  let pth = `${__dirname}/../doc/guide.md`;
+function getGuide(name) {
+  let pth = `${__dirname}/../doc/${name}.md`;
   let src = fs.readFileSync(pth, 'utf8');
 
   let res = marked(src);
@@ -31,6 +31,7 @@ function fillTemplate(str) {
   return $.html();
 }
 
-let apiStr = getGuide();
+let whichGuide = process.argv[2] || 'guide';
+let apiStr = getGuide(whichGuide);
 let out = fillTemplate(apiStr).trim();
 console.log(out);

@@ -6,6 +6,8 @@ swPrecache.write(__dirname + '/../service-worker.js', {
     `${rootDir}/index.html`,
     `${rootDir}/api.html`,
     `${rootDir}/guide.html`,
+    `${rootDir}/hello-world.html`,
+    `${rootDir}/compat.html`,
     `${rootDir}/styles.css`,
     `${rootDir}/index.css`,
     `${rootDir}/styles/api.css`,

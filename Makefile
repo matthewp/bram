@@ -15,6 +15,8 @@ styles:
 
 guide:
 	node docs/scripts/guide.js > docs/guide.html
+	node docs/scripts/guide.js hello-world > docs/hello-world.html
+	node docs/scripts/guide.js compat > docs/compat.html
 
 site: guide
 	cp bram.umd.js docs/
