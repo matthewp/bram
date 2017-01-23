@@ -11,7 +11,7 @@
 </head>
 <body>
   <template id="someTemplate">
-    <span>{{hello}}</span>
+    <span>{{person.name}}</span>
   </template>
   <some-element id="someElement"></some-element>
 
@@ -27,7 +27,8 @@
 
           constructor() {
             super();
-            this.hello = 'world';
+            this.model.person = {};
+            this.model.person.name = 'world';
           }
         }
 
