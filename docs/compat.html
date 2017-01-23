@@ -74,30 +74,31 @@
     </div>
 
     <h2 id="browser-compatibility">Browser Compatibility</h2>
-<table>
-<thead>
-<tr>
-<th>Chrome 54</th>
-<th>Chrome 57</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>71.2</td>
-<td>32.5</td>
-</tr>
-<tr>
-<td>77.6</td>
-<td>29.7</td>
-</tr>
-</tbody>
-</table>
-<h2 id="prerequisites">Prerequisites</h2>
-<ul>
-<li>Proxy</li>
-<li>Map</li>
-<li>Mutation Observer</li>
-</ul>
+<p>Bram targets IE11 and modern browsers. Bram uses several features not available in all browsers, so polyfills need to be provided.</p>
+<h3 id="proxy">Proxy</h3>
+<p>Bram uses <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy">Proxy</a> to make data-binding more elegant. Simply make changes to <code>this.model</code> inside of your element and the template will be automatically updated.</p>
+<p>Since not all browsers can do this, you need to include the <a href="https://github.com/GoogleChrome/proxy-polyfill">Proxy polyfill</a>. A caveat to the polyfill usage is that all properties should be <em>predefined</em> in the constructor. That means instead of doing this:</p>
+<pre><code class="javascript hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyElement</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
+  setTime() {
+    <span class="hljs-keyword">this</span>.model.time = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+  }
+}
+</code></pre>
+<p>Instead give the property an initial value in your constructor like so:</p>
+<pre><code class="javascript hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyElement</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
+  <span class="hljs-keyword">constructor</span>() {
+    <span class="hljs-keyword">super</span>();
+    <span class="hljs-keyword">this</span>.model.time = <span class="hljs-literal">null</span>;
+  }
+
+  setTime() {
+    <span class="hljs-keyword">this</span>.model.time = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+  }
+}
+</code></pre>
+<h3 id="map">Map</h3>
+<p>Bram uses <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map">Maps</a> to keep track of event bindings. We use maps very simply, so a small polyfill like in <a href="https://gist.github.com/matthewp/81199932db5e1e487a2ea6a15983ac73">this gist</a> is sufficient, but you could also use a more robust polyfill like <a href="https://github.com/paulmillr/es6-shim">es6-shim</a>.</p>
+<h3 id="mutation-observer">Mutation Observer</h3>
 
 </main></body>
 </html>
