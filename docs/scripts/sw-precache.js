@@ -5,9 +5,13 @@ swPrecache.write(__dirname + '/../service-worker.js', {
   staticFileGlobs: [
     `${rootDir}/index.html`,
     `${rootDir}/api.html`,
+    `${rootDir}/guide.html`,
+    `${rootDir}/hello-world.html`,
+    `${rootDir}/compat.html`,
     `${rootDir}/styles.css`,
     `${rootDir}/index.css`,
     `${rootDir}/styles/api.css`,
+    `${rootDir}/styles/guide.css`,
     `${rootDir}/styles/hljs/atom-one-dark.css`,
     `${rootDir}/bram.umd.js`,
     `${rootDir}/examples/tabs/tabs.js`,

@@ -4,6 +4,7 @@
   --spec-fg-color: #B9F3FF;
   --alt-fg-color: #CCC580;
   --link-fg-color: #FFD3E5;
+  --code-color: #282c34;
   --serif-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -23,6 +24,11 @@ a, a:visited {
 
 pre code {
   font-size: 1.2em;
+}
+
+code {
+  background-color: var(--code-color, #282c34);
+  padding: 2px 5px;
 }
 
 .hero {
