@@ -41,6 +41,7 @@ function Bram(Element) {
         var tree = this._link.tree;
         var renderMode = this.constructor.renderMode;
         if(renderMode === 'light') {
+          this.innerHTML = '';
           this.appendChild(tree);
         } else {
           this.attachShadow({ mode: 'open' });

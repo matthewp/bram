@@ -185,10 +185,23 @@ Scope.prototype.readInTransaction = function(prop) {
 };
 
 Scope.prototype._read = function(prop){
-  var val = this.model[prop];
+  var model = this.model;
+  var val = model[prop];
+  if(val == null) {
+    // Handle dotted bindings like "user.name"
+    var parts = prop.split(".");
+    if(parts.length > 1) {
+      do {
+        val = model[parts.shift()];
+        if(parts.length) {
+          model = val;
+        }
+      } while(parts.length && val);
+    }
+  }
   if(val != null) {
     return {
-      model: this.model,
+      model: model,
       value: val
     };
   }
@@ -758,6 +771,7 @@ function Bram(Element) {
         var tree = this._link.tree;
         var renderMode = this.constructor.renderMode;
         if(renderMode === 'light') {
+          this.innerHTML = '';
           this.appendChild(tree);
         } else {
           this.attachShadow({ mode: 'open' });
