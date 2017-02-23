@@ -45,4 +45,4 @@ Bram isn't very useful without custom elements 🤠! We recommend [webcomponents
 
 ### Shadow DOM
 
-Bram can be used without Shadow DOM if using the [renderMode](api.html#rendermode) option. However Shadow DOM is great and you probably want to use it for at least some elements. In that case [shadydom](https://github.com/webcomponents/shadydom) is the way to go.
+Bram can be used without Shadow DOM if using the [renderMode](api.html#rendermode) option. However Shadow DOM is great and you probably want to use it for at least some elements. In that case [cloudydom](https://github.com/skatejs/cloudydom) is the way to go.
