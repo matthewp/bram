@@ -1,6 +1,6 @@
 {
   "name": "bram",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Web component architecture with Observables",
   "main": "bram.umd.js",
   "jsnext:main": "bram.js",
