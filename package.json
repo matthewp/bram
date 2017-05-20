@@ -39,7 +39,7 @@
     "cloudydom": "^1.0.2",
     "highlight.js": "^9.8.0",
     "marked": "^0.3.6",
-    "mocha-test": "^2.0.3",
+    "mocha-test": "^2.0.4",
     "rollup": "^0.36.0",
     "script-type-module": "^1.0.0",
     "sw-precache": "^4.2.3",
