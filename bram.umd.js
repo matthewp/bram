@@ -234,6 +234,7 @@ Scope.prototype.add = function(object){
 
 function hydrate(link, callbacks, scope) {
   var paths = Object.keys(callbacks);
+  if(paths.length === 0) return;
   var id = +paths.shift();
   var cur = 0;
 
@@ -260,17 +261,21 @@ function hydrate(link, callbacks, scope) {
     });
     if(exit) return false;
 
-    some.call(node.childNodes, function(child){
+    var child = node.firstChild, nextChild;
+    while(child) {
+      nextChild = child.nextSibling;
       exit = check(child);
       if(exit) {
-        return true;
+        break;
       }
 
       exit = !traverse(child);
       if(exit) {
-        return true;
+        break;
       }
-    });
+      child = nextChild;
+    }
+
     return !exit;
   }
 }

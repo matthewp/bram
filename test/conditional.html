@@ -10,6 +10,15 @@
 </head>
 <body>
 <template id="conditional"><template if="{{condition}}">{{val}}</template></template>
+<template id="conditional2">
+  <template if="{{condition}}">
+    <span id="ittrue">True!</span>
+  </template>
+
+  <section>
+    <div class="two" :foo="{{bar}}">Stuff after</div>
+  </section>
+</template>
 <div id="host"></div>
 <mocha-test>
 <template>
@@ -55,6 +64,22 @@
           assert.equal(val.nodeValue, 'Wilbur');
         });
       });
+
+      describe('rendering next to other content', function(){
+        var hydrate = Bram.template(conditional2);
+        var model;
+
+        beforeEach(function(){
+          model = Bram.model({ bar: 'foo', condition: true });
+          host.appendChild(hydrate(model).tree);
+        });
+
+        it('doesn\'t affect adjacent content', function(){
+          var two = host.querySelector('.two');
+          console.log(two.foo, two);
+          assert.equal(two.foo, 'foo');
+        });
+      })
     });
   </script>
 </template>
