@@ -555,8 +555,23 @@ function setupBinding(scope, parseResult, link, fn){
     var info = scope.readInTransaction(prop);
     var model = info.model;
     if(info.bindable !== false) {
+      var listenings = new Map();
       info.reads.forEach(function(read){
-        link.on(read[0], read[1], set);
+        var model = read[0];
+        var prop = read[1];
+        if(listenings.has(model)) {
+          var l = listenings.get(model);
+          if(l.has(prop)) {
+            return;
+          }
+          l.set(prop, true);
+        } else {
+          var l = new Map();
+          l.set(prop, true);
+          listenings.set(model, l);
+        }
+
+        link.on(model, prop, set);
       });
     }
   });
