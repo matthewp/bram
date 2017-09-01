@@ -1,17 +1,21 @@
 .PHONY: bram bram-umd minify guide site styles all
 
+BABILI=node_modules/.bin/babili
+ROLLUP=node_modules/.bin/rollup
+CLEANCSS=node_modules/.bin/cleancss
+
 bram:
-	node_modules/.bin/rollup -o bram.js src/bram.js
+	$(ROLLUP) -o bram.js src/bram.js
 
 bram-umd:
-	node_modules/.bin/rollup -o bram.umd.js -f umd -n Bram src/global.js
+	$(ROLLUP) -o bram.umd.js -f umd -n Bram src/global.js
 
 minify:
-	node_modules/.bin/babili bram.js > bram.min.js
-	node_modules/.bin/babili bram.umd.js > bram.umd.min.js
+	$(BABILI) bram.js > bram.min.js
+	$(BABILI) bram.umd.js > bram.umd.min.js
 
 styles:
-	node_modules/.bin/cleancss -o docs/styles/styles.min.css docs/styles.css
+	$(CLEANCSS) -o docs/styles/styles.min.css docs/styles.css
 
 guide:
 	node docs/scripts/guide.js > docs/guide.html

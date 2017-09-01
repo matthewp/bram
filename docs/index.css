@@ -59,6 +59,7 @@ bram-panel pre {
 
   .example-code {
     max-width: 100%;
+    flex: none;
   }
 
   .example-live {
