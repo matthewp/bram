@@ -8,7 +8,7 @@ First, let's start by creating a simple template. We're giving it an id of `hell
 
 ```html
 <template id="hello">
-  <h1>Hello {{name}}!</h1>
+  <h1>Hello ${name}!</h1>
 </template>
 ```
 
@@ -23,7 +23,7 @@ class HelloWorld extends Bram.Element {
   static get template() {
     return '#hello';
   }
-  
+
   constructor() {
     super();
     this.model.name = this.getAttribute('name');
@@ -33,7 +33,7 @@ class HelloWorld extends Bram.Element {
 customElements.define('hello-world', HelloWorld);
 ```
 
-Notice that the constructor sets the model's `name` property to the value of the *name* attribute. 
+Notice that the constructor sets the model's `name` property to the value of the *name* attribute.
 
 The second thing to notice is that the class definition includes `static get template()`. This is a static getter that defines the element's template. Here you can return a [selector](https://developer.mozilla.org/en-US/docs/Web/Guide/CSS/Getting_started/Selectors) (as happens in this example), or a [template element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template).
 

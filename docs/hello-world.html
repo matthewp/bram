@@ -78,7 +78,7 @@
 <p>Most of Bram is concerned with taking a template, defined in a <code>&lt;template&gt;</code> tag, and rendering it with some data, that we call an element&apos;s <strong>model</strong>.</p>
 <p>First, let&apos;s start by creating a simple template. We&apos;re giving it an id of <code>hello</code> so that we can refer to it later.</p>
 <pre><code class="html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;hello&quot;</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Hello {{name}}!<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Hello ${name}!<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
 </code></pre>
 <p>Notice the double curly braces. If you&apos;ve ever used <a href="https://mustache.github.io/">mustache</a> or <a href="http://handlebarsjs.com/">handlebars</a> templates then this is probably familiar to you.</p>
@@ -97,7 +97,7 @@
 
 customElements.define(<span class="hljs-string">&apos;hello-world&apos;</span>, HelloWorld);
 </code></pre>
-<p>Notice that the constructor sets the model&apos;s <code>name</code> property to the value of the <em>name</em> attribute. </p>
+<p>Notice that the constructor sets the model&apos;s <code>name</code> property to the value of the <em>name</em> attribute.</p>
 <p>The second thing to notice is that the class definition includes <code>static get template()</code>. This is a static getter that defines the element&apos;s template. Here you can return a <a href="https://developer.mozilla.org/en-US/docs/Web/Guide/CSS/Getting_started/Selectors">selector</a> (as happens in this example), or a <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template">template element</a>.</p>
 <p>When looking at this example in devtools you&apos;ll see this:</p>
 <p><img src="https://cloud.githubusercontent.com/assets/361671/21608260/71d9daaa-d189-11e6-92d3-8134fc20d25e.png" alt="screen shot 2017-01-03 at 7 51 10 am"></p>
