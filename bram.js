@@ -164,67 +164,69 @@ var off = function(model, prop, callback){
   }
 };
 
-function Scope(model, parent) {
-  this.model = model;
-  this.parent = parent;
-}
-
-Scope.prototype.read = function(prop){
-  return this._read(prop) || {
-    model: this.model,
-    value: undefined
-  };
-};
-
-Scope.prototype.readInTransaction = function(prop) {
-  var transaction = new Transaction();
-  transaction.start();
-  var info = this.read(prop);
-  info.reads = transaction.stop();
-  return info;
-};
-
-Scope.prototype._read = function(prop){
-  var model = this.model;
-  var val = model[prop];
-  if(val == null) {
-    // Handle dotted bindings like "user.name"
-    var parts = prop.split(".");
-    if(parts.length > 1) {
-      do {
-        val = model[parts.shift()];
-        if(parts.length) {
-          model = val;
-        }
-      } while(parts.length && val);
-    }
+class Scope {
+  constructor(model, parent) {
+    this.model = model;
+    this.parent = parent;
   }
-  if(val != null) {
-    return {
-      model: model,
-      value: val
+
+  read(prop){
+    return this._read(prop) || {
+      model: this.model,
+      value: undefined
     };
   }
-  if(this.parent) {
-    return this.parent.read(prop);
-  }
-};
 
-Scope.prototype.add = function(object){
-  var model;
-  if(isModel(object)) {
-    model = object;
-  } else {
-    var type = typeof object;
-    if(Array.isArray(object) || type === "object") {
-      model = toModel(object);
-    } else {
-      model = object;
+  readInTransaction(prop) {
+    var transaction = new Transaction();
+    transaction.start();
+    var info = this.read(prop);
+    info.reads = transaction.stop();
+    return info;
+  }
+
+  _read(prop){
+    var model = this.model;
+    var val = model[prop];
+    if(val == null) {
+      // Handle dotted bindings like "user.name"
+      var parts = prop.split(".");
+      if(parts.length > 1) {
+        do {
+          val = model[parts.shift()];
+          if(parts.length) {
+            model = val;
+          }
+        } while(parts.length && val);
+      }
+    }
+    if(val != null) {
+      return {
+        model: model,
+        value: val
+      };
+    }
+    if(this.parent) {
+      return this.parent.read(prop);
     }
   }
 
-  return new Scope(model, this);
-};
+  add(object){
+    var model;
+    if(isModel(object)) {
+      model = object;
+    } else {
+      var type = typeof object;
+      if(Array.isArray(object) || type === "object") {
+        model = toModel(object);
+      } else {
+        model = object;
+      }
+    }
+
+    return new Scope(model, this);
+  }
+}
 
 function hydrate(link, callbacks, scope) {
   var paths = Object.keys(callbacks);
@@ -274,54 +276,57 @@ function hydrate(link, callbacks, scope) {
   }
 }
 
-function ParseResult(){
-  this.values = {};
-  this.raw = '';
-  this.hasBinding = false;
-  this.includesNonBindings = false;
-}
+class ParseResult {
+  constructor() {
+    this.values = {};
+    this.raw = '';
+    this.hasBinding = false;
+    this.includesNonBindings = false;
+  }
 
-ParseResult.prototype.getValue = function(scope){
-  var prop = this.props()[0];
-  return scope.read(prop).value;
-};
+  getValue(scope){
+    var prop = this.props()[0];
+    return scope.read(prop).value;
+  }
 
-ParseResult.prototype.getStringValue = function(scope){
-  var asc = Object.keys(this.values).sort(function(a, b) {
-    return +a > +b ? 1 : -1;
-  });
-  var out = this.raw;
-  var i, value;
-  while(asc.length) {
-    i = asc.pop();
-    value = scope.read(this.values[i]).value;
-    if(value != null) {
-      out = out.substr(0, i) + value + out.substr(i);
+  getStringValue(scope){
+    var asc = Object.keys(this.values).sort(function(a, b) {
+      return +a > +b ? 1 : -1;
+    });
+    var out = this.raw;
+    var i, value;
+    while(asc.length) {
+      i = asc.pop();
+      value = scope.read(this.values[i]).value;
+      if(value != null) {
+        out = out.substr(0, i) + value + out.substr(i);
+      }
+    }
+    return out;
+  }
+
+  compute(model){
+    var useString = this.includesNonBindings || this.count() > 1;
+    return useString
+      ? this.getStringValue.bind(this, model)
+      : this.getValue.bind(this, model);
+  }
+
+  props(){
+    return values(this.values);
+  }
+
+  count(){
+    return this.hasBinding === false ? 0 : Object.keys(this.values).length;
+  }
+
+  throwIfMultiple(msg){
+    if(this.count() > 1) {
+      msg = msg || 'Only a single binding is allowed in this context.';
+      throw new Error(msg);
     }
   }
-  return out;
-};
-ParseResult.prototype.compute = function(model){
-  var useString = this.includesNonBindings || this.count() > 1;
-  return useString
-    ? this.getStringValue.bind(this, model)
-    : this.getValue.bind(this, model);
-};
-
-ParseResult.prototype.props = function(){
-  return values(this.values);
-};
-
-ParseResult.prototype.count = function(){
-  return this.hasBinding === false ? 0 : Object.keys(this.values).length;
-};
-
-ParseResult.prototype.throwIfMultiple = function(msg){
-  if(this.count() > 1) {
-    msg = msg || 'Only a single binding is allowed in this context.';
-    throw new Error(msg);
-  }
-};
+}
 
 function parse(str){
   var i = 0,
@@ -337,28 +342,29 @@ function parse(str){
     char = str[i];
 
     if(!inBinding) {
-      if(char === '{') {
-        if(lastChar === '{') {
-          result.hasBinding = true;
-          pos = result.raw.length;
-          if(result.values[pos] != null) {
-            pos++;
-          }
-          result.values[pos] = '';
-          inBinding = true;
-        }
-
+      if(char === '$') {
         i++;
         continue;
-      } else if(lastChar === '{') {
+      } else if(char === '{' && lastChar === '$') {
+        result.hasBinding = true;
+        pos = result.raw.length;
+        if(result.values[pos] != null) {
+          pos++;
+        }
+        result.values[pos] = '';
+        inBinding = true;
+        i++;
+        continue;
+      } else if(lastChar === '$') {
         result.raw += lastChar;
       }
+
       result.raw += char;
     } else {
-      if(char === '}') {
-        if(lastChar === '}') {
-          inBinding = false;
-        }
+      if(inBinding && char === '}') {
+        //if(lastChar === '}') {
+        inBinding = false;
+        //}
         i++;
         continue;
       }
@@ -581,7 +587,8 @@ function inspect(node, ref, paths) {
     case 1:
       var templateAttr;
       if(node.nodeName === 'TEMPLATE' && (templateAttr = specialTemplateAttr(node))) {
-        var result = parse(node.getAttribute(templateAttr));
+        var attrValue = node.getAttribute(templateAttr);
+        var result = parse("${" + attrValue + "}");
         if(result.hasBinding) {
           result.throwIfMultiple();
           ignoredAttrs[templateAttr] = true;
@@ -614,8 +621,10 @@ function inspect(node, ref, paths) {
       return;
 
     var name = attrNode.name;
+
     var property = propAttr(name);
     var result = parse(attrNode.value);
+
     if(result.hasBinding) {
       paths[ref.id] = function(node, model, link){
         if(property) {

@@ -107,8 +107,8 @@
   <span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span>
 
   <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">each</span>=<span class="hljs-string">"{{todos}}"</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>{{item}}<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">each</span>=<span class="hljs-string">"todos"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>${item}<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
@@ -169,8 +169,8 @@ customElements.define(<span class="hljs-string">'todo-list'</span>, TodoList);
         </form>
 
         <ul>
-          <template each="{{todos}}">
-            <li>{{item}}</li>
+          <template each="todos">
+            <li>${item}</li>
           </template>
         </ul>
       </template>
@@ -188,11 +188,11 @@ customElements.define(<span class="hljs-string">'todo-list'</span>, TodoList);
 
   <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Latest PRs<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">each</span>=<span class="hljs-string">"{{prs}}"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">each</span>=<span class="hljs-string">"prs"</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>
-        ({{state}})
+        (${state})
 
-        <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"{{url}}"</span>&gt;</span>{{title}}<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"${url}"</span>&gt;</span>${title}<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
@@ -303,9 +303,9 @@ gh.onpullrequest = <span class="hljs-function"><span class="hljs-keyword">functi
       }
     </style>
     <ul>
-      <template each="{{titles}}">
+      <template each="titles">
         <li>
-          <a href="#" on-click="setActive" data-index="{{index}}">{{item}}</a>
+          <a href="#" on-click="setActive" data-index="${index}">${item}</a>
         </li>
       </template>
     </ul>
@@ -317,11 +317,11 @@ gh.onpullrequest = <span class="hljs-function"><span class="hljs-keyword">functi
 
     <h1>Latest PRs</h1>
     <ul>
-      <template each="{{prs}}">
+      <template each="prs">
         <li>
-          ({{state}})
+          (${state})
 
-          <a href="{{url}}">{{title}}</a>
+          <a href="${url}">${title}</a>
         </h1>
       </template>
     </ul>

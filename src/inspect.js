@@ -10,7 +10,8 @@ export default function inspect(node, ref, paths) {
     case 1:
       var templateAttr;
       if(node.nodeName === 'TEMPLATE' && (templateAttr = specialTemplateAttr(node))) {
-        var result = parse(node.getAttribute(templateAttr));
+        var attrValue = node.getAttribute(templateAttr);
+        var result = parse("${" + attrValue + "}");
         if(result.hasBinding) {
           result.throwIfMultiple();
           ignoredAttrs[templateAttr] = true;
@@ -43,8 +44,10 @@ export default function inspect(node, ref, paths) {
       return;
 
     var name = attrNode.name;
+
     var property = propAttr(name);
     var result = parse(attrNode.value);
+
     if(result.hasBinding) {
       paths[ref.id] = function(node, model, link){
         if(property) {
