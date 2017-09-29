@@ -37,7 +37,7 @@
 /* eslint-disable indent, no-unused-vars, no-multiple-empty-lines, max-nested-callbacks, space-before-function-paren, quotes, comma-spacing */
 'use strict';
 
-var precacheConfig = [["/api.html","f31b8cf80da7ce9170d54c00fd6512b1"],["/bram.umd.js","214d8b85c2e6f80508475e10f698f745"],["/compat.html","24a194fe9fb0ce942d939b3d35dd7531"],["/examples/pull-requests/prs.js","2b4bc4abdecbcb90664ce129aa927c93"],["/examples/tabs/tabs.js","5c8b9401795da82bf5aa3a3c1b474210"],["/examples/todos/app.js","b0f56489e43573b5cc9a37ad4b846bdb"],["/guide.html","ca92453eebcac1ce59d84f3e9c645ddb"],["/hello-world.html","7b64f9801a6d1c450556fd42b412bcd6"],["/images/bram.svg","d3798cfe4366ecc71e8ce500e7a7d0bc"],["/index.css","a3cc430fade3f5d262f3d8896daf94ab"],["/index.html","bbde2c7fd954199a1d4d4f69636f625a"],["/styles.css","0fb65f72ad5709c383991b26c32e5657"],["/styles/api.css","8bfedd2c5d6fc2e204df64d54299bb28"],["/styles/guide.css","c0240d45515c2e668762076236dac75d"],["/styles/hljs/atom-one-dark.css","e04d3287a76f861ed154658b42210d11"]];
+var precacheConfig = [["/api.html","81fa9fdc966e187a51d1ebac89ca730a"],["/bram.umd.js","214d8b85c2e6f80508475e10f698f745"],["/compat.html","007995ba0c8b472f42c8caed09646f40"],["/examples/pull-requests/prs.js","2b4bc4abdecbcb90664ce129aa927c93"],["/examples/tabs/tabs.js","5c8b9401795da82bf5aa3a3c1b474210"],["/examples/todos/app.js","b0f56489e43573b5cc9a37ad4b846bdb"],["/guide.html","7bf3ec1663be84d5b545fdcb34f248d0"],["/hello-world.html","94a77b88691bc22d7b57a694a788d85f"],["/images/bram.svg","d3798cfe4366ecc71e8ce500e7a7d0bc"],["/index.css","a3cc430fade3f5d262f3d8896daf94ab"],["/index.html","a661c266a2e36477c916fc4859e0fa43"],["/styles.css","0fb65f72ad5709c383991b26c32e5657"],["/styles/api.css","8bfedd2c5d6fc2e204df64d54299bb28"],["/styles/guide.css","c0240d45515c2e668762076236dac75d"],["/styles/hljs/atom-one-dark.css","e04d3287a76f861ed154658b42210d11"]];
 var cacheName = 'sw-precache-v2--' + (self.registration ? self.registration.scope : '');
 
 
@@ -134,7 +134,10 @@ self.addEventListener('install', function(event) {
           Array.from(urlsToCacheKeys.values()).map(function(cacheKey) {
             // If we don't have a key matching url in the cache already, add it.
             if (!cachedUrls.has(cacheKey)) {
-              return cache.add(new Request(cacheKey, {credentials: 'same-origin'}));
+              return cache.add(new Request(cacheKey, {
+                credentials: 'same-origin',
+                redirect: 'follow'
+              }));
             }
           })
         );
