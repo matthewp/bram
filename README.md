@@ -30,13 +30,13 @@ Bram is a 3k [web components](http://webcomponents.org/) library with everything
 
     <h1>Clicks: {{count}}</h1>
   </template>
-  
+
   <script>
     class ClickCount extends Bram.Element {
       static get template() {
         return '#click-template';
       }
-      
+
       constructor() {
         super();
         this.model.count = 0;
@@ -227,7 +227,7 @@ To conditionally render, use an **if** attribute on an inner template.
 <template id="user-template">
   <h1>User {{name}}</h1>
 
-  <template if="{{isAdmin}}"> 
+  <template if="isAdmin">
     <h2>Admin section</h2>
   </template>
 </template>
@@ -272,7 +272,7 @@ To loop over an array use an inner template with the **each** attribute. Like so
   <h2>Volleyball players</h2>
 
   <ul>
-    <template each="{{players}}">
+    <template each="players">
       <li>
         {{name}}
       </li>
