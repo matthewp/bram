@@ -1,8 +1,10 @@
-.PHONY: bram bram-umd minify guide site styles all
+.PHONY: bram bram-umd minify guide site styles all serve watch dev
 
 BABILI=node_modules/.bin/babili
 ROLLUP=node_modules/.bin/rollup
 CLEANCSS=node_modules/.bin/cleancss
+
+all: bram bram-umd minify
 
 bram:
 	$(ROLLUP) -o bram.js src/bram.js
@@ -29,7 +31,11 @@ site: guide
 	node docs/scripts/api.js > docs/api.html
 	node docs/scripts/sw-precache.js
 
-all: bram bram-umd minify
+serve:
+	http-server -p 3228
 
 watch:
 	find src -name "*.js" | entr make bram-umd
+
+dev:
+	make watch & make serve

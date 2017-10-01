@@ -1,4 +1,4 @@
-import parse from './expression.js';
+import { parse } from './expression.js';
 import { live, setupBinding } from './bindings.js';
 import { forEach } from './util.js';
 
@@ -10,18 +10,20 @@ export default function inspect(node, ref, paths) {
     case 1:
       var templateAttr;
       if(node.nodeName === 'TEMPLATE' && (templateAttr = specialTemplateAttr(node))) {
-        var result = parse(node.getAttribute(templateAttr));
-        if(result.hasBinding) {
-          result.throwIfMultiple();
-          ignoredAttrs[templateAttr] = true;
-          paths[ref.id] = function(node, model, link){
-            if(templateAttr === 'each') {
-              live.each(node, model, result, link);
-            } else {
-              setupBinding(model, result, link, live[templateAttr](node, model, link));
-            }
-          };
+        var attrValue = node.getAttribute(templateAttr);
+        if(attrValue[0] !== "{") {
+          attrValue = "{{" + attrValue + "}}"
         }
+        var result = parse(attrValue);
+        result.throwIfMultiple();
+        ignoredAttrs[templateAttr] = true;
+        paths[ref.id] = function(node, model, link){
+          if(templateAttr === 'each') {
+            live.each(node, model, result, link);
+          } else {
+            setupBinding(model, result, link, live[templateAttr](node, model, link));
+          }
+        };
       }
       break;
     // TextNode
