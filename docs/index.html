@@ -107,7 +107,7 @@
   <span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span>
 
   <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">each</span>=<span class="hljs-string">"{{todos}}"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">each</span>=<span class="hljs-string">"todos"</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>{{item}}<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
@@ -169,7 +169,7 @@ customElements.define(<span class="hljs-string">'todo-list'</span>, TodoList);
         </form>
 
         <ul>
-          <template each="{{todos}}">
+          <template each="todos">
             <li>{{item}}</li>
           </template>
         </ul>
@@ -188,7 +188,7 @@ customElements.define(<span class="hljs-string">'todo-list'</span>, TodoList);
 
   <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Latest PRs<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">each</span>=<span class="hljs-string">"{{prs}}"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">each</span>=<span class="hljs-string">"prs"</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>
         ({{state}})
 
@@ -303,7 +303,7 @@ gh.onpullrequest = <span class="hljs-function"><span class="hljs-keyword">functi
       }
     </style>
     <ul>
-      <template each="{{titles}}">
+      <template each="titles">
         <li>
           <a href="#" on-click="setActive" data-index="{{index}}">{{item}}</a>
         </li>
@@ -317,7 +317,7 @@ gh.onpullrequest = <span class="hljs-function"><span class="hljs-keyword">functi
 
     <h1>Latest PRs</h1>
     <ul>
-      <template each="{{prs}}">
+      <template each="prs">
         <li>
           ({{state}})
 

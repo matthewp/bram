@@ -196,7 +196,7 @@ customElements.define(<span class="hljs-string">&apos;sortable-list&apos;</span>
 <pre><code class="html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;user-template&quot;</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>User {{name}}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
 
-  <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">if</span>=<span class="hljs-string">&quot;{{isAdmin}}&quot;</span>&gt;</span> 
+  <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">if</span>=<span class="hljs-string">&quot;isAdmin&quot;</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>Admin section<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
@@ -234,7 +234,7 @@ page.isAdmin = <span class="hljs-literal">false</span>; <span class="hljs-commen
   <span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>Volleyball players<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
 
   <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">each</span>=<span class="hljs-string">&quot;{{players}}&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">each</span>=<span class="hljs-string">&quot;players&quot;</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>
         {{name}}
       <span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
