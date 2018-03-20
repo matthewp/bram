@@ -39,3 +39,8 @@ watch:
 
 dev:
 	make watch & make serve
+
+deploy:
+	aws s3 sync docs s3://bramjs.org
+.PHONY: deploy
+
