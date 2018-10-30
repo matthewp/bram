@@ -194,7 +194,7 @@ form.onnamechanged = function(ev){
 
 #### childrenConnectedCallback
 
-The **childrenConnectedCallback** is a callback on the element's prototype. Use this to be notified when your element has received children. This allows you to write more resilent custom elements that take into account the dynamic nature of HTML in the case where you have special behavior depending on children.
+The **childrenConnectedCallback** is a callback on the element's prototype. Use this to be notified when your element has received children. This allows you to write more resilient custom elements that take into account the dynamic nature of HTML in the case where you have special behavior depending on children.
 
 ```js
 class SortableList extends Bram.Element {
