@@ -3,9 +3,8 @@ import createTemplateInstance from '../node_modules/@matthewp/template-instantia
 import { BramTemplateProcessor } from './processor.js';
 import { toModel } from './model.js';
 
-const processor = new BramTemplateProcessor();
-
-function createInstance(template, baseModel = {}) {
+function createInstance(template, baseModel = {}, thisValue) {
+  let processor = new BramTemplateProcessor(thisValue);
   let ti = createTemplateInstance(template, processor, baseModel);
   const model = toModel(baseModel, () => {
     ti.update(model);

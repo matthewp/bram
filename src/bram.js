@@ -14,7 +14,8 @@ function Bram(Element) {
 
       // Initially an empty object
       const Element = this.constructor;
-      this._instance = createInstance(getTemplate(Element.template), Object.create(this));
+      this._instance = createInstance(getTemplate(Element.template),
+        Object.create(this), this);
       this.model = this._instance.model;
 
       // TODO remove

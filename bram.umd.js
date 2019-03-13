@@ -59,7 +59,7 @@ function observe(o, fn) {
     set: function(target, property, value) {
       var oldValue = target[property];
       if(!isModel(value) && isArrayOrObject(value)) {
-        value = toModel(value);
+        value = toModel(value, fn);
       }
       target[property] = value;
 
@@ -582,10 +582,11 @@ function notImplemented() {
 }
 
 class EventTemplatePart extends TemplatePart {
-  constructor(attributePart, _state) {
+  constructor(attributePart, _state, _thisValue) {
     super();
     Object.assign(this, attributePart);
     this._state = _state;
+    this._thisValue = _thisValue;
   }
 
   clear() {
@@ -593,17 +594,21 @@ class EventTemplatePart extends TemplatePart {
   }
 
   applyValue(value) {
-    const listener = value.bind(this._state);
+    const listener = value.bind(this._thisValue || this._state);
     this.element.addEventListener('click', listener);
   }
 }
 
 class BramTemplateProcessor extends TemplateProcessor {
+    constructor(thisValue) {
+      super();
+      this._thisValue = thisValue;
+    }
     createdCallback(_parts, _state) {
       let part = _parts[0], i = 0;
       while(part) {
         if((part instanceof AttributeTemplatePart) && part.rule.attributeName.startsWith('@')) {
-          _parts[i] = new EventTemplatePart(part, _state);
+          _parts[i] = new EventTemplatePart(part, _state, this._thisValue);
         }
 
         i++;
@@ -632,9 +637,8 @@ class BramTemplateProcessor extends TemplateProcessor {
     }
 }
 
-const processor = new BramTemplateProcessor();
-
-function createInstance(template, baseModel) {
+function createInstance(template, baseModel = {}, thisValue) {
+  let processor = new BramTemplateProcessor(thisValue);
   let ti = createInstance$2(template, processor, baseModel);
   const model = toModel(baseModel, () => {
     ti.update(model);
@@ -642,7 +646,10 @@ function createInstance(template, baseModel) {
 
   return {
     model,
-    fragment: ti
+    fragment: ti,
+    update() {
+      ti.update(model);
+    }
   };
 }
 
@@ -657,7 +664,8 @@ function Bram$1(Element) {
 
       // Initially an empty object
       const Element = this.constructor;
-      this._instance = createInstance(getTemplate(Element.template), Object.create(this));
+      this._instance = createInstance(getTemplate(Element.template),
+        Object.create(this), this);
       this.model = this._instance.model;
 
       // TODO remove
@@ -676,6 +684,7 @@ function Bram$1(Element) {
     }
 
     connectedCallback() {
+      this._instance.update();
       if(this._instance && !this._hasRendered) {
         let renderMode = this.constructor.renderMode;
         if(renderMode === 'light') {

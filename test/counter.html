@@ -1,5 +1,36 @@
+<!doctype html>
+<html lang="en">
+<title>Counter demo</title>
+<style>
+  body {
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+  }
+</style>
 
 <template id="counter-template">
+  <style>
+    :host {
+      display: block;
+    }
+    #count {
+      font-size: 24px;
+      text-align: center;
+      margin-bottom: .7em;
+      font-weight: 600;
+    }
+    button {
+      background-color: tomato;
+      border: none;
+      font-family: monospace;
+      font-size: 16px;
+      color: white;
+      padding: 10px;
+    }
+  </style>
   <div id="count">{{count}}</div>
   <button type="button" @click="{{increment}}">Increment</button>
 </template>
@@ -21,8 +52,18 @@
 
     increment() {
       this.model.count++;
+      this._triggerChange();
+    }
+
+    _triggerChange() {
+      let ev = new CustomEvent('change', { detail: this.model.count });
+      this.dispatchEvent(ev);
     }
   }
 
   customElements.define('click-count', Counter);
+
+  document.querySelector('click-count').addEventListener('change', ev => {
+    console.log('Count', ev.detail);
+  });
 </script>
