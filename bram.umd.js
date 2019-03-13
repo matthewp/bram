@@ -577,10 +577,6 @@ const createInstance$2 = function (template, processor, state, overrideDefinitio
     return new TemplateInstance(definition, processor, state);
 };
 
-function notImplemented() {
-  throw new Error('Not yet implemented');
-}
-
 class EventTemplatePart extends TemplatePart {
   constructor(attributePart, _state, _thisValue) {
     super();
@@ -589,13 +585,22 @@ class EventTemplatePart extends TemplatePart {
     this._thisValue = _thisValue;
   }
 
-  clear() {
-    notImplemented();
+  applyValue(value) {
+    let eventName = this.rule.expressions[0];
+    const listener = value.bind(this._thisValue || this._state);
+    this.element.addEventListener(eventName, listener);
+  }
+}
+
+class PropertyTemplatePart extends TemplatePart {
+  constructor(attributePart) {
+    super();
+    Object.assign(this, attributePart);
   }
 
   applyValue(value) {
-    const listener = value.bind(this._thisValue || this._state);
-    this.element.addEventListener('click', listener);
+    let prop = this.rule.expressions[0];
+    Reflect.set(this.element, prop, value);
   }
 }
 
@@ -609,6 +614,9 @@ class BramTemplateProcessor extends TemplateProcessor {
       while(part) {
         if((part instanceof AttributeTemplatePart) && part.rule.attributeName.startsWith('@')) {
           _parts[i] = new EventTemplatePart(part, _state, this._thisValue);
+        }
+        else if((part instanceof AttributeTemplatePart) && part.rule.attributeName.startsWith('.')) {
+          _parts[i] = new PropertyTemplatePart(part);
         }
 
         i++;
@@ -629,7 +637,7 @@ class BramTemplateProcessor extends TemplateProcessor {
                 part.value = state && expressions &&
                     expressions.map(expression => state && state[expression]);
             }
-            else if(part instanceof EventTemplatePart) {
+            else if((part instanceof EventTemplatePart) || part instanceof PropertyTemplatePart) {
               const { expressions } = part.rule;
               part.value = state && state[expressions[0]];
             }
@@ -639,16 +647,15 @@ class BramTemplateProcessor extends TemplateProcessor {
 
 function createInstance(template, baseModel = {}, thisValue) {
   let processor = new BramTemplateProcessor(thisValue);
-  let ti = createInstance$2(template, processor, baseModel);
-  const model = toModel(baseModel, () => {
-    ti.update(model);
+  let fragment = createInstance$2(template, processor, baseModel);
+  let model = toModel(baseModel, () => {
+    fragment.update(model);
   });
 
   return {
-    model,
-    fragment: ti,
+    model, fragment,
     update() {
-      ti.update(model);
+      fragment.update(model);
     }
   };
 }
