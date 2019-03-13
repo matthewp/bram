@@ -1,0 +1,28 @@
+
+<template id="counter-template">
+  <div id="count">{{count}}</div>
+  <button type="button" @click="{{increment}}">Increment</button>
+</template>
+
+<click-count></click-count>
+
+<script type="module">
+  import { Element } from '../src/bram.js';
+
+  class Counter extends Element {
+    static get template() {
+      return '#counter-template';
+    }
+    
+    constructor() {
+      super();
+      this.model.count = 0;
+    }
+
+    increment() {
+      this.model.count++;
+    }
+  }
+
+  customElements.define('click-count', Counter);
+</script>

@@ -3,47 +3,53 @@
 <head>
   <title>elements tests</title>
 
-  <script src="../node_modules/webcomponents.js/HTMLImports.min.js"></script>
-  <script src="../node_modules/@webcomponents/custom-elements/custom-elements.min.js"></script>
-  <script src="../node_modules/cloudydom/cloudydom.min.js"></script>
-  <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
-  <script src="../bram.umd.js"></script>
+  <link href="https://unpkg.com/mocha@4.1.0/mocha.css" rel="stylesheet">
+  <script src="https://unpkg.com/chai/chai.js"></script>
+  <script src="https://unpkg.com/mocha@4.1.0/mocha.js"></script>
 </head>
 <body>
-  <template id="someTemplate">
-    <span>{{person.name}}</span>
-  </template>
-  <some-element id="someElement"></some-element>
+<template id="someTemplate">
+  <span>{{name}}</span>
+</template>
+<some-element id="someElement"></some-element>
 
-<mocha-test>
-<template>
-  <script>
-    describe("Bram.element", function(){
-      before(function(){
-        class SomeElement extends Bram.Element {
-          static get template() {
-            return "#someTemplate";
-          }
+<div id="mocha"></div>
 
-          constructor() {
-            super();
-            this.model.person = {};
-            this.model.person.name = 'world';
-          }
+<script>
+  mocha.setup('bdd');
+  assert = chai.assert;
+
+  window.addEventListener('load', () => {
+    mocha.run();
+  });
+</script>
+<script type="module">
+  import { Element } from '../src/bram.js';
+
+  describe("Bram.element", function(){
+    before(function(){
+      class SomeElement extends Element {
+        static get template() {
+          return document.querySelector("#someTemplate");
         }
 
-        customElements.define('some-element', SomeElement);
-      });
+        constructor() {
+          super();
+          this.model.name = 'world';
+        }
+      }
 
-      it("Renders to shadowRoot", function(){
-        let root = someElement.shadowRoot;
-        let txt = root.firstElementChild.textContent;
-
-        assert.equal(txt, 'world');
-      });
+      customElements.define('some-element', SomeElement);
     });
-  </script>
-</template>
-</mocha-test>
+
+    it("Renders to shadowRoot", function(){
+      let root = someElement.shadowRoot;
+      let txt = root.firstElementChild.textContent;
+
+      assert.equal(txt, 'world');
+    });
+  });
+</script>
+
 </body>
 </html>

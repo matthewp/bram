@@ -18,7 +18,7 @@ function observe(o, fn) {
     set: function(target, property, value) {
       var oldValue = target[property];
       if(!isModel(value) && isArrayOrObject(value)) {
-        value = toModel(value);
+        value = toModel(value, fn);
       }
       target[property] = value;
 
@@ -59,19 +59,10 @@ function observe(o, fn) {
 var events = symbol('bram-events');
 var arrayChange = symbol('bram-array-change');
 
-var toModel = function(o, skipClone){
+var toModel = function(o, callback){
   if(isModel(o)) return o;
 
-  o = deepModel(o, skipClone) || {};
-
-  var callback = function(ev, value){
-    var fns = o[events][ev.prop];
-    if(fns) {
-      fns.forEach(function(fn){
-        fn(ev, value);
-      });
-    }
-  };
+  o = deepModel(o) || {};
 
   Object.defineProperty(o, events, {
     value: {},
@@ -81,7 +72,7 @@ var toModel = function(o, skipClone){
   return observe(o, callback);
 };
 
-function deepModel(o, skipClone) {
+function deepModel(o) {
   return !o ? o : Object.keys(o).reduce(function(acc, prop){
     var val = o[prop];
     acc[prop] = (Array.isArray(val) || typeof val === 'object')

@@ -1,18 +1,7 @@
 var symbol = typeof Symbol === 'function' ? Symbol :
   function(str){ return '@@-' + str; };
 
-var values = Object.values || function(obj){
-  return Object.keys(obj).reduce(function(acc, key){
-    acc.push(obj[key]);
-    return acc;
-  }, []);
-};
-
-var asap = typeof Promise === 'function' ? cb => Promise.resolve().then(cb) : cb => setTimeout(_ => cb(), 0);
-
-var forEach = Array.prototype.forEach;
-var some = Array.prototype.some;
-var slice = Array.prototype.slice;
+const asap = Promise.resolve().then.bind(Promise.resolve());
 
 class Transaction {
   static add(t) {
@@ -105,19 +94,10 @@ function observe(o, fn) {
 var events = symbol('bram-events');
 var arrayChange = symbol('bram-array-change');
 
-var toModel = function(o, skipClone){
+var toModel = function(o, callback){
   if(isModel(o)) return o;
 
-  o = deepModel(o, skipClone) || {};
-
-  var callback = function(ev, value){
-    var fns = o[events][ev.prop];
-    if(fns) {
-      fns.forEach(function(fn){
-        fn(ev, value);
-      });
-    }
-  };
+  o = deepModel(o) || {};
 
   Object.defineProperty(o, events, {
     value: {},
@@ -127,7 +107,7 @@ var toModel = function(o, skipClone){
   return observe(o, callback);
 };
 
-function deepModel(o, skipClone) {
+function deepModel(o) {
   return !o ? o : Object.keys(o).reduce(function(acc, prop){
     var val = o[prop];
     acc[prop] = (Array.isArray(val) || typeof val === 'object')
@@ -164,609 +144,516 @@ var off = function(model, prop, callback){
   }
 };
 
-function Scope(model, parent) {
-  this.model = model;
-  this.parent = parent;
+/**
+ * @license
+ * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at http:polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at http:polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at http:polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at http:polymer.github.io/PATENTS.txt
+ */
+class TemplateProcessor {
 }
 
-Scope.prototype.read = function(prop){
-  return this._read(prop) || {
-    model: this.model,
-    value: undefined
-  };
-};
-
-Scope.prototype.readInTransaction = function(prop) {
-  var transaction = new Transaction();
-  transaction.start();
-  var info = this.read(prop);
-  info.reads = transaction.stop();
-  return info;
-};
-
-Scope.prototype._read = function(prop){
-  var model = this.model;
-  var val = model[prop];
-  if(val == null) {
-    // Handle dotted bindings like "user.name"
-    var parts = prop.split(".");
-    if(parts.length > 1) {
-      do {
-        val = model[parts.shift()];
-        if(parts.length) {
-          model = val;
+/**
+ * @license
+ * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at http:polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at http:polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at http:polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at http:polymer.github.io/PATENTS.txt
+ */
+const partOpenRe = /{{/g;
+const partCloseRe = /}}/g;
+const parse = (templateString) => {
+    const strings = [];
+    const expressions = [];
+    const boundaryIndex = templateString.length + 1;
+    let lastExpressionIndex = partOpenRe.lastIndex =
+        partCloseRe.lastIndex = 0;
+    while (lastExpressionIndex < boundaryIndex) {
+        const openResults = partOpenRe.exec(templateString);
+        if (openResults == null) {
+            strings.push(templateString.substring(lastExpressionIndex, boundaryIndex));
+            break;
         }
-      } while(parts.length && val);
-    }
-  }
-  if(val != null) {
-    return {
-      model: model,
-      value: val
-    };
-  }
-  if(this.parent) {
-    return this.parent.read(prop);
-  }
-};
-
-Scope.prototype.add = function(object){
-  var model;
-  if(isModel(object)) {
-    model = object;
-  } else {
-    var type = typeof object;
-    if(Array.isArray(object) || type === "object") {
-      model = toModel(object);
-    } else {
-      model = object;
-    }
-  }
-
-  return new Scope(model, this);
-};
-
-function hydrate(link, callbacks, scope) {
-  var paths = Object.keys(callbacks);
-  if(paths.length === 0) return;
-  var id = +paths.shift();
-  var cur = 0;
-
-  traverse(link.tree);
-
-  function check(node) {
-    cur++;
-    if(id === cur) {
-      var callback = callbacks[id];
-      callback(node, scope, link);
-      id = +paths.shift();
-    }
-    return !id;
-  }
-
-  function traverse(node){
-    var exit;
-    var attributes = slice.call(node.attributes || []);
-    some.call(attributes, function(){
-      exit = check(node);
-      if(exit) {
-        return true;
-      }
-    });
-    if(exit) return false;
-
-    var child = node.firstChild, nextChild;
-    while(child) {
-      nextChild = child.nextSibling;
-      exit = check(child);
-      if(exit) {
-        break;
-      }
-
-      exit = !traverse(child);
-      if(exit) {
-        break;
-      }
-      child = nextChild;
-    }
-
-    return !exit;
-  }
-}
-
-function ParseResult(){
-  this.values = {};
-  this.raw = '';
-  this.hasBinding = false;
-  this.includesNonBindings = false;
-}
-
-ParseResult.prototype.getValue = function(scope){
-  var prop = this.props()[0];
-  return scope.read(prop).value;
-};
-
-ParseResult.prototype.getStringValue = function(scope){
-  var asc = Object.keys(this.values).sort(function(a, b) {
-    return +a > +b ? 1 : -1;
-  });
-  var out = this.raw;
-  var i, value;
-  while(asc.length) {
-    i = asc.pop();
-    value = scope.read(this.values[i]).value;
-    if(value != null) {
-      out = out.substr(0, i) + value + out.substr(i);
-    }
-  }
-  return out;
-};
-ParseResult.prototype.compute = function(model){
-  var useString = this.includesNonBindings || this.count() > 1;
-  return useString
-    ? this.getStringValue.bind(this, model)
-    : this.getValue.bind(this, model);
-};
-
-ParseResult.prototype.props = function(){
-  return values(this.values);
-};
-
-ParseResult.prototype.count = function(){
-  return this.hasBinding === false ? 0 : Object.keys(this.values).length;
-};
-
-ParseResult.prototype.throwIfMultiple = function(msg){
-  if(this.count() > 1) {
-    msg = msg || 'Only a single binding is allowed in this context.';
-    throw new Error(msg);
-  }
-};
-
-function parse(str){
-  var i = 0,
-    len = str.length,
-    result = new ParseResult(),
-    inBinding = false,
-    lastChar = '',
-    pos = 0,
-    char;
-
-  while(i < len) {
-    lastChar = char;
-    char = str[i];
-
-    if(!inBinding) {
-      if(char === '{') {
-        if(lastChar === '{') {
-          result.hasBinding = true;
-          pos = result.raw.length;
-          if(result.values[pos] != null) {
-            pos++;
-          }
-          result.values[pos] = '';
-          inBinding = true;
-        }
-
-        i++;
-        continue;
-      } else if(lastChar === '{') {
-        result.raw += lastChar;
-      }
-      result.raw += char;
-    } else {
-      if(char === '}') {
-        if(lastChar === '}') {
-          inBinding = false;
-        }
-        i++;
-        continue;
-      }
-      result.values[pos] += char;
-    }
-
-    i++;
-  }
-
-  result.includesNonBindings = result.raw.length > 0;
-  return result;
-}
-
-var live = {
-  attr: function(node, attrName){
-    return function(val){
-      node.setAttribute(attrName, val);
-    };
-  },
-  text: function(node){
-    return function(val){
-      node.nodeValue = val;
-    };
-  },
-  prop: function(node, prop){
-    return function(val){
-      node[prop] = val;
-    };
-  },
-  event: function(node, eventName, scope, parseResult, link){
-    var prop = parseResult.raw;
-    link.bind(node, eventName, function(ev){
-      var readResult = scope.read(prop);
-      readResult.value.call(readResult.model, ev);
-    });
-  },
-  each: function(node, parentScope, parseResult, parentLink){
-    var hydrate = stamp(node);
-    var prop = parseResult.props()[0];
-    var scopeResult = parentScope.read(prop);
-    var placeholder = document.createTextNode('');
-    node.parentNode.replaceChild(placeholder, node);
-
-    var observe = function(list){
-      var itemMap = new Map();
-      var indexMap = new Map();
-
-      var render = function(item, i){
-        var scope = parentScope.add(item).add({ item: item, index: i});
-        var link = hydrate(scope);
-        parentLink.add(link);
-        var tree = link.tree;
-
-        var info = {
-          item: item,
-          link: link,
-          nodes: slice.call(tree.childNodes),
-          scope: scope,
-          index: i
-        };
-        itemMap.set(item, info);
-        indexMap.set(i, info);
-
-        var siblingInfo = indexMap.get(i + 1);
-        var parent = placeholder.parentNode;
-        if(siblingInfo) {
-          var firstChild = siblingInfo.nodes[0];
-          parent.insertBefore(tree, firstChild);
-        } else {
-          parent.appendChild(tree);
-        }
-      };
-
-      var remove = function(index){
-        var info = indexMap.get(index);
-        if(info) {
-          info.nodes.forEach(function(node){
-            node.parentNode.removeChild(node);
-          });
-          parentLink.remove(info.link);
-          itemMap.delete(info.item);
-          indexMap.delete(index);
-        }
-      };
-
-      list.forEach(render);
-
-      var onarraychange = function(ev, value){
-        if(ev.type === 'delete') {
-          remove(ev.index);
-          return;
-        }
-
-        var info = itemMap.get(value);
-        if(info) {
-          var oldIndex = info.index;
-          var hasChanged = oldIndex !== ev.index;
-          if(hasChanged) {
-            info.scope.model.index = info.index = ev.index;
-
-            var existingItem = indexMap.get(ev.index);
-            if(existingItem) {
-              indexMap.set(oldIndex, existingItem);
-            } else {
-              indexMap.delete(oldIndex);
+        else {
+            const openIndex = openResults.index;
+            partCloseRe.lastIndex = partOpenRe.lastIndex = openIndex + 2;
+            const closeResults = partCloseRe.exec(templateString);
+            if (closeResults == null) {
+                strings.push(templateString.substring(lastExpressionIndex, boundaryIndex));
             }
-            indexMap.set(ev.index, info);
-
-            var ref = indexMap.get(ev.index + 1);
-            if(ref) {
-              ref = ref.nodes[0];
+            else {
+                const closeIndex = closeResults.index;
+                strings.push(templateString.substring(lastExpressionIndex, openIndex));
+                expressions.push(templateString.substring(openIndex + 2, closeIndex));
+                lastExpressionIndex = closeIndex + 2;
             }
-
-            var nodeIdx = info.nodes.length - 1;
-            while(nodeIdx >= 0) {
-              placeholder.parentNode.insertBefore(info.nodes[nodeIdx], ref);
-              nodeIdx--;
-            }
-          }
-        } else {
-          remove(ev.index);
-          render(value, ev.index);
         }
-      };
-
-      parentLink.on(list, arrayChange, onarraychange);
-
-      return function(){
-        for(var i = 0, len = list.length; i < len; i++) {
-          remove(i);
-        }
-        parentLink.off(list, arrayChange, onarraychange);
-        itemMap = null;
-        indexMap = null;
-      };
-    };
-
-    var teardown = observe(scopeResult.value);
-
-    parentLink.on(scopeResult.model, prop, function(ev, newValue){
-      teardown();
-      teardown = observe(newValue);
-    });
-  },
-  if: function(node, parentScope, parentLink){
-    var hydrate = stamp(node);
-    var rendered = false;
-    var child = {};
-    var placeholder = document.createTextNode('');
-    node.parentNode.replaceChild(placeholder, node);
-    return function(val){
-      if(!rendered) {
-        if(val) {
-          var scope = parentScope.add(val);
-          var link = hydrate(scope);
-          parentLink.add(link);
-          var tree = link.tree;
-          child.children = slice.call(tree.childNodes);
-          child.scope = scope;
-          placeholder.parentNode.insertBefore(tree, placeholder.nextSibling);
-          rendered = true;
-        }
-      } else {
-        var parent = placeholder.parentNode;
-        var sibling = placeholder.nextSibling;
-        if(val) {
-          child.children.forEach(function(node){
-            parent.insertBefore(node, sibling);
-          });
-        } else {
-          child.children.forEach(function(node){
-            parent.removeChild(node);
-          });
-        }
-      }
-    };
-  }
+    }
+    return [strings, expressions];
 };
 
-function setupBinding(scope, parseResult, link, fn){
-  var compute = parseResult.compute(scope);
+/**
+ * @license
+ * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at http:polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at http:polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at http:polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at http:polymer.github.io/PATENTS.txt
+ */
+class TemplateRule {
+    constructor(nodeIndex) {
+        this.nodeIndex = nodeIndex;
+    }
+}
+class NodeTemplateRule extends TemplateRule {
+    constructor(nodeIndex, expression) {
+        super(nodeIndex);
+        this.nodeIndex = nodeIndex;
+        this.expression = expression;
+    }
+}
+class AttributeTemplateRule extends TemplateRule {
+    constructor(nodeIndex, attributeName, strings, expressions) {
+        super(nodeIndex);
+        this.nodeIndex = nodeIndex;
+        this.attributeName = attributeName;
+        this.strings = strings;
+        this.expressions = expressions;
+    }
+}
+class InnerTemplateRule extends NodeTemplateRule {
+    constructor(nodeIndex, template) {
+        super(nodeIndex, template.getAttribute('expression') || '');
+        this.nodeIndex = nodeIndex;
+        this.template = template;
+    }
+}
 
-  var set = function(){
-    fn(compute());
-  };
+/**
+ * @license
+ * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at http:polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at http:polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at http:polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at http:polymer.github.io/PATENTS.txt
+ */
+// Edge needs all 4 parameters present; IE11 needs 3rd parameter to be null
+const createTreeWalker = (node) => document.createTreeWalker(node, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, null, false);
+class TemplateDefinition {
+    constructor(template) {
+        this.template = template;
+        this.parseAndGenerateRules();
+    }
+    cloneContent() {
+        return this.parsedTemplate.content.cloneNode(true);
+    }
+    parseAndGenerateRules() {
+        const { template } = this;
+        const content = template.content.cloneNode(true);
+        const rules = [];
+        const mutations = [];
+        const walker = createTreeWalker(content);
+        let nodeIndex = -1;
+        while (walker.nextNode()) {
+            nodeIndex++;
+            const node = walker.currentNode;
+            if (node.nodeType === Node.ELEMENT_NODE) {
+                if (!node.hasAttributes()) {
+                    continue;
+                }
+                if (node instanceof HTMLTemplateElement) {
+                    const { parentNode } = node;
+                    const partNode = document.createTextNode('');
+                    mutations.push(() => parentNode.replaceChild(partNode, node));
+                    rules.push(new InnerTemplateRule(nodeIndex, node));
+                }
+                else {
+                    const { attributes } = node;
+                    // TODO(cdata): Fix IE/Edge attribute order here
+                    // @see https://github.com/Polymer/lit-html/blob/master/src/lit-html.ts#L220-L229
+                    for (let i = 0; i < attributes.length;) {
+                        const attribute = attributes[i];
+                        const { name, value } = attribute;
+                        const [strings, values] = parse(value);
+                        if (strings.length === 1) {
+                            ++i;
+                            continue;
+                        }
+                        rules.push(new AttributeTemplateRule(nodeIndex, name, strings, values));
+                        node.removeAttribute(name);
+                    }
+                }
+            }
+            else if (node.nodeType === Node.TEXT_NODE) {
+                const [strings, values] = parse(node.nodeValue || '');
+                const { parentNode } = node;
+                const document = node.ownerDocument;
+                if (strings.length === 1) {
+                    continue;
+                }
+                for (let i = 0; i < values.length; ++i) {
+                    const partNode = document.createTextNode(strings[i]);
+                    // @see https://github.com/Polymer/lit-html/blob/master/src/lit-html.ts#L267-L272
+                    parentNode.insertBefore(partNode, node);
+                    rules.push(new NodeTemplateRule(nodeIndex++, values[i]));
+                }
+                node.nodeValue = strings[strings.length - 1];
+            }
+        }
+        // Execute mutations
+        for (let fn of mutations) {
+            fn();
+        }
+        this.rules = rules;
+        this.parsedTemplate = document.createElement('template');
+        this.parsedTemplate.content.appendChild(content);
+    }
+}
 
-  parseResult.props().forEach(function(prop){
-    var info = scope.readInTransaction(prop);
-    var model = info.model;
-    if(info.bindable !== false) {
-      var listenings = new Map();
-      info.reads.forEach(function(read){
-        var model = read[0];
-        var prop = read[1];
-        if(listenings.has(model)) {
-          var l = listenings.get(model);
-          if(l.has(prop)) {
+/**
+ * @license
+ * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at http:polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at http:polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at http:polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at http:polymer.github.io/PATENTS.txt
+ */
+class TemplatePart {
+    constructor(templateInstance, rule) {
+        this.templateInstance = templateInstance;
+        this.rule = rule;
+    }
+    get value() {
+        return this.sourceValue;
+    }
+    set value(value) {
+        if (value !== this.sourceValue) {
+            this.sourceValue = value;
+            this.applyValue(value);
+        }
+    }
+}
+class AttributeTemplatePart extends TemplatePart {
+    constructor(templateInstance, rule, element) {
+        super(templateInstance, rule);
+        this.templateInstance = templateInstance;
+        this.rule = rule;
+        this.element = element;
+    }
+    clear() {
+        this.element.removeAttribute(this.rule.attributeName);
+    }
+    applyValue(value) {
+        if (value == null) {
+            value = [];
+        }
+        else if (!Array.isArray(value)) {
+            value = [value];
+        }
+        const { rule, element } = this;
+        const { strings, attributeName } = rule;
+        const valueFragments = [];
+        for (let i = 0; i < (strings.length - 1); ++i) {
+            valueFragments.push(strings[i]);
+            valueFragments.push(value[i] || '');
+        }
+        const attributeValue = valueFragments.join('');
+        if (attributeValue != null) {
+            element.setAttribute(attributeName, attributeValue);
+        }
+        else {
+            element.removeAttribute(attributeName);
+        }
+    }
+}
+class NodeTemplatePart extends TemplatePart {
+    constructor(templateInstance, rule, startNode) {
+        super(templateInstance, rule);
+        this.templateInstance = templateInstance;
+        this.rule = rule;
+        this.startNode = startNode;
+        this.currentNodes = [];
+        this.move(startNode);
+    }
+    replace(...nodes) {
+        this.clear();
+        for (let i = 0; i < nodes.length; ++i) {
+            let node = nodes[i];
+            if (typeof node === 'string') {
+                node = document.createTextNode(node);
+            }
+            // SPECIAL NOTE(cdata): This implementation supports NodeTemplatePart as
+            // a replacement node. Usefulness TBD.
+            if (node instanceof NodeTemplatePart) {
+                const part = node;
+                node = part.startNode;
+                this.appendNode(node);
+                part.move(node);
+            }
+            else if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE ||
+                node.nodeType === Node.DOCUMENT_NODE) {
+                // NOTE(cdata): Apple's proposal explicit forbid's document fragments
+                // @see https://github.com/w3c/webcomponents/blob/gh-pages/proposals/Template-Instantiation.md
+                throw new DOMException('InvalidNodeTypeError');
+            }
+            else {
+                this.appendNode(node);
+            }
+        }
+    }
+    /**
+     * Forks the current part, inserting a new part after the current one and
+     * returning it. The forked part shares the TemplateInstance and the
+     * TemplateRule of the current part.
+     */
+    fork() {
+        const node = document.createTextNode('');
+        this.parentNode.insertBefore(node, this.nextSibling);
+        this.nextSibling = node;
+        return new NodeTemplatePart(this.templateInstance, this.rule, node);
+    }
+    /**
+     * Creates a new inner part that is enclosed completely by the current
+     * part and returns it. The enclosed part shares the TemplateInstance and the
+     * TemplateRule of the current part.
+     */
+    enclose() {
+        const node = document.createTextNode('');
+        this.parentNode.insertBefore(node, this.previousSibling.nextSibling);
+        return new NodeTemplatePart(this.templateInstance, this.rule, node);
+    }
+    move(startNode) {
+        const { currentNodes, startNode: currentStartNode } = this;
+        if (currentStartNode != null &&
+            currentStartNode !== startNode &&
+            currentNodes.length) {
+            this.clear();
+        }
+        this.parentNode = startNode.parentNode;
+        this.previousSibling = startNode;
+        this.nextSibling = startNode.nextSibling;
+        this.startNode = startNode;
+        if (currentNodes && currentNodes.length) {
+            this.replace(...currentNodes);
+        }
+    }
+    // SPECIAL NOTE(cdata): This clear is specialized a la lit-html to accept a
+    // starting node from which to clear. This supports efficient cleanup of
+    // subparts of a part (subparts are also particular to lit-html compared to
+    // Apple's proposal).
+    clear(startNode = this.previousSibling.nextSibling) {
+        if (this.parentNode === null) {
             return;
-          }
-          l.set(prop, true);
-        } else {
-          var l = new Map();
-          l.set(prop, true);
-          listenings.set(model, l);
         }
-
-        link.on(model, prop, set);
-      });
+        let node = startNode;
+        while (node !== this.nextSibling) {
+            const nextNode = node.nextSibling;
+            this.parentNode.removeChild(node);
+            node = nextNode;
+        }
+        this.currentNodes = [];
     }
-  });
-
-  set();
+    appendNode(node) {
+        this.parentNode.insertBefore(node, this.nextSibling);
+        this.currentNodes.push(node);
+    }
+    applyValue(value) {
+        if (this.currentNodes.length === 1 &&
+            this.currentNodes[0].nodeType === Node.TEXT_NODE) {
+            this.currentNodes[0].nodeValue = value;
+        }
+        else {
+            this.replace(document.createTextNode(value));
+        }
+    }
+}
+class InnerTemplatePart extends NodeTemplatePart {
+    constructor(templateInstance, rule, startNode) {
+        super(templateInstance, rule, startNode);
+        this.templateInstance = templateInstance;
+        this.rule = rule;
+        this.startNode = startNode;
+    }
+    get template() {
+        return this.rule.template;
+    }
 }
 
-function inspect(node, ref, paths) {
-  var ignoredAttrs = {};
-
-  switch(node.nodeType) {
-    // Element
-    case 1:
-      var templateAttr;
-      if(node.nodeName === 'TEMPLATE' && (templateAttr = specialTemplateAttr(node))) {
-        var result = parse(node.getAttribute(templateAttr));
-        if(result.hasBinding) {
-          result.throwIfMultiple();
-          ignoredAttrs[templateAttr] = true;
-          paths[ref.id] = function(node, model, link){
-            if(templateAttr === 'each') {
-              live.each(node, model, result, link);
-            } else {
-              setupBinding(model, result, link, live[templateAttr](node, model, link));
+/**
+ * @license
+ * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at http:polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at http:polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at http:polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at http:polymer.github.io/PATENTS.txt
+ */
+class TemplateInstance extends DocumentFragment {
+    constructor(definition, processor, state) {
+        super();
+        this.definition = definition;
+        this.processor = processor;
+        this.createdCallbackInvoked = false;
+        this.previousState = null;
+        this.appendChild(definition.cloneContent());
+        this.generateParts();
+        this.update(state);
+    }
+    update(state) {
+        if (!this.createdCallbackInvoked) {
+            this.processor.createdCallback(this.parts, state);
+            this.createdCallbackInvoked = true;
+        }
+        this.processor.processCallback(this.parts, state);
+        this.previousState = state;
+    }
+    generateParts() {
+        const { definition } = this;
+        const { rules } = definition;
+        const parts = [];
+        const walker = createTreeWalker(this);
+        let walkerIndex = -1;
+        for (let i = 0; i < rules.length; ++i) {
+            const rule = rules[i];
+            const { nodeIndex } = rule;
+            while (walkerIndex < nodeIndex) {
+                walkerIndex++;
+                walker.nextNode();
             }
-          };
+            const part = this.createPart(rule, walker.currentNode);
+            parts.push(part);
         }
-      }
-      break;
-    // TextNode
-    case 3:
-      var result = parse(node.nodeValue);
-      if(result.hasBinding) {
-        paths[ref.id] = function(node, model, link){
-          setupBinding(model, result, link, live.text(node));
-        };
-      }
-      break;
-  }
-
-  forEach.call(node.attributes || [], function(attrNode){
-    // TODO see if this is important
-    ref.id++;
-
-    if(ignoredAttrs[attrNode.name])
-      return;
-
-    var name = attrNode.name;
-    var property = propAttr(name);
-    var result = parse(attrNode.value);
-    if(result.hasBinding) {
-      paths[ref.id] = function(node, model, link){
-        if(property) {
-          node.removeAttribute(name);
-          setupBinding(model, result, link, live.prop(node, property));
-          return;
+        this.parts = parts;
+    }
+    // NOTE(cdata): In the original pass, this was exposed in the
+    // TemplateProcessor to be optionally overridden so that parts could
+    // have custom implementations.
+    createPart(rule, node) {
+        if (rule instanceof AttributeTemplateRule) {
+            return new AttributeTemplatePart(this, rule, node);
         }
-        setupBinding(model, result, link, live.attr(node, name));
-      };
-    } else if(property) {
-      paths[ref.id] = function(node){
-        node.removeAttribute(name);
-        live.prop(node, property)(attrNode.value);
-      };
-    } else if(name.substr(0, 3) === 'on-') {
-      var eventName = name.substr(3);
-      paths[ref.id] = function(node, model, link){
-        node.removeAttribute(name);
-        live.event(node, eventName, model, result, link);
-      };
+        else if (rule instanceof InnerTemplateRule) {
+            return new InnerTemplatePart(this, rule, node);
+        }
+        else if (rule instanceof NodeTemplateRule) {
+            return new NodeTemplatePart(this, rule, node);
+        }
+        throw new Error(`Unknown rule type.`);
     }
-  });
-
-  var childNodes = node.childNodes;
-  forEach.call(childNodes, function(node){
-    ref.id++;
-    inspect(node, ref, paths);
-  });
-
-  return paths;
 }
 
-var specialTemplateAttrs = ['if', 'each'];
-function specialTemplateAttr(template){
-  var attrName;
-  for(var i = 0, len = specialTemplateAttrs.length; i < len; i++) {
-    attrName = specialTemplateAttrs[i];
-    if(template.getAttribute(attrName))
-      return attrName;
-  }
-}
-
-function propAttr(name) {
-  return (name && name[0] === ':') && name.substr(1);
-}
-
-class MapOfMap {
-  constructor() {
-    this.map = new Map();
-  }
-
-  set(key1, key2, val) {
-    let map = this.map.get(key1);
-    if(!map) {
-      map = new Map();
-      this.map.set(key1, map);
+/**
+ * @license
+ * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at http:polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at http:polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at http:polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at http:polymer.github.io/PATENTS.txt
+ */
+const templateDefinitionCache = new Map();
+const createInstance = function (template, processor, state, overrideDefinitionCache = false) {
+    if (processor == null) {
+        throw new Error('The first argument of createInstance must be an implementation of TemplateProcessor');
     }
-    map.set(key2, val);
-  }
-
-  delete(key1, key2) {
-    let map = this.map.get(key1);
-    if(map) {
-      map.delete(key2);
+    if (!templateDefinitionCache.has(template) || overrideDefinitionCache) {
+        templateDefinitionCache.set(template, new TemplateDefinition(template));
     }
-  }
-}
-
-class Link {
-  constructor(frag) {
-    this.tree = frag;
-    this.models = new MapOfMap();
-    this.elements = new MapOfMap();
-    this.children = [];
-  }
-
-  loop(map, cb) {
-    for(let [key, val] of map) {
-      cb(key, val[0], val[1]);
-    }
-  }
-
-  on(obj, event, fn, isModel$$1) {
-    this.models.set(obj, event, fn);
-    on(obj, event, fn);
-  }
-
-  off(obj, event, fn) {
-    this.models.delete(obj, event);
-    off(obj, event, fn);
-  }
-
-  bind(node, event, fn) {
-    this.elements.set(node, event, fn);
-    node.addEventListener(event, fn);
-  }
-
-  attach() {
-    this.loop(this.models, on);
-    this.children.forEach(function(link){
-      link.attach();
-    });
-  }
-
-  detach() {
-    this.loop(this.models, off);
-    this.children.forEach(function(link){
-      link.detach();
-    });
-  }
-
-  add(link) {
-    this.children.push(link);
-  }
-
-  remove(link) {
-    var idx = this.children.indexOf(link);
-    this.children.splice(idx, 1);
-  }
-}
-
-var stamp = function(template){
-  template = (template instanceof HTMLTemplateElement) ? template : document.querySelector(template);
-  var paths = inspect(template.content, {id:0}, {});
-
-  return function(scope){
-    if(!(scope instanceof Scope)) {
-      scope = new Scope(scope);
-    }
-
-    var frag = document.importNode(template.content, true);
-    var link = new Link(frag);
-    hydrate(link, paths, scope);
-    return link;
-  };
+    const definition = templateDefinitionCache.get(template);
+    return new TemplateInstance(definition, processor, state);
 };
+
+function notImplemented() {
+  throw new Error('Not yet implemented');
+}
+
+class EventTemplatePart extends TemplatePart {
+  constructor(attributePart, _state) {
+    super();
+    Object.assign(this, attributePart);
+    this._state = _state;
+  }
+
+  clear() {
+    notImplemented();
+  }
+
+  applyValue(value) {
+    const listener = value.bind(this._state);
+    this.element.addEventListener('click', listener);
+  }
+}
+
+class BramTemplateProcessor extends TemplateProcessor {
+    createdCallback(_parts, _state) {
+      let part = _parts[0], i = 0;
+      while(part) {
+        if((part instanceof AttributeTemplatePart) && part.rule.attributeName.startsWith('@')) {
+          _parts[i] = new EventTemplatePart(part, _state);
+        }
+
+        i++;
+        part = _parts[i];
+      }
+    }
+    processCallback(parts, state) {
+        for (const part of parts) {
+            if (part instanceof InnerTemplatePart) ;
+            else if (part instanceof NodeTemplatePart) {
+                const { expression } = part.rule;
+                part.value = state && expression && state[expression];
+            }
+            else if (part instanceof AttributeTemplatePart) {
+                const { expressions } = part.rule;
+                part.value = state && expressions &&
+                    expressions.map(expression => state && state[expression]);
+            }
+            else if(part instanceof EventTemplatePart) {
+              const { expressions } = part.rule;
+              part.value = state && state[expressions[0]];
+            }
+        }
+    }
+}
+
+const processor = new BramTemplateProcessor();
+
+function createInstance$1(template, baseModel) {
+  let ti = createInstance(template, processor, baseModel);
+  const model = toModel(baseModel, () => {
+    ti.update(model);
+  });
+
+  return {
+    model,
+    fragment: ti
+  };
+}
+
+function getTemplate(name) {
+  return typeof name === 'string' ? document.querySelector(name) : name;
+}
 
 function Bram(Element) {
   return class extends Element {
     constructor() {
       super();
 
-      var Element = this.constructor;
-      let tmpl = Element.template;
-      if(tmpl) {
-        this._hydrate = stamp(tmpl);
-      }
-      this._hasRendered = false;
-
       // Initially an empty object
-      this.model = {};
+      const Element = this.constructor;
+      this._instance = createInstance$1(getTemplate(Element.template), Object.create(this));
+      this.model = this._instance.model;
+
+      // TODO remove
+      this._hasRendered = false;
 
       let events = Element.events;
       if(events && !Element._hasSetupEvents) {
@@ -781,26 +668,17 @@ function Bram(Element) {
     }
 
     connectedCallback() {
-      if(this._hydrate && !this._hasRendered) {
-        if(!isModel(this.model)) {
-          this.model = toModel(this.model);
-        }
-
-        var scope = new Scope(this).add(this.model);
-        this._link = this._hydrate(scope);
-        var tree = this._link.tree;
-        var renderMode = this.constructor.renderMode;
+      if(this._instance && !this._hasRendered) {
+        let renderMode = this.constructor.renderMode;
         if(renderMode === 'light') {
           this.innerHTML = '';
-          this.appendChild(tree);
+          this.appendChild(this._instance.fragment);
         } else {
           this.attachShadow({ mode: 'open' });
-          this.shadowRoot.appendChild(tree);
+          this.shadowRoot.appendChild(this._instance.fragment);
         }
         this._hasRendered = true;
-      } else if(this._hasRendered) {
-        this._link.attach();
-      }
+      } else if(this._hasRendered) ;
       if(this.childrenConnectedCallback) {
         this._disconnectChildMO = setupChildMO(this);
       }
@@ -825,12 +703,12 @@ function Bram(Element) {
   }
 }
 
-var Element = Bram(HTMLElement);
+const Element = Bram(HTMLElement);
 Bram.Element = Element;
 Bram.model = toModel;
 Bram.on = on;
 Bram.off = off;
-Bram.template = stamp;
+Bram.createInstance = createInstance$1;
 
 function installEvents(Element) {
   Element._hasSetupEvents = true;
@@ -887,8 +765,6 @@ function installProps(Element, props, attributes = []) {
   });
 }
 
-var SUPPORTS_MO = typeof MutationObserver === 'function';
-
 function setupChildMO(inst) {
   var cancelled = false;
   var report = function(){
@@ -896,11 +772,6 @@ function setupChildMO(inst) {
       inst.childrenConnectedCallback();
     }
   };
-
-  if(!SUPPORTS_MO) {
-    asap(report);
-    return;
-  }
 
   var mo = new MutationObserver(report);
   mo.observe(inst, { childList: true });
@@ -915,4 +786,5 @@ function setupChildMO(inst) {
   };
 }
 
-export { Element };export default Bram;
+export default Bram;
+export { Element, Bram };

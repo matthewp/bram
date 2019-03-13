@@ -1,5 +1,6 @@
-.PHONY: bram bram-umd minify guide site styles all serve watch dev
+.PHONY: bram-umd minify guide site styles all serve watch dev
 
+COMPILE=node_modules/.bin/compile
 BABILI=node_modules/.bin/babili
 ROLLUP=node_modules/.bin/rollup
 CLEANCSS=node_modules/.bin/cleancss
@@ -7,7 +8,8 @@ CLEANCSS=node_modules/.bin/cleancss
 all: bram bram-umd minify
 
 bram:
-	$(ROLLUP) -o bram.js src/bram.js
+	$(COMPILE) -o bram.js -f es src/bram.js
+.PHONY: bram
 
 bram-umd:
 	$(ROLLUP) -o bram.umd.js -f umd -n Bram src/global.js
