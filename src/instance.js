@@ -5,16 +5,15 @@ import { toModel } from './model.js';
 
 function createInstance(template, baseModel = {}, thisValue) {
   let processor = new BramTemplateProcessor(thisValue);
-  let ti = createTemplateInstance(template, processor, baseModel);
-  const model = toModel(baseModel, () => {
-    ti.update(model);
+  let fragment = createTemplateInstance(template, processor, baseModel);
+  let model = toModel(baseModel, () => {
+    fragment.update(model);
   });
 
   return {
-    model,
-    fragment: ti,
+    model, fragment,
     update() {
-      ti.update(model);
+      fragment.update(model);
     }
   };
 }
