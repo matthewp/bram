@@ -583,12 +583,12 @@ class EventTemplatePart extends TemplatePart {
     Object.assign(this, attributePart);
     this._state = _state;
     this._thisValue = _thisValue;
+    this._eventName = this.rule.attributeName.substr(1);
   }
 
   applyValue(value) {
-    let eventName = this.rule.expressions[0];
     const listener = value.bind(this._thisValue || this._state);
-    this.element.addEventListener(eventName, listener);
+    this.element.addEventListener(this._eventName, listener);
   }
 }
 
