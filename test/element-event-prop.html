@@ -1,43 +1,43 @@
 <!doctype html>
-<html>
-<head>
-  <title>Element event property tests</title>
+<html lang="en">
+<title>Element event property tests</title>
 
-  <script src="../node_modules/webcomponents.js/HTMLImports.min.js"></script>
-  <script src="../node_modules/@webcomponents/custom-elements/custom-elements.min.js"></script>
-  <script src="../node_modules/cloudydom/cloudydom.min.js"></script>
-  <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
-  <script src="../bram.umd.js"></script>
-</head>
-<body>
-  <evented-element id="eventedElement"></evented-element>
-<mocha-test>
-<template>
-  <script>
-    describe('Event properties', function(){
-      before(function(){
-        class EventedElement extends Bram.Element {
-          static get events() {
-            return ['foo'];
-          }
+<link href="https://unpkg.com/mocha@4.1.0/mocha.css" rel="stylesheet">
+<script src="https://unpkg.com/chai/chai.js"></script>
+<script src="https://unpkg.com/mocha@4.1.0/mocha.js"></script>
+<script src="./setup-mocha.js"></script>
 
-          trigger() {
-            this.dispatchEvent(new Event('foo'));
-          }
+<template id="myTemplate"></template>
+<evented-element id="eventedElement"></evented-element>
+<div id="mocha"></div>
+
+<script type="module">
+  import Bram from '../src/bram.js';
+
+  describe('Event properties', function(){
+    before(function(){
+      class EventedElement extends Bram.Element {
+        static get template() {
+          return myTemplate;
         }
-        customElements.define('evented-element', EventedElement);
-      });
 
-      it('Are added to instances', function(done){
-        eventedElement.onfoo = function(){
-          assert.ok(true, 'this was called');
-          done();
-        };
-        eventedElement.trigger();
-      });
+        static get events() {
+          return ['foo'];
+        }
+
+        trigger() {
+          this.dispatchEvent(new Event('foo'));
+        }
+      }
+      customElements.define('evented-element', EventedElement);
     });
-  </script>
-</template>
-</mocha-test>
-</body>
-</html>
+
+    it('Are added to instances', function(done){
+      eventedElement.onfoo = function(){
+        assert.ok(true, 'this was called');
+        done();
+      };
+      eventedElement.trigger();
+    });
+  });
+</script>

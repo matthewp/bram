@@ -12,6 +12,9 @@ function isArrayOrObject(object) {
 function observe(o, fn) {
   var proxy = new Proxy(o, {
     get: function(target, property) {
+      if(property === isModel) {
+        return true;
+      }
       Transaction.observe(proxy, property);
       return target[property];
     },
@@ -58,32 +61,33 @@ function observe(o, fn) {
 
 var events = symbol('bram-events');
 var arrayChange = symbol('bram-array-change');
+let model = Symbol('bram.isModel');
 
-var toModel = function(o, callback){
-  if(isModel(o)) return o;
+var toModel = function(o, cb){
+  if(!o[events]) {
+    o = deepModel(o, cb) || {};
 
-  o = deepModel(o) || {};
+    Object.defineProperty(o, events, {
+      value: {},
+      enumerable: false
+    });
+  }
 
-  Object.defineProperty(o, events, {
-    value: {},
-    enumerable: false
-  });
-
-  return observe(o, callback);
+  return observe(o, cb);
 };
 
-function deepModel(o) {
+function deepModel(o, cb) {
   return !o ? o : Object.keys(o).reduce(function(acc, prop){
     var val = o[prop];
     acc[prop] = (Array.isArray(val) || typeof val === 'object')
-      ? toModel(val)
+      ? toModel(val, cb)
       : val;
     return acc;
   }, o);
 }
 
 var isModel = function(object){
-  return object && !!object[events];
+  return object && !!object[model];
 };
 
 var on = function(model, prop, callback){
