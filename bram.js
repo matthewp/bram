@@ -1,148 +1,66 @@
-var symbol = typeof Symbol === 'function' ? Symbol :
-  function(str){ return '@@-' + str; };
-
-const asap = Promise.resolve().then.bind(Promise.resolve());
-
-class Transaction {
-  static add(t) {
-    this.current = t;
-    this.stack.push(t);
-  }
-
-  static remove() {
-    this.stack.pop();
-    this.current = this.stack[this.stack.length - 1];
-  }
-
-  static observe(model, prop) {
-    if(this.current) {
-      this.current.stack.push([model, prop]);
-    }
-  }
-
-  constructor() {
-    this.stack = [];
-  }
-
-  start() {
-    Transaction.add(this);
-  }
-
-  stop() {
-    Transaction.remove();
-    return this.stack;
-  }
-}
-
-Transaction.stack = [];
-
-function isArraySet(object, property){
-  return Array.isArray(object) && !isNaN(+property);
-}
-
 function isArrayOrObject(object) {
   return Array.isArray(object) || typeof object === 'object';
 }
 
 function observe(o, fn) {
-  var proxy = new Proxy(o, {
+  let proxy = new Proxy(o, {
     get: function(target, property) {
-      Transaction.observe(proxy, property);
-      return target[property];
+      if(property === isModel) {
+        return true;
+      }
+      return Reflect.get(target, property);
     },
     set: function(target, property, value) {
       var oldValue = target[property];
       if(!isModel(value) && isArrayOrObject(value)) {
         value = toModel(value, fn);
       }
-      target[property] = value;
+      Reflect.set(target, property, value);
 
       // If the value hasn't changed, nothing else to do
       if(value === oldValue)
         return true;
 
-      if(isArraySet(target, property)) {
-        fn({
-          prop: arrayChange,
-          index: +property,
-          type: 'set'
-        }, value);
-      } else {
-        fn({
-          prop: property,
-          type: 'set'
-        }, value);
-      }
-
+      fn();
       return true;
     },
-    deleteProperty: function(target, property, value){
-      if(isArraySet(target, property)) {
-        fn({
-          prop: arrayChange,
-          index: +property,
-          type: 'delete'
-        });
-      }
-
+    deleteProperty: function(target, property){
+      fn();
       return true;
     }
   });
   return proxy;
 }
 
-var events = symbol('bram-events');
-var arrayChange = symbol('bram-array-change');
+const events = Symbol('Bram.events');
+const model = Symbol('bram.isModel');
 
-var toModel = function(o, callback){
-  if(isModel(o)) return o;
+function toModel(o, cb){
+  if(!o[events]) {
+    o = deepModel(o, cb) || {};
 
-  o = deepModel(o) || {};
+    Object.defineProperty(o, events, {
+      value: {},
+      enumerable: false
+    });
+  }
 
-  Object.defineProperty(o, events, {
-    value: {},
-    enumerable: false
-  });
+  return observe(o, cb);
+}
 
-  return observe(o, callback);
-};
-
-function deepModel(o) {
+function deepModel(o, cb) {
   return !o ? o : Object.keys(o).reduce(function(acc, prop){
     var val = o[prop];
     acc[prop] = (Array.isArray(val) || typeof val === 'object')
-      ? toModel(val)
+      ? toModel(val, cb)
       : val;
     return acc;
   }, o);
 }
 
-var isModel = function(object){
-  return object && !!object[events];
-};
-
-var on = function(model, prop, callback){
-  var evs = model[events];
-  if(!evs) return;
-  var ev = evs[prop];
-  if(!ev) {
-    ev = evs[prop] = [];
-  }
-  ev.push(callback);
-};
-
-var off = function(model, prop, callback){
-  var evs = model[events];
-  if(!evs) return;
-  var ev = evs[prop];
-  if(!ev) return;
-  var idx = ev.indexOf(callback);
-  if(idx === -1) return;
-  ev.splice(idx, 1);
-  if(!ev.length) {
-    delete evs[prop];
-  }
-};
+function isModel (object){
+  return object && !!object[model];
+}
 
 /**
  * @license
@@ -571,10 +489,16 @@ const createInstance = function (template, processor, state, overrideDefinitionC
     return new TemplateInstance(definition, processor, state);
 };
 
-class EventTemplatePart extends TemplatePart {
-  constructor(attributePart, _state, _thisValue) {
+class AttrLikePart extends TemplatePart {
+  constructor(attributePart) {
     super();
     Object.assign(this, attributePart);
+  }
+}
+
+class EventTemplatePart extends AttrLikePart {
+  constructor(attributePart, _state, _thisValue) {
+    super(attributePart);
     this._state = _state;
     this._thisValue = _thisValue;
     this._eventName = this.rule.attributeName.substr(1);
@@ -586,16 +510,73 @@ class EventTemplatePart extends TemplatePart {
   }
 }
 
-class PropertyTemplatePart extends TemplatePart {
-  constructor(attributePart) {
-    super();
-    Object.assign(this, attributePart);
-  }
-
+class PropertyTemplatePart extends AttrLikePart {
   applyValue(value) {
     let prop = this.rule.expressions[0];
     Reflect.set(this.element, prop, value);
   }
+}
+
+function conditional(left, right) {
+  let parent, nodes = Array.from(left.childNodes);
+
+  function frag() {
+    let f = document.createDocumentFragment();
+    for(let node of nodes) f.appendChild(node);
+    return f;
+  }
+
+  function update(showLeft) {
+    if(showLeft) {
+      parent = right.parentNode;
+      parent.insertBefore(frag(), right);
+      parent.removeChild(right);
+    } else {
+      parent.insertBefore(right, left[0]);
+      for(let node of nodes) {
+        parent.removeChild(node);
+      }
+    }
+  }
+
+  return update;
+}
+
+function processConditional(part, state) {
+  let prop = part.rule.expression;
+  let value = !!state[prop];
+
+  // Note that this can likely be simpler
+  if(!part.conditional) {
+    let instance = createInstance$1(part.template, state);
+    part.conditional = conditional(instance.fragment, part.startNode);
+    part.sourceValue = false;
+  }
+
+  if(value !== part.sourceValue) {
+    part.sourceValue = value;
+    part.conditional(value);
+  }
+}
+
+function processForEach(part, state) {
+  let { expression } = part.rule;
+  let value = state[expression];
+
+  if(value) {
+    part.parentNode = part.startNode.parentNode;
+    part.clear();
+
+    for(let item of value) {
+      let model = { item, ...(typeof item === 'object' && item) };
+      let instance = createInstance$1(part.template, model);
+
+      for(let node of [...instance.fragment.childNodes]) {
+        part.appendNode(node);
+      }
+    }
+  }
+
 }
 
 class BramTemplateProcessor extends TemplateProcessor {
@@ -606,10 +587,11 @@ class BramTemplateProcessor extends TemplateProcessor {
     createdCallback(_parts, _state) {
       let part = _parts[0], i = 0;
       while(part) {
-        if((part instanceof AttributeTemplatePart) && part.rule.attributeName.startsWith('@')) {
+        let isAttr = (part instanceof AttributeTemplatePart);
+        if(isAttr && part.rule.attributeName.startsWith('@')) {
           _parts[i] = new EventTemplatePart(part, _state, this._thisValue);
         }
-        else if((part instanceof AttributeTemplatePart) && part.rule.attributeName.startsWith('.')) {
+        else if(isAttr && part.rule.attributeName.startsWith('.')) {
           _parts[i] = new PropertyTemplatePart(part);
         }
 
@@ -619,7 +601,13 @@ class BramTemplateProcessor extends TemplateProcessor {
     }
     processCallback(parts, state) {
         for (const part of parts) {
-            if (part instanceof InnerTemplatePart) ;
+            if (part instanceof InnerTemplatePart) {
+              let directive = part.template.getAttribute('directive');
+              switch(directive) {
+                case 'if': return processConditional(part, state);
+                case 'foreach': return processForEach(part, state);
+              }
+            }
             else if (part instanceof NodeTemplatePart) {
                 const { expression } = part.rule;
                 part.value = state && expression && state[expression];
@@ -652,49 +640,23 @@ function createInstance$1(template, baseModel = {}, thisValue) {
   };
 }
 
-function getTemplate(name) {
-  return typeof name === 'string' ? document.querySelector(name) : name;
-}
+const instance = Symbol('Bram.instance');
 
 function Bram(Element) {
   return class extends Element {
-    constructor() {
-      super();
-
-      // Initially an empty object
-      const Element = this.constructor;
-      this._instance = createInstance$1(getTemplate(Element.template),
-        Object.create(this), this);
-      this.model = this._instance.model;
-
-      // TODO remove
-      this._hasRendered = false;
-
-      let events = Element.events;
-      if(events && !Element._hasSetupEvents) {
-        installEvents(Element);
+    attachView(template, model = {}) {
+      if(instance in this) {
+        throw new Error('Views cannot be created on a host which already contains a view.');
       }
-
-      let props = !Element._hasInstalledProps && Element.observedProperties;
-      if(props) {
-        Element._hasInstalledProps = true;
-        installProps(Element, props, Element.observedAttributes);
+      if(this.shadowRoot === null) {
+        this.attachShadow({ mode: 'open' });
       }
+      this[instance] = createInstance$1(template, model);
+      this.shadowRoot.append(this[instance].fragment);
+      return this[instance].model;
     }
 
     connectedCallback() {
-      this._instance.update();
-      if(this._instance && !this._hasRendered) {
-        let renderMode = this.constructor.renderMode;
-        if(renderMode === 'light') {
-          this.innerHTML = '';
-          this.appendChild(this._instance.fragment);
-        } else {
-          this.attachShadow({ mode: 'open' });
-          this.shadowRoot.appendChild(this._instance.fragment);
-        }
-        this._hasRendered = true;
-      } else if(this._hasRendered) ;
       if(this.childrenConnectedCallback) {
         this._disconnectChildMO = setupChildMO(this);
       }
@@ -704,103 +666,32 @@ function Bram(Element) {
       if(this._disconnectChildMO) {
         this._disconnectChildMO();
       }
-      if(this._link) {
-        this._link.detach();
-      }
-    }
-
-    attributeChangedCallback(name, oldVal, newVal) {
-      var sa = this.constructor._syncedAttrs;
-      var synced = sa && sa[name];
-      if(synced && this[name] !== newVal) {
-        this[name] = newVal;
-      }
     }
   }
 }
 
 const Element = Bram(HTMLElement);
 Bram.Element = Element;
-Bram.model = toModel;
-Bram.on = on;
-Bram.off = off;
-Bram.createInstance = createInstance$1;
-
-function installEvents(Element) {
-  Element._hasSetupEvents = true;
-  Element.events.forEach(function(eventName){
-    Object.defineProperty(Element.prototype, 'on' + eventName, {
-      get: function(){
-        return this['_on' + eventName];
-      },
-      set: function(fn){
-        var prop = '_on' + eventName;
-        var cur = this[prop];
-        if(cur) {
-          this.removeEventListener(eventName, cur);
-        }
-        this[prop] = fn;
-        this.addEventListener(eventName, fn);
-      }
-    });
-  });
-}
-
-function installProps(Element, props, attributes = []) {
-  Element._syncedAttrs = {};
-  var proto = Element.prototype;
-  props.forEach(function(prop){
-    var desc = Object.getOwnPropertyDescriptor(proto, prop);
-    if(!desc) {
-      var hasAttr = attributes.indexOf(prop) !== -1;
-      if(hasAttr) {
-        Element._syncedAttrs[prop] = true;
-      }
-      Object.defineProperty(proto, prop, {
-        get: function() {
-          return this.model[prop];
-        },
-        set: function(val) {
-          this.model[prop] = val;
-          if(hasAttr) {
-            var cur = this.getAttribute(prop);
-            if(typeof val === 'boolean') {
-              if(val && cur !== '') {
-                this.setAttribute(prop, '');
-              } else if(cur === '' && !val) {
-                this.removeAttribute(prop);
-              }
-              return;
-            } else if(cur !== val) {
-              this.setAttribute(prop, val);
-            }
-          }
-        }
-      });
-    }
-  });
-}
 
 function setupChildMO(inst) {
-  var cancelled = false;
-  var report = function(){
+  let cancelled = false;
+  let mo = new MutationObserver(() => {
     if(!cancelled) {
       inst.childrenConnectedCallback();
     }
-  };
-
-  var mo = new MutationObserver(report);
+  });
   mo.observe(inst, { childList: true });
 
-  if(inst.childNodes.length) {
-    asap(report);
+  // If it has any children at all, go ahead and report
+  if(inst.firstChild) {
+    Promise.resolve().then(report);
   }
 
-  return function(){
+  return () => {
     cancelled = true;
     mo.disconnect();
   };
 }
 
 export default Bram;
-export { Element, Bram };
+export { Element, Bram, toModel as model, createInstance$1 as createInstance };

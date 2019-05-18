@@ -1,69 +1,42 @@
-import { symbol } from './util.js';
-import Transaction from './transaction.js';
-
-function isArraySet(object, property){
-  return Array.isArray(object) && !isNaN(+property);
-}
 
 function isArrayOrObject(object) {
   return Array.isArray(object) || typeof object === 'object';
 }
 
 function observe(o, fn) {
-  var proxy = new Proxy(o, {
+  let proxy = new Proxy(o, {
     get: function(target, property) {
       if(property === isModel) {
         return true;
       }
-      Transaction.observe(proxy, property);
-      return target[property];
+      return Reflect.get(target, property);
     },
     set: function(target, property, value) {
       var oldValue = target[property];
       if(!isModel(value) && isArrayOrObject(value)) {
         value = toModel(value, fn);
       }
-      target[property] = value;
+      Reflect.set(target, property, value);
 
       // If the value hasn't changed, nothing else to do
       if(value === oldValue)
         return true;
 
-      if(isArraySet(target, property)) {
-        fn({
-          prop: arrayChange,
-          index: +property,
-          type: 'set'
-        }, value);
-      } else {
-        fn({
-          prop: property,
-          type: 'set'
-        }, value)
-      }
-
+      fn();
       return true;
     },
-    deleteProperty: function(target, property, value){
-      if(isArraySet(target, property)) {
-        fn({
-          prop: arrayChange,
-          index: +property,
-          type: 'delete'
-        });
-      }
-
+    deleteProperty: function(target, property){
+      fn();
       return true;
     }
   });
   return proxy;
 }
 
-var events = symbol('bram-events');
-var arrayChange = symbol('bram-array-change');
-let model = Symbol('bram.isModel');
+const events = Symbol('Bram.events');
+const model = Symbol('bram.isModel');
 
-var toModel = function(o, cb){
+function toModel(o, cb){
   if(!o[events]) {
     o = deepModel(o, cb) || {};
 
@@ -74,7 +47,7 @@ var toModel = function(o, cb){
   }
 
   return observe(o, cb);
-};
+}
 
 function deepModel(o, cb) {
   return !o ? o : Object.keys(o).reduce(function(acc, prop){
@@ -86,37 +59,11 @@ function deepModel(o, cb) {
   }, o);
 }
 
-var isModel = function(object){
+function isModel (object){
   return object && !!object[model];
-};
-
-var on = function(model, prop, callback){
-  var evs = model[events];
-  if(!evs) return;
-  var ev = evs[prop];
-  if(!ev) {
-    ev = evs[prop] = [];
-  }
-  ev.push(callback);
-};
-
-var off = function(model, prop, callback){
-  var evs = model[events];
-  if(!evs) return;
-  var ev = evs[prop];
-  if(!ev) return;
-  var idx = ev.indexOf(callback);
-  if(idx === -1) return;
-  ev.splice(idx, 1);
-  if(!ev.length) {
-    delete evs[prop];
-  }
-};
+}
 
 export {
-  arrayChange,
-  on,
-  off,
   isModel,
   toModel
 };

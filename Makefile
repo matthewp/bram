@@ -1,5 +1,5 @@
 COMPILE=node_modules/.bin/compile
-BABILI=node_modules/.bin/babili
+MIN=node_modules/.bin/terser
 ROLLUP=node_modules/.bin/rollup
 CLEANCSS=node_modules/.bin/cleancss
 
@@ -10,7 +10,11 @@ bram.js: src/bram.js
 .PHONY: bram
 
 bram.min.js: bram.js
-	$(BABILI) $^ > $@
+	$(MIN) $^ > $@
+
+clean: bram.js bram.min.js
+	@rm bram.js bram.min.js
+.PHONY: clean
 
 styles:
 	$(CLEANCSS) -o docs/styles/styles.min.css docs/styles.css

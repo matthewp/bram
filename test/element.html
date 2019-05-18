@@ -1,55 +1,40 @@
 <!doctype html>
-<html>
-<head>
-  <title>elements tests</title>
+<html lang="en">
+<meta charset="utf-8">
+<title>elements tests</title>
 
-  <link href="https://unpkg.com/mocha@4.1.0/mocha.css" rel="stylesheet">
-  <script src="https://unpkg.com/chai/chai.js"></script>
-  <script src="https://unpkg.com/mocha@4.1.0/mocha.js"></script>
-</head>
-<body>
+<link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.9.2.css">
+<script src="https://code.jquery.com/qunit/qunit-2.9.2.js"></script>
+
 <template id="someTemplate">
   <span>{{name}}</span>
 </template>
 <some-element id="someElement"></some-element>
 
-<div id="mocha"></div>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
 
-<script>
-  mocha.setup('bdd');
-  assert = chai.assert;
-
-  window.addEventListener('load', () => {
-    mocha.run();
-  });
-</script>
 <script type="module">
-  import { Element } from '../src/bram.js';
+import { Element } from '../src/bram.js';
 
-  describe("Bram.element", function(){
-    before(function(){
-      class SomeElement extends Element {
-        static get template() {
-          return document.querySelector("#someTemplate");
-        }
-
-        constructor() {
-          super();
-          this.model.name = 'world';
-        }
+QUnit.module("Bram.element", {
+  before() {
+    class SomeElement extends Element {
+      constructor() {
+        super();
+        this.model = this.attachView(someTemplate);
+        this.model.name = 'world';
       }
+    }
 
-      customElements.define('some-element', SomeElement);
-    });
+    customElements.define('some-element', SomeElement);
+  }
+});
 
-    it("Renders to shadowRoot", function(){
-      let root = someElement.shadowRoot;
-      let txt = root.firstElementChild.textContent;
+QUnit.test("Renders to shadowRoot", assert => {
+  let root = someElement.shadowRoot;
+  let txt = root.firstElementChild.textContent;
 
-      assert.equal(txt, 'world');
-    });
-  });
+  assert.equal(txt, 'world');
+});
 </script>
-
-</body>
-</html>
