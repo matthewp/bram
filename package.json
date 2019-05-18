@@ -5,12 +5,11 @@
   "main": "bram.umd.js",
   "jsnext:main": "bram.js",
   "scripts": {
-    "test": "testee test/simple.html test/model.html test/conditional.html test/lists.html test/texts.html test/parse.html test/children.html test/props.html test/attrs.html test/element.html test/element-rendermode.html test/element-event-prop.html test/declarative-events.html --browsers firefox"
+    "test": "testee --browsers firefox test/test.html"
   },
   "keywords": [
     "web",
-    "components",
-    "observables"
+    "components"
   ],
   "files": [
     "bram.js",
@@ -29,11 +28,11 @@
   "devDependencies": {
     "@matthewp/compile": "^1.3.1",
     "@matthewp/template-instantiation": "^1.1.0",
-    "babili": "0.0.8",
     "cheerio": "^0.22.0",
     "clean-css": "^3.4.21",
     "highlight.js": "^9.8.0",
     "marked": "^0.3.6",
+    "qunit": "^2.9.2",
     "script-type-module": "^1.0.0",
     "sw-precache": "^4.2.3",
     "terser": "^3.17.0"

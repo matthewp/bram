@@ -12,8 +12,8 @@ bram.js: src/bram.js
 bram.min.js: bram.js
 	$(MIN) $^ > $@
 
-clean: bram.js bram.min.js
-	@rm bram.js bram.min.js
+clean:
+	@rm -f bram.js bram.min.js
 .PHONY: clean
 
 styles:

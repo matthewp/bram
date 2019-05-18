@@ -15,15 +15,14 @@ class AttrLikePart extends TemplatePart {
 }
 
 class EventTemplatePart extends AttrLikePart {
-  constructor(attributePart, _state, _thisValue) {
+  constructor(attributePart, _state) {
     super(attributePart);
     this._state = _state;
-    this._thisValue = _thisValue;
     this._eventName = this.rule.attributeName.substr(1);
   }
 
   applyValue(value) {
-    const listener = value.bind(this._thisValue || this._state);
+    const listener = value.bind(this._state);
     this.element.addEventListener(this._eventName, listener);
   }
 }
@@ -98,16 +97,12 @@ function processForEach(part, state) {
 }
 
 export class BramTemplateProcessor extends TemplateProcessor {
-    constructor(thisValue) {
-      super();
-      this._thisValue = thisValue;
-    }
     createdCallback(_parts, _state) {
       let part = _parts[0], i = 0;
       while(part) {
         let isAttr = (part instanceof AttributeTemplatePart);
         if(isAttr && part.rule.attributeName.startsWith('@')) {
-          _parts[i] = new EventTemplatePart(part, _state, this._thisValue);
+          _parts[i] = new EventTemplatePart(part, _state);
         }
         else if(isAttr && part.rule.attributeName.startsWith('.')) {
           _parts[i] = new PropertyTemplatePart(part);

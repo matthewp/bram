@@ -3,12 +3,12 @@ import createTemplateInstance from '../node_modules/@matthewp/template-instantia
 import { BramTemplateProcessor } from './processor.js';
 import { toModel } from './model.js';
 
-function createInstance(template, baseModel = {}, thisValue) {
-  let processor = new BramTemplateProcessor(thisValue);
-  let fragment = createTemplateInstance(template, processor, baseModel);
+function createInstance(template, baseModel = {}) {
+  let processor = new BramTemplateProcessor();
   let model = toModel(baseModel, () => {
     fragment.update(model);
   });
+  let fragment = createTemplateInstance(template, processor, model);
 
   return {
     model, fragment,
