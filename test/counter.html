@@ -40,24 +40,29 @@
 <script type="module">
   import { Element } from '../src/bram.js';
 
-  class Counter extends Element {
-    static get template() {
-      return '#counter-template';
-    }
-    
-    constructor() {
-      super();
-      this.model.count = 0;
+  const template = document.querySelector('#counter-template');
+
+  class ViewModel {
+    constructor(host) {
+      this.host = host;
+      this.count = 0;
     }
 
     increment() {
-      this.model.count++;
+      this.count++;
       this._triggerChange();
     }
 
     _triggerChange() {
-      let ev = new CustomEvent('change', { detail: this.model.count });
-      this.dispatchEvent(ev);
+      let ev = new CustomEvent('change', { detail: this.count });
+      this.host.dispatchEvent(ev);
+    }
+  }
+
+  class Counter extends Element {
+    constructor() {
+      super();
+      this.model = this.attachView(template, new ViewModel(this));
     }
   }
 

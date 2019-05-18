@@ -1,5 +1,5 @@
 import { toModel } from './model.js';
-import createInstance from './instance';
+import createInstance from './instance.js';
 
 const instance = Symbol('Bram.instance');
 
@@ -36,11 +36,12 @@ Bram.Element = Element;
 
 function setupChildMO(inst) {
   let cancelled = false;
-  let mo = new MutationObserver(() => {
+  let report = () => {
     if(!cancelled) {
       inst.childrenConnectedCallback();
     }
-  });
+  };
+  let mo = new MutationObserver(report);
   mo.observe(inst, { childList: true });
 
   // If it has any children at all, go ahead and report

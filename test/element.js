@@ -1,24 +1,18 @@
-<!doctype html>
-<html lang="en">
-<meta charset="utf-8">
-<title>elements tests</title>
-
-<link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.9.2.css">
-<script src="https://code.jquery.com/qunit/qunit-2.9.2.js"></script>
-
-<template id="someTemplate">
-  <span>{{name}}</span>
-</template>
-<some-element id="someElement"></some-element>
-
-<div id="qunit"></div>
-<div id="qunit-fixture"></div>
-
-<script type="module">
 import { Element } from '../src/bram.js';
+import * as helpers from './helpers.js';
+
+const template = document.createElement('template');
+template.innerHTML = /* html */ `
+  <template id="someTemplate">
+    <span>{{name}}</span>
+  </template>
+  <some-element id="someElement"></some-element>
+`;
 
 QUnit.module("Bram.element", {
   before() {
+    helpers.insert(template);
+
     class SomeElement extends Element {
       constructor() {
         super();
@@ -28,7 +22,8 @@ QUnit.module("Bram.element", {
     }
 
     customElements.define('some-element', SomeElement);
-  }
+  },
+  after: helpers.clear
 });
 
 QUnit.test("Renders to shadowRoot", assert => {
@@ -37,4 +32,3 @@ QUnit.test("Renders to shadowRoot", assert => {
 
   assert.equal(txt, 'world');
 });
-</script>
