@@ -1,49 +1,40 @@
 <!doctype html>
-<html>
-<head>
-  <title>elements tests</title>
+<html lang="en">
+<meta charset="utf-8">
+<title>elements tests</title>
 
-  <script src="../node_modules/webcomponents.js/HTMLImports.min.js"></script>
-  <script src="../node_modules/@webcomponents/custom-elements/custom-elements.min.js"></script>
-  <script src="../node_modules/cloudydom/cloudydom.min.js"></script>
-  <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
-  <script src="../bram.umd.js"></script>
-</head>
-<body>
-  <template id="someTemplate">
-    <span>{{person.name}}</span>
-  </template>
-  <some-element id="someElement"></some-element>
+<link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.9.2.css">
+<script src="https://code.jquery.com/qunit/qunit-2.9.2.js"></script>
 
-<mocha-test>
-<template>
-  <script>
-    describe("Bram.element", function(){
-      before(function(){
-        class SomeElement extends Bram.Element {
-          static get template() {
-            return "#someTemplate";
-          }
-
-          constructor() {
-            super();
-            this.model.person = {};
-            this.model.person.name = 'world';
-          }
-        }
-
-        customElements.define('some-element', SomeElement);
-      });
-
-      it("Renders to shadowRoot", function(){
-        let root = someElement.shadowRoot;
-        let txt = root.firstElementChild.textContent;
-
-        assert.equal(txt, 'world');
-      });
-    });
-  </script>
+<template id="someTemplate">
+  <span>{{name}}</span>
 </template>
-</mocha-test>
-</body>
-</html>
+<some-element id="someElement"></some-element>
+
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+
+<script type="module">
+import { Element } from '../src/bram.js';
+
+QUnit.module("Bram.element", {
+  before() {
+    class SomeElement extends Element {
+      constructor() {
+        super();
+        this.model = this.attachView(someTemplate);
+        this.model.name = 'world';
+      }
+    }
+
+    customElements.define('some-element', SomeElement);
+  }
+});
+
+QUnit.test("Renders to shadowRoot", assert => {
+  let root = someElement.shadowRoot;
+  let txt = root.firstElementChild.textContent;
+
+  assert.equal(txt, 'world');
+});
+</script>

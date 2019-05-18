@@ -1,87 +1,87 @@
 <!doctype html>
-<html>
-<head>
-  <title>conditionals tests</title>
+<html lang="en">
+<title>conditionals tests</title>
 
-  <script src="../node_modules/webcomponents.js/HTMLImports.min.js"></script>
-  <script src="../node_modules/@webcomponents/custom-elements/custom-elements.min.js"></script>
-  <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
-  <script src="../bram.umd.js"></script>
-</head>
-<body>
-<template id="conditional"><template if="condition">{{val}}</template></template>
+<link href="https://unpkg.com/mocha@4.1.0/mocha.css" rel="stylesheet">
+<script src="https://unpkg.com/chai/chai.js"></script>
+<script src="https://unpkg.com/mocha@4.1.0/mocha.js"></script>
+<script src="./setup-mocha.js"></script>
+
+<template id="conditional"><template directive="if" expression="condition">{{val}}</template></template>
+
 <template id="conditional2">
-  <template if="condition">
+  <template directive="if" expression="condition">
     <span id="ittrue">True!</span>
   </template>
 
   <section>
-    <div class="two" :foo="{{bar}}">Stuff after</div>
+    <div class="two" .foo="{{bar}}">Stuff after</div>
   </section>
 </template>
+
 <div id="host"></div>
-<mocha-test>
-<template>
-  <script>
-    describe('template[if]', function(){
-      var hydrate = Bram.template(conditional);
+<div id="mocha"></div>
 
-      afterEach(function(){
-        host.innerHTML = '';
-      });
+<script type="module">
+  import Bram from '../src/bram.js';
 
-      describe('rendering', function(){
-        var model;
-
-        beforeEach(function(){
-          model = Bram.model({ val: 'Wilbur' });
-          host.appendChild(hydrate(model).tree);
-        });
-
-        it('shows value when truthy', function(){
-          model.condition = true;
-          var val = host.firstChild.nextSibling
-
-          assert.equal(val.nodeValue, 'Wilbur');
-        });
-
-        it('empties itself when falsey', function(){
-          model.condition = true;
-          model.condition = false;
-
-          var val = host.firstChild.nextSibling;
-
-          assert.equal(val, undefined, 'There is no val');
-        });
-
-        it('reinserts itself when going back to truthy', function(){
-          model.condition = true;
-          model.condition = false;
-          model.condition = true;
-
-          var val = host.firstChild.nextSibling;
-
-          assert.equal(val.nodeValue, 'Wilbur');
-        });
-      });
-
-      describe('rendering next to other content', function(){
-        var hydrate = Bram.template(conditional2);
-        var model;
-
-        beforeEach(function(){
-          model = Bram.model({ bar: 'foo', condition: true });
-          host.appendChild(hydrate(model).tree);
-        });
-
-        it('doesn\'t affect adjacent content', function(){
-          var two = host.querySelector('.two');
-          assert.equal(two.foo, 'foo');
-        });
-      })
+  describe('template[if]', function(){
+    afterEach(function(){
+      host.innerHTML = '';
     });
-  </script>
-</template>
-</mocha-test>
-</body>
-</html>
+
+    describe('rendering', function(){
+      let model;
+
+      beforeEach(function(){
+        let instance = Bram.createInstance(conditional, {
+          val: 'Wilbur'
+        });
+        model = instance.model;
+        host.appendChild(instance.fragment);
+      });
+
+      it('shows value when truthy', function(){
+        model.condition = true;
+        console.log(host);
+        var val = host.firstChild.nextSibling
+
+        assert.equal(val.nodeValue, 'Wilbur');
+      });
+
+      it('empties itself when falsey', function(){
+        model.condition = true;
+        model.condition = false;
+
+        var val = host.firstChild.nextSibling;
+
+        assert.equal(val, undefined, 'There is no val');
+      });
+
+      it('reinserts itself when going back to truthy', function(){
+        model.condition = true;
+        model.condition = false;
+        model.condition = true;
+
+        var val = host.firstChild.nextSibling;
+
+        assert.equal(val.nodeValue, 'Wilbur');
+      });
+    });
+
+    describe('rendering next to other content', function(){
+      let model;
+
+      beforeEach(function(){
+        let instance = Bram.createInstance(conditional2, { bar: 'foo', condition: true });
+        host.appendChild(instance.fragment);
+      });
+
+      it('doesn\'t affect adjacent content', function(){
+        console.log(host);
+        let two = host.querySelector('.two');
+        assert.equal(two.bar, 'foo');
+      });
+    })
+  });
+</script>

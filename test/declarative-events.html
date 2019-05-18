@@ -1,52 +1,48 @@
  <!doctype html>
-<html>
-<head>
-  <title>declarative event tests</title>
+<html lang="en">
+<title>declarative event tests</title>
 
-  <script src="../node_modules/webcomponents.js/HTMLImports.min.js"></script>
-  <script src="../node_modules/@webcomponents/custom-elements/custom-elements.min.js"></script>
-  <script src="../node_modules/cloudydom/cloudydom.min.js"></script>
-  <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
-  <script src="../bram.umd.js"></script>
-</head>
-<body>
-  <template id="clickTemplate">
-    <a href="#" on-click="doSomething">Click me</a>
-  </template>
-  <click-element id="clickElement"></click-element>
+<link href="https://unpkg.com/mocha@4.1.0/mocha.css" rel="stylesheet">
+<script src="https://unpkg.com/chai/chai.js"></script>
+<script src="https://unpkg.com/mocha@4.1.0/mocha.js"></script>
+<script src="./setup-mocha.js"></script>
+
+<template id="clickTemplate">
+  <a href="#" @click="{{doSomething}}">Click me</a>
+</template>
+<click-element id="clickElement"></click-element>
+
 <div id="host"></div>
-<mocha-test>
-<template>
-  <script>
-    describe('Declarative Events', function(){
-      it('Handlers are set up and work', function(){
-        class ClickElement extends Bram.Element {
-          static get template() {
-            return clickTemplate;
-          }
+<div id="mocha"></div>
 
-          constructor() {
-            super();
-            this.clicks = 0;
-          }
+<script type="module">
+  import Bram from '../src/bram.js';
 
-          doSomething(ev) {
-            this.clicks++;
-            ev.preventDefault();
-          }
+  describe('Declarative Events', function(){
+    it('Handlers are set up and work', function(){
+      class ClickElement extends Bram.Element {
+        static get template() {
+          return clickTemplate;
         }
 
-        customElements.define('click-element', ClickElement);
+        constructor() {
+          super();
+          this.clicks = 0;
+        }
 
-        var clickElement = document.querySelector('click-element');
-        var el = clickElement.shadowRoot.querySelector('a');
-        el.dispatchEvent(new Event('click'));
+        doSomething(ev) {
+          this.clicks++;
+          ev.preventDefault();
+        }
+      }
 
-        assert.equal(clickElement.clicks, 1);
-      });
+      customElements.define('click-element', ClickElement);
+
+      var clickElement = document.querySelector('click-element');
+      var el = clickElement.shadowRoot.querySelector('a');
+      el.dispatchEvent(new Event('click'));
+
+      assert.equal(clickElement.clicks, 1);
     });
-  </script>
-</template>
-</mocha-test>
-</body>
-</html>
+  });
+</script>

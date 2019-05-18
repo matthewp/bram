@@ -5,8 +5,6 @@
   "main": "bram.umd.js",
   "jsnext:main": "bram.js",
   "scripts": {
-    "build-es": "rollup -o b.js src/bram.js",
-    "build-umd": "rollup -o b.js -f umd -n Bram src/global.js",
     "test": "testee test/simple.html test/model.html test/conditional.html test/lists.html test/texts.html test/parse.html test/children.html test/props.html test/attrs.html test/element.html test/element-rendermode.html test/element-event-prop.html test/declarative-events.html --browsers firefox"
   },
   "keywords": [
@@ -16,10 +14,7 @@
   ],
   "files": [
     "bram.js",
-    "bram.min.js",
-    "bram.umd.js",
-    "bram.umd.min.js",
-    "bram.html"
+    "bram.min.js"
   ],
   "author": "Matthew Phillips",
   "license": "BSD-2-Clause",
@@ -32,17 +27,15 @@
     "url": "https://github.com/matthewp/bram/issues"
   },
   "devDependencies": {
-    "@webcomponents/custom-elements": "^1.0.0-alpha.3",
+    "@matthewp/compile": "^1.3.1",
+    "@matthewp/template-instantiation": "^1.1.0",
     "babili": "0.0.8",
     "cheerio": "^0.22.0",
     "clean-css": "^3.4.21",
-    "cloudydom": "^1.0.2",
     "highlight.js": "^9.8.0",
     "marked": "^0.3.6",
-    "mocha-test": "^2.0.4",
-    "rollup": "^0.36.0",
     "script-type-module": "^1.0.0",
     "sw-precache": "^4.2.3",
-    "webcomponents.js": "^0.7.22"
+    "terser": "^3.17.0"
   }
 }

@@ -1,63 +1,67 @@
-<html>
-<head>
-  <title>A simple test</title>
-  <script src="../node_modules/webcomponents.js/HTMLImports.min.js"></script>
-  <script src="../node_modules/@webcomponents/custom-elements/custom-elements.min.js"></script>
-  <script src="../bram.umd.js"></script>
-  <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
-  <style>
-    .green { background: green; }
-    .red { background: red; }
-    .blue { background: blue; }
-  </style>
-</head>
-<body>
-  <template>
-    <div id="color" class="{{color}}">
-      <span id="name">{{name}}</span>
-    </div>
-  </template>
-  <div id="main"></div>
+<!doctype html>
+<html lang="en">
 
-  <script>
-  (function(){
-    var template = document.querySelector('template');
-    var model = window.model = Bram.model({
-      name: 'Wilbur',
-      color: ''
+<title>A simple test</title>
+
+<link href="https://unpkg.com/mocha@4.1.0/mocha.css" rel="stylesheet">
+<script src="https://unpkg.com/chai/chai.js"></script>
+<script src="https://unpkg.com/mocha@4.1.0/mocha.js"></script>
+<style>
+  .green { background: green; }
+  .red { background: red; }
+  .blue { background: blue; }
+</style>
+
+<template>
+  <div id="color" class="{{color}}">
+    <span id="name">{{name}}</span>
+  </div>
+</template>
+<div id="main"></div>
+<div id="mocha"></div>
+
+<script>
+  mocha.setup('bdd');
+  assert = chai.assert;
+
+  window.addEventListener('load', () => {
+    mocha.run();
+  });
+</script>
+
+<script type="module">
+  import Bram from '../src/bram.js';
+
+  let template = document.querySelector('template');
+  let { fragment, model } = Bram.createInstance(template, {
+    name: 'Wilbur',
+    color: ''
+  });
+
+  window.model = model;
+  document.querySelector('#main').appendChild(fragment);
+</script>
+
+<script type="module">
+  describe('Template using attrs and textnodes', function(){
+    let name = document.querySelector('#name');
+    let color = document.querySelector('#color');
+    let model = window.model;
+
+    afterEach(function(){
+      model.name = 'Wilbur';
+      model.color = '';
     });
 
-    var hydrate = Bram.template(template);
-    var tree = hydrate(model).tree;
-    document.querySelector('#main').appendChild(tree);
-  })();
-  </script>
-  <mocha-test>
-  <template>
-    <script>
-      describe('Template using attrs and textnodes', function(){
-        var name = document.querySelector('#name');
-        var color = document.querySelector('#color');
-        var model = window.model;
+    it('The TextNode can be updated', function(){
+      model.name = 'Matthew';
+      assert.equal(name.textContent, 'Matthew');
+    });
 
-        afterEach(function(){
-          model.name = 'Wilbur';
-          model.color = '';
-        });
-
-        it('The TextNode can be updated', function(){
-          model.name = 'Matthew';
-          assert.equal(name.textContent, 'Matthew');
-        });
-
-        it('Attributes can be changed', function(){
-          model.color = 'green';
-          var style = window.getComputedStyle(color);
-          assert.equal(style.backgroundColor, 'rgb(0, 128, 0)');
-        });
-      });
-    </script>
-  </template>
-  </mocha-test>
-</body>
-</html>
+    it('Attributes can be changed', function(){
+      model.color = 'green';
+      let style = window.getComputedStyle(color);
+      assert.equal(style.backgroundColor, 'rgb(0, 128, 0)');
+    });
+  });
+</script>

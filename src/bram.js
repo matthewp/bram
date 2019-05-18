@@ -1,56 +1,23 @@
-import { on, off, isModel, toModel } from './model.js';
-import Scope from './scope.js';
-import stamp from './stamp.js';
-import { asap } from './util.js';
+import { toModel } from './model.js';
+import createInstance from './instance';
+
+const instance = Symbol('Bram.instance');
 
 function Bram(Element) {
   return class extends Element {
-    constructor() {
-      super();
-
-      var Element = this.constructor;
-      let tmpl = Element.template;
-      if(tmpl) {
-        this._hydrate = stamp(tmpl);
+    attachView(template, model = {}) {
+      if(instance in this) {
+        throw new Error('Views cannot be created on a host which already contains a view.');
       }
-      this._hasRendered = false;
-
-      // Initially an empty object
-      this.model = {};
-
-      let events = Element.events;
-      if(events && !Element._hasSetupEvents) {
-        installEvents(Element);
+      if(this.shadowRoot === null) {
+        this.attachShadow({ mode: 'open' });
       }
-
-      let props = !Element._hasInstalledProps && Element.observedProperties;
-      if(props) {
-        Element._hasInstalledProps = true;
-        installProps(Element, props, Element.observedAttributes);
-      }
+      this[instance] = createInstance(template, model);
+      this.shadowRoot.append(this[instance].fragment);
+      return this[instance].model;
     }
 
     connectedCallback() {
-      if(this._hydrate && !this._hasRendered) {
-        if(!isModel(this.model)) {
-          this.model = toModel(this.model);
-        }
-
-        var scope = new Scope(this).add(this.model);
-        this._link = this._hydrate(scope);
-        var tree = this._link.tree;
-        var renderMode = this.constructor.renderMode;
-        if(renderMode === 'light') {
-          this.innerHTML = '';
-          this.appendChild(tree);
-        } else {
-          this.attachShadow({ mode: 'open' });
-          this.shadowRoot.appendChild(tree);
-        }
-        this._hasRendered = true;
-      } else if(this._hasRendered) {
-        this._link.attach();
-      }
       if(this.childrenConnectedCallback) {
         this._disconnectChildMO = setupChildMO(this);
       }
@@ -60,106 +27,28 @@ function Bram(Element) {
       if(this._disconnectChildMO) {
         this._disconnectChildMO();
       }
-      if(this._link) {
-        this._link.detach();
-      }
-    }
-
-    attributeChangedCallback(name, oldVal, newVal) {
-      var sa = this.constructor._syncedAttrs;
-      var synced = sa && sa[name];
-      if(synced && this[name] !== newVal) {
-        this[name] = newVal;
-      }
     }
   }
 }
 
-var Element = Bram(HTMLElement);
+const Element = Bram(HTMLElement);
 Bram.Element = Element;
-Bram.model = toModel;
-Bram.on = on;
-Bram.off = off;
-Bram.template = stamp;
-
-function installEvents(Element) {
-  Element._hasSetupEvents = true;
-  Element.events.forEach(function(eventName){
-    Object.defineProperty(Element.prototype, 'on' + eventName, {
-      get: function(){
-        return this['_on' + eventName];
-      },
-      set: function(fn){
-        var prop = '_on' + eventName;
-        var cur = this[prop];
-        if(cur) {
-          this.removeEventListener(eventName, cur);
-        }
-        this[prop] = fn;
-        this.addEventListener(eventName, fn);
-      }
-    });
-  });
-}
-
-function installProps(Element, props, attributes = []) {
-  Element._syncedAttrs = {};
-  var proto = Element.prototype;
-  props.forEach(function(prop){
-    var desc = Object.getOwnPropertyDescriptor(proto, prop);
-    if(!desc) {
-      var hasAttr = attributes.indexOf(prop) !== -1;
-      if(hasAttr) {
-        Element._syncedAttrs[prop] = true;
-      }
-      Object.defineProperty(proto, prop, {
-        get: function() {
-          return this.model[prop];
-        },
-        set: function(val) {
-          this.model[prop] = val;
-          if(hasAttr) {
-            var cur = this.getAttribute(prop);
-            if(typeof val === 'boolean') {
-              if(val && cur !== '') {
-                this.setAttribute(prop, '');
-              } else if(cur === '' && !val) {
-                this.removeAttribute(prop);
-              }
-              return;
-            } else if(cur !== val) {
-              this.setAttribute(prop, val);
-            }
-          }
-        }
-      });
-    }
-  });
-}
-
-var SUPPORTS_MO = typeof MutationObserver === 'function';
 
 function setupChildMO(inst) {
-  var cancelled = false;
-  var report = function(){
+  let cancelled = false;
+  let mo = new MutationObserver(() => {
     if(!cancelled) {
       inst.childrenConnectedCallback();
     }
-  };
-
-  if(!SUPPORTS_MO) {
-    asap(report);
-    return;
-  }
-
-  var mo = new MutationObserver(report);
+  });
   mo.observe(inst, { childList: true });
 
-  if(inst.childNodes.length) {
-    asap(report);
+  // If it has any children at all, go ahead and report
+  if(inst.firstChild) {
+    Promise.resolve().then(report);
   }
 
-  return function(){
+  return () => {
     cancelled = true;
     mo.disconnect();
   };
@@ -167,5 +56,9 @@ function setupChildMO(inst) {
 
 export {
   Element,
-  Bram as default
+  Bram,
+  Bram as default,
+
+  toModel as model,
+  createInstance
 };

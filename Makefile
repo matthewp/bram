@@ -1,28 +1,30 @@
-.PHONY: bram bram-umd minify guide site styles all serve watch dev
-
-BABILI=node_modules/.bin/babili
+COMPILE=node_modules/.bin/compile
+MIN=node_modules/.bin/terser
 ROLLUP=node_modules/.bin/rollup
 CLEANCSS=node_modules/.bin/cleancss
 
-all: bram bram-umd minify
+all: bram.js bram.min.js
 
-bram:
-	$(ROLLUP) -o bram.js src/bram.js
+bram.js: src/bram.js
+	$(COMPILE) -o $@ -f es $^
+.PHONY: bram
 
-bram-umd:
-	$(ROLLUP) -o bram.umd.js -f umd -n Bram src/global.js
+bram.min.js: bram.js
+	$(MIN) $^ > $@
 
-minify:
-	$(BABILI) bram.js > bram.min.js
-	$(BABILI) bram.umd.js > bram.umd.min.js
+clean: bram.js bram.min.js
+	@rm bram.js bram.min.js
+.PHONY: clean
 
 styles:
 	$(CLEANCSS) -o docs/styles/styles.min.css docs/styles.css
+.PHONY: styles
 
 guide:
 	node docs/scripts/guide.js > docs/guide.html
 	node docs/scripts/guide.js hello-world > docs/hello-world.html
 	node docs/scripts/guide.js compat > docs/compat.html
+.PHONY: guide
 
 site: guide
 	cp bram.umd.js docs/
@@ -30,15 +32,19 @@ site: guide
 	cp node_modules/cloudydom/cloudydom.min.js docs/scripts
 	node docs/scripts/api.js > docs/api.html
 	node docs/scripts/sw-precache.js
+.PHONY: site
 
 serve:
 	http-server -p 3228
+.PHONY: serve
 
 watch:
-	find src -name "*.js" | entr make bram-umd
+	find src -name "*.js" | entr make bram.js
+.PHONY: watch
 
 dev:
 	make watch & make serve
+.PHONY: dev
 
 deploy:
 	aws s3 sync docs s3://bramjs.org

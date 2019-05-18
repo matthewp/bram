@@ -1,50 +1,45 @@
 <!doctype html>
-<html>
-<head>
-  <title>texts tests</title>
+<html lang="en">
+<title>texts tests</title>
 
-  <script src="../node_modules/webcomponents.js/HTMLImports.min.js"></script>
-  <script src="../node_modules/@webcomponents/custom-elements/custom-elements.min.js"></script>
-  <script src="../bram.umd.js"></script>
-  <link rel="import" href="../node_modules/mocha-test/mocha-test.html">
-</head>
-<body>
+<link href="https://unpkg.com/mocha@4.1.0/mocha.css" rel="stylesheet">
+<script src="https://unpkg.com/chai/chai.js"></script>
+<script src="https://unpkg.com/mocha@4.1.0/mocha.js"></script>
+<script src="./setup-mocha.js"></script>
+
 <template id="doubleText">{{one}}{{two}}</template>
 <div id="host"></div>
-<mocha-test>
-<template>
-  <script>
-    describe('text side-by-side', function(){
-      var model;
+<div id="mocha"></div>
 
-      beforeEach(function(){
-        model = Bram.model({one:'one', two: 'two'});
-        var hydrate = Bram.template(doubleText);
-        host.appendChild(hydrate(model).tree);
+<script type="module">
+  import Bram from '../src/bram.js';
+
+  describe('text side-by-side', function(){
+    let model;
+
+    beforeEach(function(){
+      let instance = Bram.createInstance(doubleText, {
+        one: 'one', two: 'two'
       });
 
-      afterEach(function(){
-        host.innerHTML = '';
-      });
-
-      it('renders as two separate text nodes', function(){
-        var tn = host.firstChild;
-
-        assert.equal(tn.nodeValue, 'onetwo');
-      });
-
-      it('can update the values', function(){
-        var tn = host.firstChild;
-
-        model.one = 'hello';
-        assert.equal(tn.nodeValue,'hellotwo');
-
-        model.two = 'world';
-        assert.equal(tn.nodeValue, 'helloworld');
-      });
+      model = instance.model;
+      host.appendChild(instance.fragment);
     });
-  </script>
-</template>
-</mocha-test>
-</body>
-</html>
+
+    afterEach(function(){
+      host.innerHTML = '';
+    });
+
+    it('renders the text', function(){
+      assert.equal(host.textContent, 'onetwo');
+    });
+
+    it('can update the values', function(){
+      model.one = 'hello';
+      assert.equal(host.textContent,'hellotwo');
+
+      model.two = 'world';
+      assert.equal(host.textContent, 'helloworld');
+    });
+  });
+</script>
