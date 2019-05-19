@@ -1,25 +1,24 @@
 <!doctype html>
-<html>
-<head>
-  <title>GitHub Pull Requests</title>
-  <script src="../../../bram.umd.js" defer></script>
-  <script src="./prs.js" defer></script>
-</head>
-<body>
-  <template id="my-tmpl">
-    <github-stars repo="matthewp/bram"
-      limit="3"></github-stars>
+<html lang="en">
+<meta charset="utf-8">
+<title>GitHub Pull Requests</title>
+<script type="module" src="./prs.js"></script>
 
-    <h1>Latest PRs</h1>
-    <ul>
-      <template each="prs">
-        <li>
-          ({{state}})
+<template id="my-tmpl">
+  <github-prs repo="matthewp/bram"
+    limit="3"></github-prs>
 
-          <a href="{{url}}">{{title}}</a>
-        </h1>
-      </template>
-    </ul>
-  </template>
-  <div id="bram-info"></div>
-</body>
+  <h1>Latest PRs</h1>
+  <ul>
+    <template directive="foreach"
+      expression="prs">
+      <li>
+        ({{state}})
+
+        <a href="{{url}}">{{title}}</a>
+      </h1>
+    </template>
+  </ul>
+</template>
+
+<div id="bram-info"></div>

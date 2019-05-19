@@ -52,7 +52,7 @@ function toModel(o, cb){
 function deepModel(o, cb) {
   return !o ? o : Object.keys(o).reduce(function(acc, prop){
     var val = o[prop];
-    acc[prop] = (Array.isArray(val) || typeof val === 'object')
+    acc[prop] = (Array.isArray(val) || (typeof val === 'object' && val != null))
       ? toModel(val, cb)
       : val;
     return acc;

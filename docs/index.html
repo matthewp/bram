@@ -1,59 +1,19 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <meta charset="utf-8">
   <title>Bram</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="./manifest.json">
   <style>.hero,.main-nav li,.main-nav ul,body{display:flex}.hero-container,footer{text-align:center}:root{--alt-bg-color:#5D7A7F;--main-fg-color:#A7DBE5;--spec-fg-color:#B9F3FF;--alt-fg-color:#CCC580;--link-fg-color:#FFD3E5;--code-color:#282c34;--serif-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}body,html{padding:0;margin:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}a,a:visited{color:var(--alt-fg-color)}pre code{font-size:1.2em}code{background-color:var(--code-color,#282c34);padding:2px 5px}.hero{flex:1;justify-content:center;background:#000;color:var(--spec-fg-color)}.hero-container figure{margin-top:8em}.hero-container figcaption{font-size:200%;font-weight:700;margin-top:5px}.hero-caption{font-size:100%;font-weight:400}main{flex:2;background:#303F42;color:var(--main-fg-color);padding:3em}.main-nav ul{list-style-type:none;padding:0;margin:0}.main-nav li{flex:1;justify-content:center}.main-nav a,.main-nav a:visited{color:#fff;text-decoration:none}.main-nav a:hover{color:var(--main-fg-color)}.nav-rule{border-style:solid;background:var(--spec-fg-color);border-color:var(--spec-fg-color);margin-bottom:30px;margin-top:15px;width:80%}.installation{display:flex;flex-direction:column;align-items:center}.installation h1{font-size:1.5em}.install-command{padding:15px 40px;background-color:var(--alt-bg-color);font-family:Courier New,Courier,monospace;font-size:1.3em;border-radius:6px}@media only screen and (max-device-width:767px){body{display:block}.hero{display:none}main{padding:1em}}</style>
 
-  <link rel="preload" href="./bram.umd.js" as="script">
-  <link rel="preload" href="./examples/tabs/tabs.js" as="script">
-  <link rel="preload" href="./examples/todos/app.js" as="script">
-  <link rel="preload" href="./examples/pull-requests/prs.js" as="script">
+  <link rel="modulepreload" href="./bram.umd.js">
 
-  <script>
-  (function(){
-    let sd = typeof ShadowRoot === 'function';
-    let ce = typeof customElements === 'object';
-
-    let waiting = [];
-    if(!sd) {
-      waiting.push(load('./scripts/cloudydom.min.js'));
-    }
-    if(!ce) {
-      waiting.push(load('./scripts/custom-elements.min.js'));
-    }
-
-    Promise.all(waiting)
-    .then(function(){
-      return load('./bram.umd.js');
-    })
-    .then(function(){
-      return Promise.all([
-        './examples/tabs/tabs.js',
-        './examples/todos/app.js',
-        'examples/pull-requests/prs.js'
-      ].map(function(url){
-        return load(url);
-      }));
-    });
-
-    function load(pth){
-      let script = document.createElement('script');
-      script.src = pth;
-
-      return new Promise(function(resolve, reject){
-        script.onload = function(){
-          resolve();
-        };
-        document.head.appendChild(script);
-      });
-    }
-  })();
-  </script>
-  <script src="./scripts/service-worker-registration.js" async></script>
-  <link rel="shortcut icon" href="/favicon.ico">
+  <script type="module" src="./examples/tabs/tabs.js"></script>
+  <script type="module" src="./examples/todos/app.js"></script>
+  <script type="module" src="./examples/pull-requests/prs.js"></script>
+  <link rel="shortcut icon" href="./favicon.ico">
 </head>
 <body>
   <link rel="stylesheet" href="./index.css">
@@ -100,41 +60,44 @@
           <bram-panel title="HTML">
             <pre><code class="html hljs xml">
 <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"todo-template"</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">form</span> <span class="hljs-attr">on-submit</span>=<span class="hljs-string">"addTodo"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"todo"</span>
-      <span class="hljs-attr">placeholder</span>=<span class="hljs-string">"What to do?"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"submit"</span>&gt;</span>Add<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
-  <span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">form</span> @<span class="hljs-attr">submit</span>=<span class="hljs-string">"{{addTodo}}"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"todo"</span>
+    <span class="hljs-attr">placeholder</span>=<span class="hljs-string">"What to do?"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"submit"</span>&gt;</span>Add<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span>
 
-  <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">each</span>=<span class="hljs-string">"todos"</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>{{item}}<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
-    <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
-  <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">directive</span>=<span class="hljs-string">"foreach"</span>
+    <span class="hljs-attr">expression</span>=<span class="hljs-string">"todos"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>{{item}}<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
-
-<span class="hljs-tag">&lt;<span class="hljs-name">todo-list</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">todo-list</span>&gt;</span>
-
 </code></pre>
           </bram-panel>
           <bram-panel title="JavaScript">
             <pre><code class="javascript hljs">
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TodoList</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
-  <span class="hljs-keyword">static</span> get template() {
-    <span class="hljs-keyword">return</span> <span class="hljs-string">'#todo-template'</span>;
-  }
-
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ViewModel</span> </span>{
   <span class="hljs-keyword">constructor</span>() {
-    <span class="hljs-keyword">super</span>();
-    <span class="hljs-keyword">this</span>.model.todos = [];
+    <span class="hljs-keyword">this</span>.todos = [];
   }
-
+  
   addTodo(ev) {
     ev.preventDefault();
     <span class="hljs-keyword">let</span> input = ev.target.todo;
     <span class="hljs-keyword">let</span> value = input.value;
-    <span class="hljs-keyword">this</span>.model.todos.push(value);
+    <span class="hljs-keyword">this</span>.todos.push(value);
     input.value = <span class="hljs-string">''</span>;
+  }
+}
+
+<span class="hljs-keyword">const</span> template = <span class="hljs-built_in">document</span>
+  .querySelector(<span class="hljs-string">'#todo-template'</span>);
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TodoList</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
+  <span class="hljs-keyword">constructor</span>() {
+    <span class="hljs-keyword">super</span>();
+    <span class="hljs-keyword">this</span>.attachView(template, <span class="hljs-keyword">new</span> ViewModel());
   }
 }
 
@@ -163,13 +126,13 @@ customElements.define(<span class="hljs-string">'todo-list'</span>, TodoList);
             outline: none;
           }
         </style>
-        <form on-submit="addTodo">
+        <form @submit="{{addTodo}}">
           <input type="text" name="todo" placeholder="What to do?">
           <button type="submit">Add</button>
         </form>
 
         <ul>
-          <template each="todos">
+          <template directive="foreach" expression="todos">
             <li>{{item}}</li>
           </template>
         </ul>
@@ -183,31 +146,28 @@ customElements.define(<span class="hljs-string">'todo-list'</span>, TodoList);
           <bram-panel title="HTML">
             <pre><code class="html hljs xml">
 <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"my-tmpl"</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">github-prs</span> <span class="hljs-attr">repo</span>=<span class="hljs-string">"matthewp/bram"</span>
-    <span class="hljs-attr">limit</span>=<span class="hljs-string">"3"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">github-prs</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">github-prs</span> <span class="hljs-attr">repo</span>=<span class="hljs-string">"matthewp/bram"</span>
+  <span class="hljs-attr">limit</span>=<span class="hljs-string">"3"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">github-prs</span>&gt;</span>
 
-  <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Latest PRs<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">each</span>=<span class="hljs-string">"prs"</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>
-        ({{state}})
+<span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Latest PRs<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">directive</span>=<span class="hljs-string">"foreach"</span>
+    <span class="hljs-attr">expression</span>=<span class="hljs-string">"prs"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>
+      ({{state}})
 
-        <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"{{url}}"</span>&gt;</span>{{title}}<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
-      <span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
-    <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
-  <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"{{url}}"</span>&gt;</span>{{title}}<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
 
-<span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"bram-info"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"bram-info"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>                
             </code></pre>
           </bram-panel>
           <bram-panel title="JavaScript">
             <pre><code class="javascript hljs">
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">GitHubPRs</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
-  <span class="hljs-keyword">static</span> events() {
-    <span class="hljs-keyword">return</span> [<span class="hljs-string">'pullrequest'</span>];
-  }
-
   connectedCallback() {
     <span class="hljs-keyword">let</span> repo = <span class="hljs-keyword">this</span>.getAttribute(<span class="hljs-string">'repo'</span>);
     <span class="hljs-keyword">let</span> limit = <span class="hljs-keyword">this</span>.getAttribute(<span class="hljs-string">'limit'</span>) || <span class="hljs-number">5</span>;
@@ -216,8 +176,8 @@ customElements.define(<span class="hljs-string">'todo-list'</span>, TodoList);
 
   fetch(repo, limit) {
     <span class="hljs-keyword">let</span> url = <span class="hljs-string">`https://api.github.com/repos/
-      <span class="hljs-subst">${repo}</span>/pulls?page=1&amp;per_page=<span class="hljs-subst">${limit}</span>
-      &amp;state=all`</span>;
+    <span class="hljs-subst">${repo}</span>/pulls?page=1&amp;per_page=<span class="hljs-subst">${limit}</span>
+    &amp;state=all`</span>;
 
     fetch(url).then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> {
       <span class="hljs-keyword">return</span> res.json();
@@ -230,23 +190,31 @@ customElements.define(<span class="hljs-string">'todo-list'</span>, TodoList);
       });
     });
   }
+
+  set onpullrequest(value) {
+    <span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>._onpullrequest) {
+      <span class="hljs-keyword">this</span>.removeEventListener(<span class="hljs-string">'pullrequest'</span>,
+      <span class="hljs-keyword">this</span>._onpullrequest);
+    }
+    <span class="hljs-keyword">this</span>._onpullrequest = value;
+    <span class="hljs-keyword">this</span>.addEventListener(<span class="hljs-string">'pullrequest'</span>, value);
+  }
 }
 
 customElements.define(<span class="hljs-string">'github-prs'</span>, GitHubPRs);
 
-
-<span class="hljs-keyword">let</span> render = Bram.template(<span class="hljs-string">'#my-tmpl'</span>);
-<span class="hljs-keyword">let</span> model = Bram.model({
+<span class="hljs-keyword">let</span> myTemplate = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#my-tmpl'</span>);
+<span class="hljs-keyword">let</span> instance = createInstance(myTemplate, {
   <span class="hljs-attr">prs</span>: []
 });
 
 <span class="hljs-keyword">let</span> root = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#bram-info'</span>);
-root.appendChild(render(model).tree);
+root.append(instance.fragment);
 
-<span class="hljs-keyword">let</span> gh = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'github-stars'</span>);
-gh.onpullrequest = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">ev</span>)</span>{
+<span class="hljs-keyword">let</span> gh = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'github-prs'</span>);
+gh.onpullrequest = <span class="hljs-function"><span class="hljs-params">ev</span> =&gt;</span> {
   <span class="hljs-keyword">let</span> pr = ev.detail;
-  model.prs.push(pr);
+  instance.model.prs.push(pr);
 };
             </code></pre>
           </bram-panel>
@@ -280,6 +248,8 @@ gh.onpullrequest = <span class="hljs-function"><span class="hljs-keyword">functi
   </main>
   <template id="tabs-template">
     <style>
+      :host { display: block; }
+      
       ul {
         list-style-type: none;
         padding: 0;
@@ -303,9 +273,9 @@ gh.onpullrequest = <span class="hljs-function"><span class="hljs-keyword">functi
       }
     </style>
     <ul>
-      <template each="titles">
+      <template directive="foreach" expression="titles">
         <li>
-          <a href="#" on-click="setActive" data-index="{{index}}">{{item}}</a>
+          <a href="#" @click="{{setActive}}" data-index="{{index}}">{{item}}</a>
         </li>
       </template>
     </ul>
@@ -317,7 +287,7 @@ gh.onpullrequest = <span class="hljs-function"><span class="hljs-keyword">functi
 
     <h1>Latest PRs</h1>
     <ul>
-      <template each="prs">
+      <template directive="foreach" expression="prs">
         <li>
           ({{state}})
 
@@ -328,9 +298,7 @@ gh.onpullrequest = <span class="hljs-function"><span class="hljs-keyword">functi
   </template>
   <!-- For reference:
     http://www.colorcombos.com/color-schemes/244/ColorCombo244.html
-
     https://color.adobe.com/create/color-wheel/?base=2&rule=Shades&selected=1&name=My%20Color%20Theme&mode=rgb&rgbvalues=0.5454545454545454,0.7159090909090289,0.75,0.3636363636363636,0.47727272727268594,0.5,0.7272727272727272,0.9545454545453719,1,0.18823529411764706,0.24705882352941178,0.25882352941176473,0.6545454545454544,0.8590909090908347,0.9&swatchOrder=0,1,2,3,4
-
     https://color.adobe.com/create/color-wheel/?base=2&rule=Triad&selected=1&name=My%20Color%20Theme&mode=rgb&rgbvalues=0.43909090909090903,0.6565151515150723,0.7,1,0.8272727272727272,0.8992424242423195,0.7272727272727272,0.9545454545453719,1,0.8,0.7709433040077619,0.5018181818181818,0.7,0.6779860092863683,0.47409090909090906&swatchOrder=0,1,2,3,4
   -->
 </body>

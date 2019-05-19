@@ -1,19 +1,24 @@
-class TodoList extends Bram.Element {
-  static get template() {
-    return '#todo-template';
-  }
+import Bram from '../../../bram.js';
 
+class ViewModel {
   constructor() {
-    super();
-    this.model.todos = [];
+    this.todos = [];
   }
-
   addTodo(ev) {
     ev.preventDefault();
     let input = ev.target.todo;
     let value = input.value;
-    this.model.todos.push(value);
+    this.todos.push(value);
     input.value = '';
+  }
+}
+
+const template = document.querySelector('#todo-template');
+
+class TodoList extends Bram.Element {
+  constructor() {
+    super();
+    this.attachView(template, new ViewModel());
   }
 }
 

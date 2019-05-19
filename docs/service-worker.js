@@ -37,7 +37,7 @@
 /* eslint-disable indent, no-unused-vars, no-multiple-empty-lines, max-nested-callbacks, space-before-function-paren, quotes, comma-spacing */
 'use strict';
 
-var precacheConfig = [["/api.html","8b787735fb31c0fff6ac820964234110"],["/bram.umd.js","066386cc73ca5aa0586677283c85cf38"],["/compat.html","007995ba0c8b472f42c8caed09646f40"],["/examples/pull-requests/prs.js","2b4bc4abdecbcb90664ce129aa927c93"],["/examples/tabs/tabs.js","5c8b9401795da82bf5aa3a3c1b474210"],["/examples/todos/app.js","b0f56489e43573b5cc9a37ad4b846bdb"],["/guide.html","7bf3ec1663be84d5b545fdcb34f248d0"],["/hello-world.html","94a77b88691bc22d7b57a694a788d85f"],["/images/bram.svg","d3798cfe4366ecc71e8ce500e7a7d0bc"],["/index.css","a3cc430fade3f5d262f3d8896daf94ab"],["/index.html","21374cf7dbc717574abfe21b0b374b84"],["/styles.css","0fb65f72ad5709c383991b26c32e5657"],["/styles/api.css","8bfedd2c5d6fc2e204df64d54299bb28"],["/styles/guide.css","c0240d45515c2e668762076236dac75d"],["/styles/hljs/atom-one-dark.css","e04d3287a76f861ed154658b42210d11"]];
+var precacheConfig = [["/api.html","d88ec3cc18be6fc1871897fb2211bbe8"],["/bram.umd.js","066386cc73ca5aa0586677283c85cf38"],["/compat.html","203b418029bdbd8ae3046b2768ba1669"],["/examples/pull-requests/prs.js","9f2666fc8ca804794e84d7bff38583c9"],["/examples/tabs/tabs.js","e20c32913d97aab8aa8453c9754b8424"],["/examples/todos/app.js","995507f411d90108f70e89df17118c96"],["/guide.html","85ec300971496bb105d75f1f14a61e8d"],["/hello-world.html","c99bc8d5e3b5739b5d0c369ad2d9f39b"],["/images/bram.svg","d3798cfe4366ecc71e8ce500e7a7d0bc"],["/index.css","a3cc430fade3f5d262f3d8896daf94ab"],["/index.html","02b1676c5b638dcd4e8c817ffbc3b422"],["/styles.css","0fb65f72ad5709c383991b26c32e5657"],["/styles/api.css","8bfedd2c5d6fc2e204df64d54299bb28"],["/styles/guide.css","c0240d45515c2e668762076236dac75d"],["/styles/hljs/atom-one-dark.css","e04d3287a76f861ed154658b42210d11"]];
 var cacheName = 'sw-precache-v2--' + (self.registration ? self.registration.scope : '');
 
 
@@ -45,7 +45,7 @@ var ignoreUrlParametersMatching = [/^utm_/];
 
 
 
-var addDirectoryIndex = function (originalUrl, index) {
+var addDirectoryIndex = function(originalUrl, index) {
     var url = new URL(originalUrl);
     if (url.pathname.slice(-1) === '/') {
       url.pathname += index;
@@ -53,7 +53,7 @@ var addDirectoryIndex = function (originalUrl, index) {
     return url.toString();
   };
 
-var createCacheKey = function (originalUrl, paramName, paramValue,
+var createCacheKey = function(originalUrl, paramName, paramValue,
                            dontCacheBustUrlsMatching) {
     // Create a new URL object to avoid modifying originalUrl.
     var url = new URL(originalUrl);
@@ -69,7 +69,7 @@ var createCacheKey = function (originalUrl, paramName, paramValue,
     return url.toString();
   };
 
-var isPathWhitelisted = function (whitelist, absoluteUrlString) {
+var isPathWhitelisted = function(whitelist, absoluteUrlString) {
     // If the whitelist is empty, then consider all URLs to be whitelisted.
     if (whitelist.length === 0) {
       return true;
@@ -82,7 +82,7 @@ var isPathWhitelisted = function (whitelist, absoluteUrlString) {
     });
   };
 
-var stripIgnoredUrlParameters = function (originalUrl,
+var stripIgnoredUrlParameters = function(originalUrl,
     ignoreUrlParametersMatching) {
     var url = new URL(originalUrl);
 
@@ -134,10 +134,7 @@ self.addEventListener('install', function(event) {
           Array.from(urlsToCacheKeys.values()).map(function(cacheKey) {
             // If we don't have a key matching url in the cache already, add it.
             if (!cachedUrls.has(cacheKey)) {
-              return cache.add(new Request(cacheKey, {
-                credentials: 'same-origin',
-                redirect: 'follow'
-              }));
+              return cache.add(new Request(cacheKey, {credentials: 'same-origin'}));
             }
           })
         );

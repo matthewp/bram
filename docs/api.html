@@ -1,83 +1,44 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <title>Bram</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="/manifest.json">
-  <style>.hero,.main-nav li,.main-nav ul,body{display:flex}.hero-container,footer{text-align:center}:root{--alt-bg-color:#5D7A7F;--main-fg-color:#A7DBE5;--spec-fg-color:#B9F3FF;--alt-fg-color:#CCC580;--link-fg-color:#FFD3E5;--code-color:#282c34;--serif-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}body,html{padding:0;margin:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}a,a:visited{color:var(--alt-fg-color)}pre code{font-size:1.2em}code{background-color:var(--code-color,#282c34);padding:2px 5px}.hero{flex:1;justify-content:center;background:#000;color:var(--spec-fg-color)}.hero-container figure{margin-top:8em}.hero-container figcaption{font-size:200%;font-weight:700;margin-top:5px}.hero-caption{font-size:100%;font-weight:400}main{flex:2;background:#303F42;color:var(--main-fg-color);padding:3em}.main-nav ul{list-style-type:none;padding:0;margin:0}.main-nav li{flex:1;justify-content:center}.main-nav a,.main-nav a:visited{color:#fff;text-decoration:none}.main-nav a:hover{color:var(--main-fg-color)}.nav-rule{border-style:solid;background:var(--spec-fg-color);border-color:var(--spec-fg-color);margin-bottom:30px;margin-top:15px;width:80%}.installation{display:flex;flex-direction:column;align-items:center}.installation h1{font-size:1.5em}.install-command{padding:15px 40px;background-color:var(--alt-bg-color);font-family:Courier New,Courier,monospace;font-size:1.3em;border-radius:6px}@media only screen and (max-device-width:767px){body{display:block}.hero{display:none}main{padding:1em}}</style>
+<title>Bram</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="./manifest.json">
+<style>.hero,.main-nav li,.main-nav ul,body{display:flex}.hero-container,footer{text-align:center}:root{--alt-bg-color:#5D7A7F;--main-fg-color:#A7DBE5;--spec-fg-color:#B9F3FF;--alt-fg-color:#CCC580;--link-fg-color:#FFD3E5;--code-color:#282c34;--serif-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}body,html{padding:0;margin:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}a,a:visited{color:var(--alt-fg-color)}pre code{font-size:1.2em}code{background-color:var(--code-color,#282c34);padding:2px 5px}.hero{flex:1;justify-content:center;background:#000;color:var(--spec-fg-color)}.hero-container figure{margin-top:8em}.hero-container figcaption{font-size:200%;font-weight:700;margin-top:5px}.hero-caption{font-size:100%;font-weight:400}main{flex:2;background:#303F42;color:var(--main-fg-color);padding:3em}.main-nav ul{list-style-type:none;padding:0;margin:0}.main-nav li{flex:1;justify-content:center}.main-nav a,.main-nav a:visited{color:#fff;text-decoration:none}.main-nav a:hover{color:var(--main-fg-color)}.nav-rule{border-style:solid;background:var(--spec-fg-color);border-color:var(--spec-fg-color);margin-bottom:30px;margin-top:15px;width:80%}.installation{display:flex;flex-direction:column;align-items:center}.installation h1{font-size:1.5em}.install-command{padding:15px 40px;background-color:var(--alt-bg-color);font-family:Courier New,Courier,monospace;font-size:1.3em;border-radius:6px}@media only screen and (max-device-width:767px){body{display:block}.hero{display:none}main{padding:1em}}</style>
 
-  <link rel="preload" href="./bram.umd.js" as="script">
+<link rel="shortcut icon" href="./favicon.ico">
 
-  <script>
-  (function(){
-    let sd = typeof ShadowRoot === 'function';
-    let ce = typeof customElements === 'object';
-
-    let waiting = [];
-    if(!sd) {
-      waiting.push(load('./scripts/cloudydom.min.js'));
-    }
-    if(!ce) {
-      waiting.push(load('./scripts/custom-elements.min.js'));
-    }
-
-    Promise.all(waiting)
-    .then(function(){
-      return load('./bram.umd.js');
-    });
-
-    function load(pth){
-      let script = document.createElement('script');
-      script.src = pth;
-
-      return new Promise(function(resolve, reject){
-        script.onload = function(){
-          resolve();
-        };
-        document.head.appendChild(script);
-      });
-    }
-  })();
-  </script>
-  <script src="./scripts/service-worker-registration.js" async></script>
-  <link rel="shortcut icon" href="/favicon.ico">
-<link rel="stylesheet" href="./styles/api.css"></head>
 <body>
-  <link rel="stylesheet" href="./index.css">
-  <div class="hero">
-    <div class="hero-container">
-      <figure>
-        <img class="logo" src="./images/bram.svg" height="180" width="180">
-        <figcaption>Bram</figcaption>
-      </figure>
+<link rel="stylesheet" href="./index.css">
+<div class="hero">
+  <div class="hero-container">
+    <figure>
+      <img class="logo" src="./images/bram.svg" height="180" width="180">
+      <figcaption>Bram</figcaption>
+    </figure>
 
-      <h1 class="hero-caption">A simple 4kB web components library</h1>
-    </div>
+    <h1 class="hero-caption">A simple 4kB web components library</h1>
   </div>
-  <main>
-    <nav class="main-nav">
-      <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="api.html">API</a></li>
-        <li><a href="./guide.html">Guides</a></li>
-        <li><a href="https://github.com/matthewp/bram">GitHub</a></li>
-      </ul>
-    </nav>
-    <hr class="nav-rule">
+</div>
+<main>
+  <nav class="main-nav">
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="api.html">API</a></li>
+      <li><a href="./guide.html">Guides</a></li>
+      <li><a href="https://github.com/matthewp/bram">GitHub</a></li>
+    </ul>
+  </nav>
+  <hr class="nav-rule">
 
-    <div class="main-hero">
-      <figure>
-        <img src="./images/bram.svg" height="75" width="75">
-      </figure>
-      <h1>Bram</h1>
-    </div>
+  <div class="main-hero">
+    <figure>
+      <img src="./images/bram.svg" height="75" width="75">
+    </figure>
+    <h1>Bram</h1>
+  </div>
 
-    
-
-
-
-
+  
 
 
 
@@ -91,12 +52,8 @@
 
 <h2 id="api">API</h2>
 <h3 id="bram-element"><a href="#bram-element"><svg aria-hidden="true" class="link-link" height="16" version="1.1" viewbox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a> Bram.Element</h3>
-<p>The primary base class for extending elements. Deriving your classes from <strong>Bram.Element</strong> gives you templating, observable models and more.</p>
-<pre><code class="javascript hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyWidget</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
-
-}
-</code></pre>
-<p>If using the ES6 build you can do either of these:</p>
+<p>The primary base class for extending elements. Deriving your classes from <strong>Bram.Element</strong> gives you templating and models.</p>
+<p>You can either use <code>Bram.Element</code> on the default export:</p>
 <pre><code class="javascript hljs"><span class="hljs-keyword">import</span> Bram <span class="hljs-keyword">from</span> <span class="hljs-string">&apos;./path/to/bram.js&apos;</span>;
 
 
@@ -104,7 +61,7 @@
 
 }
 </code></pre>
-<p>or</p>
+<p>or use the <code>Element</code> export directly. These are the same.</p>
 <pre><code class="javascript hljs"><span class="hljs-keyword">import</span> { Element } <span class="hljs-keyword">from</span> <span class="hljs-string">&apos;./path/to/bram.js&apos;</span>;
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyWidget</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Element</span> </span>{
@@ -117,63 +74,84 @@
 
 }
 </code></pre>
-<h4 id="template"><a href="#template"><svg aria-hidden="true" class="link-link" height="16" version="1.1" viewbox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a> template</h4>
-<p>The static getter <strong>template</strong> is used if you want to render a template to your element. You can return either a selector like:</p>
-<pre><code class="javascript hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyWidget</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
-  <span class="hljs-keyword">static</span> get template() {
-    <span class="hljs-keyword">return</span> <span class="hljs-string">&apos;#my-template&apos;</span>;
-  }
-}
-</code></pre>
-<p>Or the template element itself:</p>
-<pre><code class="javascript hljs"><span class="hljs-keyword">const</span> myTemplate = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&apos;#my-template&apos;</span>);
+<h4 id="attachview"><a href="#attachview"><svg aria-hidden="true" class="link-link" height="16" version="1.1" viewbox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a> attachView</h4>
+<p>A <strong>view</strong> is live-bound DOM that responds to changes to, and emits events on, a <em>model</em>. Use <code>attachView()</code> to create a view on your element&apos;s <code>shadowRoot</code> based on a template.</p>
+<pre><code class="javascript hljs"><span class="hljs-keyword">const</span> template = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&apos;#my-template&apos;</span>);
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyWidget</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
-  <span class="hljs-keyword">static</span> get template() {
-    <span class="hljs-keyword">return</span> myTemplate;
+  <span class="hljs-keyword">constructor</span>() {
+    <span class="hljs-keyword">super</span>();
+    <span class="hljs-keyword">this</span>.attachView(template, {
+      <span class="hljs-attr">foo</span>: <span class="hljs-string">&apos;bar&apos;</span>
+    });
   }
 }
 </code></pre>
-<h4 id="rendermode"><a href="#rendermode"><svg aria-hidden="true" class="link-link" height="16" version="1.1" viewbox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a> renderMode</h4>
-<p>By default Bram renders to the element&apos;s <code>shadowRoot</code>, but you can change this if you don&apos;t want to use Shadow DOM. You might do this if you don&apos;t want to add the Shadow DOM polyfill, or your element depends on global styles.</p>
-<pre><code class="javascript hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyWidget</span> </span>{
-  <span class="hljs-keyword">static</span> get renderMode() {
-    <span class="hljs-keyword">return</span> <span class="hljs-string">&apos;light&apos;</span>;
-  }
-}
-</code></pre>
-<p>Valid options are:</p>
+<h5 id="arguments">Arguments</h5>
 <ul>
-<li><strong>shadow</strong> (the default) renders to the Shadow DOM. You never need to add this unless you just want to be explicit.</li>
-<li><strong>light</strong> renders to the element itself (the template becomes a child).</li>
+<li><strong>template</strong>: An <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLTemplateElement">HTMLTemplateElement</a> that follows the templating syntax described below.</li>
+<li><strong>viewModel</strong>: An object that is used to look up values from the template. If no viewModel is provided an empty object is used.</li>
 </ul>
-<h4 id="events"><a href="#events"><svg aria-hidden="true" class="link-link" height="16" version="1.1" viewbox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a> events</h4>
-<p>Specify custom events that your element emits. Bram will set up <code>onevent</code> properties for each of these events, as is common with most built in elements. This also will make your component compatible with React, see <a href="https://github.com/facebook/react/issues/7901">this thread</a>.</p>
-<pre><code class="javascript hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserForm</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
-  <span class="hljs-keyword">static</span> get events() {
-    <span class="hljs-keyword">return</span> [<span class="hljs-string">&apos;namechanged&apos;</span>]
+<h5 id="return-value">Return value</h5>
+<ul>
+<li><strong>model</strong>: A <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy">proxy</a> to the <em>viewModel</em> passed as an argument. Modifying properties on this object will result in the view updating.</li>
+</ul>
+<pre><code class="html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;nameTemplate&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">&quot;name&quot;</span>&gt;</span>Name<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;name&quot;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text&quot;</span> @<span class="hljs-attr">input</span>=<span class="hljs-string">&quot;{{setName}}&quot;</span>&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>{{name}}<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;module&quot;</span>&gt;</span><span class="javascript">
+  <span class="hljs-keyword">import</span> Bram <span class="hljs-keyword">from</span> <span class="hljs-string">&apos;https://unpkg.com/bram/bram.js&apos;</span>;
+
+  customElements.define(<span class="hljs-string">&apos;name-change&apos;</span>, <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
+    <span class="hljs-keyword">constructor</span>() {
+      <span class="hljs-keyword">super</span>();
+      <span class="hljs-keyword">this</span>.model = <span class="hljs-keyword">this</span>.attachView(nameTemplate, {
+        <span class="hljs-attr">name</span>: <span class="hljs-string">&apos;default&apos;</span>,
+        <span class="hljs-attr">setName</span>: <span class="hljs-function"><span class="hljs-params">ev</span> =&gt;</span> {
+          <span class="hljs-keyword">this</span>.model.name = ev.target.value
+        }
+      });
+    }
+  });
+</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+</code></pre>
+<p><code>attachView()</code> will always render into the shadowRoot. If no shadowRoot has been created, one will be created with <code>{ mode: &apos;open&apos; }</code> as the shadow options.</p>
+<p>Note that the <em>model</em> object is not set on the element instance. You can set it to any property you want (or not at all if its not needed). Here&apos;s an example that uses JavaScript private syntax to protect access to the model:</p>
+<pre><code class="javascript hljs">class MyElement extends Bram.Element {
+  constructor() {
+    super();
+    this.#model = this.attachView(someTemplate);
   }
 
-  ...
+  set prop(val) {
+    this.#model.prop = val;
+  }
+}
+</code></pre>
+<p>One pattern that is useful with <code>attachView()</code> is to have a separate class that serves as your view model. This allows you to encapsulate everything the template needs in one place, without including that on the element itself (which would expose properties/methods to users of the element that are in actuality internal).</p>
+<pre><code class="javascript hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ViewModel</span> </span>{
+  <span class="hljs-keyword">constructor</span>() {
+    <span class="hljs-keyword">this</span>.count = <span class="hljs-number">0</span>;
+  }
 
-  changeName(newName) {
-    <span class="hljs-keyword">this</span>.name = newName;
-    <span class="hljs-keyword">this</span>.dispatchEvent(<span class="hljs-keyword">new</span> CustomEvents(<span class="hljs-string">&apos;namechanged&apos;</span>, {
-      <span class="hljs-attr">detail</span>: newName
-    }));
+  increment() {
+    <span class="hljs-keyword">this</span>.count++;
   }
 }
 
-customElements.define(<span class="hljs-string">&apos;user-form&apos;</span>, UserForm);
-
-<span class="hljs-keyword">let</span> form = <span class="hljs-keyword">new</span> UserForm();
-form.onnamechanged = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">ev</span>)</span>{
-  <span class="hljs-comment">// This is called when the user&apos;s name changes</span>
-  <span class="hljs-built_in">console</span>.log(ev.detail);
-};
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CounterElement</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
+  <span class="hljs-keyword">constructor</span>() {
+    <span class="hljs-keyword">super</span>();
+    <span class="hljs-keyword">this</span>.attachView(template, <span class="hljs-keyword">new</span> ViewModel());
+  }
+}
 </code></pre>
 <h4 id="childrenconnectedcallback"><a href="#childrenconnectedcallback"><svg aria-hidden="true" class="link-link" height="16" version="1.1" viewbox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a> childrenConnectedCallback</h4>
-<p>The <strong>childrenConnectedCallback</strong> is a callback on the element&apos;s prototype. Use this to be notified when your element has received children. This allows you to write more resilent custom elements that take into account the dynamic nature of HTML in the case where you have special behavior depending on children.</p>
+<p>The <strong>childrenConnectedCallback</strong> is a callback on the element&apos;s prototype. Use this to be notified when your element has received children. This allows you to write more resilient custom elements that take into account the dynamic nature of HTML in the case where you have special behavior depending on children.</p>
 <pre><code class="javascript hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SortableList</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
   childrenConnectedCallback() {
     <span class="hljs-keyword">this</span>.sort();
@@ -181,7 +159,7 @@ form.onnamechanged = <span class="hljs-function"><span class="hljs-keyword">func
 
   sort() {
     <span class="hljs-comment">// Perform some kind of sorting operation</span>
-    <span class="hljs-keyword">var</span> childNodes = <span class="hljs-keyword">this</span>.childNodes;
+    <span class="hljs-keyword">let</span> children = <span class="hljs-keyword">this</span>.children;
   }
 }
 
@@ -205,7 +183,7 @@ customElements.define(<span class="hljs-string">&apos;sortable-list&apos;</span>
 </code></pre>
 <p>Any time <code>isAdmin</code> changes value, the template will either be removed or readded.</p>
 <pre><code class="javascript hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserPage</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
-  <span class="hljs-keyword">static</span> get template() {
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span> template() {
     <span class="hljs-keyword">return</span> <span class="hljs-string">&apos;#user-template&apos;</span>;
   }
 
@@ -214,7 +192,7 @@ customElements.define(<span class="hljs-string">&apos;sortable-list&apos;</span>
     <span class="hljs-keyword">this</span>.model.isAdmin = <span class="hljs-literal">false</span>;
   }
 
-  set isAdmin(val) {
+  <span class="hljs-keyword">set</span> isAdmin(val) {
     <span class="hljs-keyword">this</span>.model.isAdmin = !!val;
   }
 }
@@ -246,7 +224,7 @@ page.isAdmin = <span class="hljs-literal">false</span>; <span class="hljs-commen
 </code></pre>
 <p>Rendered with this data:</p>
 <pre><code class="javascript hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PlayerList</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
-  <span class="hljs-keyword">static</span> get template() {
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span> template() {
     <span class="hljs-keyword">return</span> <span class="hljs-string">&apos;#player-template&apos;</span>;
   }
 
@@ -271,7 +249,7 @@ customElements.define(<span class="hljs-string">&apos;player-list&apos;</span>, 
 <span class="hljs-tag">&lt;<span class="hljs-name">foo-el</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">foo-el</span>&gt;</span>
 </code></pre>
 <pre><code class="javascript hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
-  <span class="hljs-keyword">static</span> get template() {
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span> template() {
     <span class="hljs-keyword">return</span> <span class="hljs-string">&apos;#foo-template&apos;</span>;
   }
 
@@ -295,7 +273,7 @@ customElements.define(<span class="hljs-string">&apos;foo-el&apos;</span>, Foo);
 </code></pre>
 <p>This will call the <code>handleSubmit</code> method on the user-form element:</p>
 <pre><code class="javascript hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserForm</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
-  <span class="hljs-keyword">static</span> get template() {
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span> template() {
     <span class="hljs-keyword">return</span> <span class="hljs-string">&apos;#user-form&apos;</span>;
   }
 
@@ -318,6 +296,4 @@ customElements.define(<span class="hljs-string">&apos;user-form&apos;</span>, Us
 <p>Hydrating creates a <em>link</em> object which holds the data-bindings and the rendered DocumentFragment (the <code>.tree</code> property).</p>
 
 
-
-</main></body>
-</html>
+</main></body></html>

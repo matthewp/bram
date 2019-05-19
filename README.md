@@ -17,40 +17,34 @@ Bram is a 3k [web components](http://webcomponents.org/) library with everything
 
 ```html
 <!doctype html>
-<html>
-<head>
-  <title>Click counter</title>
-  <script src="node_modules/bram/bram.umd.js"></script>
-</head>
-<body>
-  <click-count></click-count>
+<html lang="en">
+<title>Click counter</title>
 
-  <template id="click-template">
-    <button type="button" on-click="increment">Click me</button>
+<click-count></click-count>
 
-    <h1>Clicks: {{count}}</h1>
-  </template>
+<template id="click-template">
+  <button type="button" @click="{{increment}}">Click me</button>
 
-  <script>
-    class ClickCount extends Bram.Element {
-      static get template() {
-        return '#click-template';
-      }
+  <h1>Clicks: {{count}}</h1>
+</template>
 
-      constructor() {
-        super();
-        this.model.count = 0;
-      }
+<script type="module">
+  import Bram from 'https://unpkg.com/bram/bram.js';
 
-      increment() {
-        this.model.count++;
-      }
+  const template = document.querySelector('#click-template');
+
+  class ClickCount extends Bram.Element {
+    constructor() {
+      super();
+      this.model = this.attachView(template, {
+        count: 0,
+        increment() { this.count++; }
+      });
     }
+  }
 
-    customElements.define('click-count', ClickCount);
-  </script>
-</body>
-</html>
+  customElements.define('click-count', ClickCount);
+</script>
 ```
 
 ## Install
@@ -61,37 +55,15 @@ Using npm:
 npm install bram --save
 ```
 
-Using bower:
-
-```shell
-bower install bram --save
-```
-
 **Or** grab one of [our releases](https://github.com/matthewp/bram/releases).
-
-Then add the scripts to your page at the end of the `<body>` tag.
-
-```html
-<html>
-<body>
-  <script src="path/to/bram.umd.js"></script>
-</body>
-</html>
-```
 
 ## API
 
 ### Bram.Element
 
-The primary base class for extending elements. Deriving your classes from **Bram.Element** gives you templating, observable models and more.
+The primary base class for extending elements. Deriving your classes from **Bram.Element** gives you templating and models.
 
-```js
-class MyWidget extends Bram.Element {
-
-}
-```
-
-If using the ES6 build you can do either of these:
+You can either use `Bram.Element` on the default export:
 
 ```js
 import Bram from './path/to/bram.js';
@@ -102,7 +74,7 @@ class MyWidget extends Bram.Element {
 }
 ```
 
-or
+or use the `Element` export directly. These are the same.
 
 ```js
 import { Element } from './path/to/bram.js';
@@ -122,74 +94,93 @@ class FancyButton extends Bram(HTMLButtonElement) {
 }
 ```
 
-#### template
+#### attachView
 
-The static getter **template** is used if you want to render a template to your element. You can return either a selector like:
-
-```js
-class MyWidget extends Bram.Element {
-  static get template() {
-    return '#my-template';
-  }
-}
-```
-
-Or the template element itself:
+A __view__ is live-bound DOM that responds to changes to, and emits events on, a *model*. Use `attachView()` to create a view on your element's `shadowRoot` based on a template.
 
 ```js
-const myTemplate = document.querySelector('#my-template');
+const template = document.querySelector('#my-template');
 
 class MyWidget extends Bram.Element {
-  static get template() {
-    return myTemplate;
+  constructor() {
+    super();
+    this.attachView(template, {
+      foo: 'bar'
+    });
   }
 }
 ```
 
-#### renderMode
+##### Arguments
 
-By default Bram renders to the element's `shadowRoot`, but you can change this if you don't want to use Shadow DOM. You might do this if you don't want to add the Shadow DOM polyfill, or your element depends on global styles.
+* __template__: An [HTMLTemplateElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLTemplateElement) that follows the templating syntax described below.
+* __viewModel__: An object that is used to look up values from the template. If no viewModel is provided an empty object is used.
+
+##### Return value
+
+* __model__: A [proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) to the *viewModel* passed as an argument. Modifying properties on this object will result in the view updating.
+
+```html
+<template id="nameTemplate">
+  <label for="name">Name</label>
+  <input name="name" type="text" @input="{{setName}}">
+
+  <h2>{{name}}</h2>
+</template>
+
+<script type="module">
+  import Bram from 'https://unpkg.com/bram/bram.js';
+
+  customElements.define('name-change', class extends Bram.Element {
+    constructor() {
+      super();
+      this.model = this.attachView(nameTemplate, {
+        name: 'default',
+        setName: ev => {
+          this.model.name = ev.target.value
+        }
+      });
+    }
+  });
+</script>
+```
+
+`attachView()` will always render into the shadowRoot. If no shadowRoot has been created, one will be created with `{ mode: 'open' }` as the shadow options.
+
+Note that the *model* object is not set on the element instance. You can set it to any property you want (or not at all if its not needed). Here's an example that uses JavaScript private syntax to protect access to the model:
 
 ```js
-class MyWidget {
-  static get renderMode() {
-    return 'light';
+class MyElement extends Bram.Element {
+  constructor() {
+    super();
+    this.#model = this.attachView(someTemplate);
+  }
+
+  set prop(val) {
+    this.#model.prop = val;
   }
 }
 ```
 
-Valid options are:
-
-* **shadow** (the default) renders to the Shadow DOM. You never need to add this unless you just want to be explicit.
-* **light** renders to the element itself (the template becomes a child).
-
-#### events
-
-Specify custom events that your element emits. Bram will set up `onevent` properties for each of these events, as is common with most built in elements. This also will make your component compatible with React, see [this thread](https://github.com/facebook/react/issues/7901).
+One pattern that is useful with `attachView()` is to have a separate class that serves as your view model. This allows you to encapsulate everything the template needs in one place, without including that on the element itself (which would expose properties/methods to users of the element that are in actuality internal).
 
 ```js
-class UserForm extends Bram.Element {
-  static get events() {
-    return ['namechanged']
+class ViewModel {
+  constructor() {
+    this.count = 0;
   }
 
-  ...
-
-  changeName(newName) {
-    this.name = newName;
-    this.dispatchEvent(new CustomEvents('namechanged', {
-      detail: newName
-    }));
+  increment() {
+    this.count++;
   }
 }
 
-customElements.define('user-form', UserForm);
-
-let form = new UserForm();
-form.onnamechanged = function(ev){
-  // This is called when the user's name changes
-  console.log(ev.detail);
-};
+class CounterElement extends Bram.Element {
+  constructor() {
+    super();
+    this.attachView(template, new ViewModel());
+  }
+}
 ```
 
 #### childrenConnectedCallback
@@ -204,7 +195,7 @@ class SortableList extends Bram.Element {
 
   sort() {
     // Perform some kind of sorting operation
-    var childNodes = this.childNodes;
+    let children = this.children;
   }
 }
 

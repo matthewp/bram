@@ -27,9 +27,7 @@ guide:
 .PHONY: guide
 
 site: guide
-	cp bram.umd.js docs/
-	cp node_modules/@webcomponents/custom-elements/custom-elements.min.js docs/scripts
-	cp node_modules/cloudydom/cloudydom.min.js docs/scripts
+	cp bram.js docs/
 	node docs/scripts/api.js > docs/api.html
 	node docs/scripts/sw-precache.js
 .PHONY: site
