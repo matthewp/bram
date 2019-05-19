@@ -3,3 +3,5 @@ node_modules/
 npm-debug.log
 bram.js
 bram.min.js
+!bin/bram.js
+*.module.html.js

@@ -1,0 +1,32 @@
+<template>
+  <div id="root">
+    <label for="name">Name:</label>
+    <input name="name" type="text" placeholder="Name" @input="{{setName}}">
+
+    <h2>{{name}}</h2>
+  </div>
+</template>
+
+<script type="module">
+  import { Element } from '../../bram.js';
+
+  const template = import.meta.document.querySelector('template');
+
+  class ViewModel {
+    constructor() {
+      this.name = '';
+    }
+    setName(ev) {
+      this.name = ev.target.value;
+    }
+  }
+
+  class NameChanger extends Element {
+    constructor() {
+      super();
+      this.attachView(template, new ViewModel());
+    }
+  }
+
+  customElements.define('name-changer', NameChanger);
+</script>
