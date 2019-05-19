@@ -1,35 +1,36 @@
 <!doctype html>
-<html>
-<head>
-  <title>Click counter</title>
-  <script src="../../../bram.umd.js"></script>
-</head>
-<body>
-  <click-count></click-count>
+<html lang="en">
+<meta charset="utf-8">
+<title>Click counter</title>
 
-  <template id="click-template">
-    <button type="button" on-click="increment">Click me</button>
+<click-count></click-count>
 
-    <h1>Clicks: {{count}}</h1>
-  </template>
+<template id="click-template">
+  <button type="button" @click="{{increment}}">Click me</button>
 
-  <script>
-    class ClickCount extends Bram.Element {
-      static get template() {
-        return '#click-template';
-      }
+  <h1>Clicks: {{count}}</h1>
+</template>
 
-      constructor() {
-        super();
-        this.model.count = 0;
-      }
+<script type="module">
+  import Bram from '../../../bram.js';
 
-      increment() {
-        this.model.count++;
-      }
+  const template = document.querySelector('#click-template');
+
+  class ViewModel {
+    constructor() {
+      this.count = 0;
     }
+    increment() {
+      this.count++;
+    }
+  }
 
-    customElements.define('click-count', ClickCount);
-  </script>
-</body>
-</html>
+  class ClickCount extends Bram.Element {
+    constructor() {
+      super();
+      this.model = this.attachView(template, new ViewModel());
+    }
+  }
+
+  customElements.define('click-count', ClickCount);
+</script>

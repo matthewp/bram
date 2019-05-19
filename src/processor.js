@@ -15,14 +15,15 @@ class AttrLikePart extends TemplatePart {
 }
 
 class EventTemplatePart extends AttrLikePart {
-  constructor(attributePart, _state) {
+  constructor(attributePart, _state, _handler) {
     super(attributePart);
     this._state = _state;
+    this._handler = _handler;
     this._eventName = this.rule.attributeName.substr(1);
   }
 
   applyValue(value) {
-    const listener = value.bind(this._state);
+    const listener = this._handler.bind(this._state, value);
     this.element.addEventListener(this._eventName, listener);
   }
 }
@@ -84,8 +85,16 @@ function processForEach(part, state) {
     part.parentNode = part.startNode.parentNode;
     part.clear();
 
-    for(let item of value) {
-      let model = { item, ...(typeof item === 'object' && item) };
+    for(let i = 0, len = value.length; i < len; i++) {
+      let item = value[i];
+      let itemDesc = {
+        index: { value: i },
+        item: { value: item }
+      };
+      for(let [prop, value] of Object.entries(item)) {
+        itemDesc[prop] = { value };
+      }
+      let model = Object.create(state, itemDesc);
       let instance = createInstance(part.template, model);
 
       for(let node of [...instance.fragment.childNodes]) {
@@ -93,16 +102,20 @@ function processForEach(part, state) {
       }
     }
   }
-
 }
 
 export class BramTemplateProcessor extends TemplateProcessor {
+    constructor(handler) {
+      super();
+      this._handler = handler;
+    }
+
     createdCallback(_parts, _state) {
       let part = _parts[0], i = 0;
       while(part) {
         let isAttr = (part instanceof AttributeTemplatePart);
         if(isAttr && part.rule.attributeName.startsWith('@')) {
-          _parts[i] = new EventTemplatePart(part, _state);
+          _parts[i] = new EventTemplatePart(part, _state, this._handler);
         }
         else if(isAttr && part.rule.attributeName.startsWith('.')) {
           _parts[i] = new PropertyTemplatePart(part);

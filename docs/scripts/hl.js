@@ -1,10 +1,6 @@
 const highlight = require('highlight.js');
 
 const code = `class GitHubPRs extends Bram.Element {
-  static events() {
-    return ['pullrequest'];
-  }
-
   connectedCallback() {
     let repo = this.getAttribute('repo');
     let limit = this.getAttribute('limit') || 5;
@@ -13,8 +9,8 @@ const code = `class GitHubPRs extends Bram.Element {
 
   fetch(repo, limit) {
     let url = \`https://api.github.com/repos/
-      \${repo}/pulls?page=1&per_page=\${limit}
-      &state=all\`;
+    \${repo}/pulls?page=1&per_page=\${limit}
+    &state=all\`;
 
     fetch(url).then(res => {
       return res.json();
@@ -27,23 +23,31 @@ const code = `class GitHubPRs extends Bram.Element {
       });
     });
   }
+
+  set onpullrequest(value) {
+    if(this._onpullrequest) {
+      this.removeEventListener('pullrequest',
+      this._onpullrequest);
+    }
+    this._onpullrequest = value;
+    this.addEventListener('pullrequest', value);
+  }
 }
 
-customElements.define('github-stars', GitHubPRs);
+customElements.define('github-prs', GitHubPRs);
 
-
-let render = Bram.template('#my-tmpl');
-let model = Bram.model({
+let myTemplate = document.querySelector('#my-tmpl');
+let instance = createInstance(myTemplate, {
   prs: []
 });
 
 let root = document.querySelector('#bram-info');
-root.appendChild(render(model));
+root.append(instance.fragment);
 
-let gh = document.querySelector('github-stars');
-gh.onpullrequest = function(ev){
+let gh = document.querySelector('github-prs');
+gh.onpullrequest = ev => {
   let pr = ev.detail;
-  model.prs.push(pr);
+  instance.model.prs.push(pr);
 };`;
 
 let res = highlight.highlight('javascript', code);

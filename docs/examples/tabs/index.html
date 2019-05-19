@@ -1,69 +1,65 @@
 <!doctype html>
-<html>
-<head>
-  <title>tabs example</title>
-  <script src="../../../bram.umd.js" defer></script>
-  <script src="./tabs.js" defer></script>
-</head>
-<body>
+<html lang="en">
+<meta charset="utf-8">
+<title>tabs example</title>
+<script type="module" src="./tabs.js"></script>
+
+<style>
+  :root {
+    --alt-bg-color: #5D7A7F;
+    --spec-fg-color: #B9F3FF;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+  }
+  * {
+    box-sizing: border-box;
+  }
+  bram-panel {
+    display: none;
+  }
+  bram-panel[active] {
+    display: block;
+  }
+</style>
+<template id="tabs-template">
   <style>
-    :root {
-      --alt-bg-color: #5D7A7F;
-      --spec-fg-color: #B9F3FF;
-      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+    ul {
+      list-style-type: none;
+      padding: 0;
     }
-    * {
-      box-sizing: border-box;
+    li {
+      background: var(--alt-bg-color, #000);
+      display: inline-block;
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
     }
-    bram-panel {
-      display: none;
+    li.active {
+      background: #000;
     }
-    bram-panel[active] {
+    li a {
       display: block;
+      color: var(--spec-fg-color, #fff);
+      text-decoration: none;
+      padding: .5em 1.3em;
     }
   </style>
-  <template id="tabs-template">
-    <style>
-      ul {
-        list-style-type: none;
-        padding: 0;
-      }
-      li {
-        background: var(--alt-bg-color, #000);
-        display: inline-block;
-        border-top-left-radius: 5px;
-        border-top-right-radius: 5px;
-      }
-      li.active {
-        background: #000;
-      }
-      li a {
-        display: block;
-        color: var(--spec-fg-color, #fff);
-        text-decoration: none;
-        padding: .5em 1.3em;
-      }
-    </style>
-    <ul>
-      <template each="titles">
-        <li>
-          <a href="#" on-click="setActive" data-index="{{index}}">{{item}}</a>
-        </li>
-      </template>
-    </ul>
-    <slot></slot>
-  </template>
+  <ul>
+    <template directive="foreach" expression="titles">
+      <li>
+        <a href="#" @click="{{setActive}}" data-index="{{index}}">{{item}}</a>
+      </li>
+    </template>
+  </ul>
+  <slot></slot>
+</template>
 
-  <bram-tabs>
-    <bram-panel title="One">
-      <p>This is the first panel.</p>
-    </bram-panel>
-    <bram-panel title="Two">
-      <p>This is the second panel.</p>
-    </bram-panel>
-    <bram-panel title="Three">
-      <p>This is the third panel.</p>
-    </bram-panel>
-  </bram-tabs>
-</body>
-</html>
+<bram-tabs>
+  <bram-panel title="One">
+    <p>This is the first panel.</p>
+  </bram-panel>
+  <bram-panel title="Two">
+    <p>This is the second panel.</p>
+  </bram-panel>
+  <bram-panel title="Three">
+    <p>This is the third panel.</p>
+  </bram-panel>
+</bram-tabs>

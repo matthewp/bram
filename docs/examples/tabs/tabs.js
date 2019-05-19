@@ -1,37 +1,46 @@
+import Bram from '../../../bram.js';
+
+const template = document.querySelector('#tabs-template');
+
 class BramPanel extends Bram.Element {
-  static get observedAttributes() {
-    return ['title', 'active'];
+  get active() {
+    return this.hasAttribute('active');
   }
 
-  static get observedProperties() {
-    return ['title', 'active'];
+  set active(value) {
+    if(value) {
+      this.setAttribute('active', '');
+    } else {
+      this.removeAttribute('active');
+    } 
   }
 }
 
 customElements.define('bram-panel', BramPanel);
 
 class BramTabs extends Bram.Element {
-  static get template() {
-    return '#tabs-template';
-  }
-
   constructor() {
     super();
-    this.model.titles = [];
+    this.model = this.attachView(template, {
+      titles: [],
+      setActive: e => this.setActive(e)
+    });
   }
 
   childrenConnectedCallback() {
     this.model.titles.length = 0;
-    [].forEach.call(this.children, (child, i) => {
-      this.model.titles.push(child.title);
 
-      if(!this.active && i === 0) {
-        child.active = true;
-        this.active = child;
-        this.activeTab = this.shadowRoot.querySelector('li');
-        this.activeTab.classList.add('active');
-      }
-    });
+    for(let child of this.children) {
+      this.model.titles.push(child.title);
+    }
+
+    if(!this.active) {
+      let child = this.children[0];
+      child.active = true;
+      this.active = child;
+      this.activeTab = this.shadowRoot.querySelector('li');
+      this.activeTab.classList.add('active');
+    }
   }
 
   setActive(ev) {
