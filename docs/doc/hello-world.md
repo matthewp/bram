@@ -1,5 +1,9 @@
 ## Hello World!
 
+<style>
+  img { max-width: 100%; }
+</style>
+
 This example is available via [this codepen](http://codepen.io/matthewp/pen/dNybdG?editors=1010). Fork it and experiment!
 
 Most of Bram is concerned with taking a template, defined in a `<template>` tag, and rendering it with some data, that we call an element's **model**.
@@ -39,7 +43,7 @@ The second thing to notice is that the class definition includes `static get tem
 
 When looking at this example in devtools you'll see this:
 
-![screen shot 2017-01-03 at 7 51 10 am](https://cloud.githubusercontent.com/assets/361671/21608260/71d9daaa-d189-11e6-92d3-8134fc20d25e.png)
+![Devtools view](https://cloud.githubusercontent.com/assets/361671/21608260/71d9daaa-d189-11e6-92d3-8134fc20d25e.png)
 
 Notice that the `<h1>` is nested inside of a special section called *#shadow-root*. This is because Bram, by default, renders templates inside of a [Shadow DOM](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Shadow_DOM). Think of the shadow DOM like a private area just for your element. Others *can* poke inside and see what's going on, but only if they really try.
 

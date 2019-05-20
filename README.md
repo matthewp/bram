@@ -108,7 +108,7 @@ __index.html__
 Using npm:
 
 ```shell
-npm install bram --save
+npm install bram@next --save
 ```
 
 **Or** grab one of [our releases](https://github.com/matthewp/bram/releases).

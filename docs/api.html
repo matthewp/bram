@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="./manifest.json">
-<style>.hero,.main-nav li,.main-nav ul,body{display:flex}.hero-container,footer{text-align:center}:root{--alt-bg-color:#5D7A7F;--main-fg-color:#A7DBE5;--spec-fg-color:#B9F3FF;--alt-fg-color:#CCC580;--link-fg-color:#FFD3E5;--code-color:#282c34;--serif-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}body,html{padding:0;margin:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}a,a:visited{color:var(--alt-fg-color)}pre code{font-size:1.2em}code{background-color:var(--code-color,#282c34);padding:2px 5px}.hero{flex:1;justify-content:center;background:#000;color:var(--spec-fg-color)}.hero-container figure{margin-top:8em}.hero-container figcaption{font-size:200%;font-weight:700;margin-top:5px}.hero-caption{font-size:100%;font-weight:400}main{flex:2;background:#303F42;color:var(--main-fg-color);padding:3em}.main-nav ul{list-style-type:none;padding:0;margin:0}.main-nav li{flex:1;justify-content:center}.main-nav a,.main-nav a:visited{color:#fff;text-decoration:none}.main-nav a:hover{color:var(--main-fg-color)}.nav-rule{border-style:solid;background:var(--spec-fg-color);border-color:var(--spec-fg-color);margin-bottom:30px;margin-top:15px;width:80%}.installation{display:flex;flex-direction:column;align-items:center}.installation h1{font-size:1.5em}.install-command{padding:15px 40px;background-color:var(--alt-bg-color);font-family:Courier New,Courier,monospace;font-size:1.3em;border-radius:6px}@media only screen and (max-device-width:767px){body{display:block}.hero{display:none}main{padding:1em}}</style>
+<style>.hero,.main-nav li,.main-nav ul,body{display:flex}.hero-container,footer{text-align:center}:root{--alt-bg-color:#5D7A7F;--main-fg-color:#A7DBE5;--spec-fg-color:#B9F3FF;--alt-fg-color:#CCC580;--link-fg-color:#FFD3E5;--code-color:#282c34;--serif-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}body,html{padding:0;margin:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}a,a:visited{color:var(--alt-fg-color)}p{line-height:1.5em}pre code{font-size:1.2em}code{background-color:var(--code-color,#282c34);padding:2px 5px}.hero{flex:1;justify-content:center;background:#000;color:var(--spec-fg-color)}.hero-container figure{margin-top:8em}.hero-container figcaption{font-size:200%;font-weight:700;margin-top:5px}.hero-caption{font-size:100%;font-weight:400}main{flex:2;background:#303F42;color:var(--main-fg-color);padding:3em}.main-nav ul{list-style-type:none;padding:0;margin:0}.main-nav li{flex:1;justify-content:center}.main-nav a,.main-nav a:visited{color:#fff;text-decoration:none}.main-nav a:hover{color:var(--main-fg-color)}.nav-rule{border-style:solid;background:var(--spec-fg-color);border-color:var(--spec-fg-color);margin-bottom:30px;margin-top:15px;width:80%}.installation{display:flex;flex-direction:column;align-items:center}.installation h1{font-size:1.5em}.install-command{padding:15px 40px;background-color:var(--alt-bg-color);font-family:Courier New,Courier,monospace;font-size:1.3em;border-radius:6px}@media only screen and (max-device-width:767px){body{display:block}.hero{display:none}main{padding:1em}}</style>
 
 <link rel="shortcut icon" href="./favicon.ico">
 
@@ -23,8 +23,8 @@
 <main>
   <nav class="main-nav">
     <ul>
-      <li><a href="/">Home</a></li>
-      <li><a href="api.html">API</a></li>
+      <li><a href="./">Home</a></li>
+      <li><a href="./api.html">API</a></li>
       <li><a href="./guide.html">Guides</a></li>
       <li><a href="https://github.com/matthewp/bram">GitHub</a></li>
     </ul>
@@ -39,6 +39,16 @@
   </div>
 
   
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -170,26 +180,24 @@ customElements.define(<span class="hljs-string">&apos;sortable-list&apos;</span>
 <p>Each <code>Bram.Element</code> contains an object called <code>this.model</code> which drives the template. Any changes to <code>this.model</code>, whether they change a property, add a new property, remove a property, or reorder an Array, will result in the template being updated to reflect those changes.</p>
 <p>Bram&apos;s templates support conditionals and loops, and allow declarative binding on <em>properties</em>, <em>attributes</em>, <em>text</em>, and <em>events</em>.</p>
 <h4 id="conditionals"><a href="#conditionals"><svg aria-hidden="true" class="link-link" height="16" version="1.1" viewbox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a> Conditionals</h4>
-<p>To conditionally render, use an <strong>if</strong> attribute on an inner template.</p>
+<p>To conditionally render, add <code>directive</code> attribute with the valueof <code>if</code> and an <code>expression</code> attribute with the value being the key to lookup.</p>
 <pre><code class="html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;user-template&quot;</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>User {{name}}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
 
-  <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">if</span>=<span class="hljs-string">&quot;isAdmin&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">directive</span>=<span class="hljs-string">&quot;if&quot;</span> <span class="hljs-attr">expression</span>=<span class="hljs-string">&quot;isAdmin&quot;</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>Admin section<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
 
 <span class="hljs-tag">&lt;<span class="hljs-name">user-page</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">user-page</span>&gt;</span>
 </code></pre>
-<p>Any time <code>isAdmin</code> changes value, the template will either be removed or readded.</p>
-<pre><code class="javascript hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserPage</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
-  <span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span> template() {
-    <span class="hljs-keyword">return</span> <span class="hljs-string">&apos;#user-template&apos;</span>;
-  }
+<p>Any time <code>isAdmin</code> changes value, the template will either be removed or re-added.</p>
+<pre><code class="javascript hljs"><span class="hljs-keyword">const</span> template = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&apos;#user-template&apos;</span>);
 
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserPage</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
   <span class="hljs-keyword">constructor</span>() {
     <span class="hljs-comment">// Not an admin by default</span>
-    <span class="hljs-keyword">this</span>.model.isAdmin = <span class="hljs-literal">false</span>;
+    <span class="hljs-keyword">this</span>.attachView(template, { <span class="hljs-attr">isAdmin</span>: <span class="hljs-literal">true</span> });
   }
 
   <span class="hljs-keyword">set</span> isAdmin(val) {
@@ -200,19 +208,19 @@ customElements.define(<span class="hljs-string">&apos;sortable-list&apos;</span>
 customElements.define(<span class="hljs-string">&apos;user-page&apos;</span>, UserPage);
 
 <span class="hljs-keyword">let</span> page = <span class="hljs-keyword">new</span> UserPage();
-<span class="hljs-built_in">document</span>.body.appendChild(page);
+<span class="hljs-built_in">document</span>.body.append(page);
 
 page.isAdmin = <span class="hljs-literal">true</span>; <span class="hljs-comment">// Admin section is shown.</span>
 
 page.isAdmin = <span class="hljs-literal">false</span>; <span class="hljs-comment">// Admin section is removed.</span>
 </code></pre>
 <h4 id="looping-over-arrays"><a href="#looping-over-arrays"><svg aria-hidden="true" class="link-link" height="16" version="1.1" viewbox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a> Looping over arrays</h4>
-<p>To loop over an array use an inner template with the <strong>each</strong> attribute. Like so:</p>
+<p>To loop over an array use an inner template, setting <code>directive</code> to <code>foreach</code> and <code>expression</code> to the key to lookup, like so:</p>
 <pre><code class="html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;player-template&quot;</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>Volleyball players<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
 
   <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">each</span>=<span class="hljs-string">&quot;players&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">directive</span>=<span class="hljs-string">&quot;foreach&quot;</span> <span class="hljs-attr">expression</span>=<span class="hljs-string">&quot;players&quot;</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>
         {{name}}
       <span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
@@ -223,12 +231,13 @@ page.isAdmin = <span class="hljs-literal">false</span>; <span class="hljs-commen
 <span class="hljs-tag">&lt;<span class="hljs-name">player-list</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">player-list</span>&gt;</span>
 </code></pre>
 <p>Rendered with this data:</p>
-<pre><code class="javascript hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PlayerList</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
-  <span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span> template() {
-    <span class="hljs-keyword">return</span> <span class="hljs-string">&apos;#player-template&apos;</span>;
-  }
+<pre><code class="javascript hljs"><span class="hljs-keyword">const</span> template = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&apos;#player-template&apos;</span>);
 
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PlayerList</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
   <span class="hljs-keyword">constructor</span>() {
+    <span class="hljs-keyword">super</span>();
+
+    <span class="hljs-keyword">this</span>.model = <span class="hljs-keyword">this</span>.attachView(template);
     <span class="hljs-keyword">this</span>.model.players = [
       { <span class="hljs-attr">name</span>: <span class="hljs-string">&apos;Matthew&apos;</span> },
       { <span class="hljs-attr">name</span>: <span class="hljs-string">&apos;Anne&apos;</span> },
@@ -241,19 +250,19 @@ customElements.define(<span class="hljs-string">&apos;player-list&apos;</span>, 
 </code></pre>
 <p>Will show all three players as separate <code>&lt;li&gt;</code> elements.</p>
 <h4 id="properties"><a href="#properties"><svg aria-hidden="true" class="link-link" height="16" version="1.1" viewbox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a> Properties</h4>
-<p>You can set properties on an element using the special colon character like <code>:foo</code> on attributes. This allows you to pass non-string data to elements.</p>
+<p>You can set properties on an element using the special dot operator like <code>.foo</code> on attributes. This allows you to pass non-string data to elements.</p>
 <pre><code class="html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;foo-template&quot;</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">:foo</span>=<span class="hljs-string">&quot;{{foo}}&quot;</span>&gt;</span>Foo!<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">.foo</span>=<span class="hljs-string">&quot;{{foo}}&quot;</span>&gt;</span>Foo!<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
 
 <span class="hljs-tag">&lt;<span class="hljs-name">foo-el</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">foo-el</span>&gt;</span>
 </code></pre>
-<pre><code class="javascript hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
-  <span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span> template() {
-    <span class="hljs-keyword">return</span> <span class="hljs-string">&apos;#foo-template&apos;</span>;
-  }
+<pre><code class="javascript hljs"><span class="hljs-keyword">const</span> template = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&apos;#foo-template&apos;</span>);
 
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
   <span class="hljs-keyword">constructor</span>() {
+    <span class="hljs-keyword">super</span>();
+    <span class="hljs-keyword">this</span>.model = <span class="hljs-keyword">this</span>.attachView(template);
     <span class="hljs-keyword">this</span>.model.foo = <span class="hljs-string">&apos;bar&apos;</span>;
   }
 }
@@ -262,21 +271,20 @@ customElements.define(<span class="hljs-string">&apos;foo-el&apos;</span>, Foo);
 </code></pre>
 <p>Will render the <code>&lt;div&gt;</code> and set its <code>foo</code> property to the string <code>&quot;bar&quot;</code>.</p>
 <h4 id="events"><a href="#events"><svg aria-hidden="true" class="link-link" height="16" version="1.1" viewbox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a> Events</h4>
-<p>Events can be assigned to an element using the <code>on-</code> notation on attributes. This example handle a form being submitted:</p>
+<p>Events can be assigned to an element using the <code>@</code> notation on attributes. This example handle a form being submitted:</p>
 <pre><code class="html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">template</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;user-form&quot;</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">form</span> <span class="hljs-attr">on-submit</span>=<span class="hljs-string">&quot;handleSubmit&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">form</span> @<span class="hljs-attr">submit</span>=<span class="hljs-string">&quot;{{handleSubmit}}&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">&quot;user-name&quot;</span>&gt;</span>User name<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;user-name&quot;</span> <span class="hljs-attr">placeholder</span>=<span class="hljs-string">&quot;Your name&quot;</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
 
 <span class="hljs-tag">&lt;<span class="hljs-name">user-form</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">user-form</span>&gt;</span>
 </code></pre>
-<p>This will call the <code>handleSubmit</code> method on the user-form element:</p>
-<pre><code class="javascript hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserForm</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
-  <span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span> template() {
-    <span class="hljs-keyword">return</span> <span class="hljs-string">&apos;#user-form&apos;</span>;
-  }
+<p>This will call the <code>handleSubmit</code> method on the <code>user-form</code>&apos;s assigned view model. In this example we&apos;ll separate the ViewModel into its own class.</p>
+<pre><code class="javascript hljs"><span class="hljs-keyword">const</span> template = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&apos;#user-form&apos;</span>);
 
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ViewModel</span> </span>{
   handleSubmit(ev) {
     ev.preventDefault();
 
@@ -284,16 +292,43 @@ customElements.define(<span class="hljs-string">&apos;foo-el&apos;</span>, Foo);
   }
 }
 
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserForm</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{
+  <span class="hljs-keyword">constructor</span>() {
+    <span class="hljs-keyword">super</span>();
+
+    <span class="hljs-keyword">let</span> vm = <span class="hljs-keyword">new</span> ViewModel();
+    <span class="hljs-keyword">this</span>.attachView(template, vm);
+  }
+}
+
 customElements.define(<span class="hljs-string">&apos;user-form&apos;</span>, UserForm);
 </code></pre>
-<h3 id="bram-template"><a href="#bram-template"><svg aria-hidden="true" class="link-link" height="16" version="1.1" viewbox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a> Bram.template</h3>
-<p>Creates a function that is used to hydrate (render) a template using a set of data.</p>
-<pre><code class="javascript hljs"><span class="hljs-keyword">let</span> hydrate = Bram.template(<span class="hljs-string">&apos;#some-template&apos;</span>);
-<span class="hljs-keyword">let</span> link = hydrate({<span class="hljs-attr">foo</span>: <span class="hljs-string">&apos;bar&apos;</span>});
+<h3 id="createinstance"><a href="#createinstance"><svg aria-hidden="true" class="link-link" height="16" version="1.1" viewbox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a> createInstance</h3>
+<p>This is the method used by <code>.attachView()</code> internally. It&apos;s useful if you want to create a live-bound view outside of the context of a custom element.</p>
+<pre><code class="javascript hljs"><span class="hljs-keyword">import</span> { createInstance } <span class="hljs-keyword">from</span> <span class="hljs-string">&apos;https://unpkg.com/bram/bram.js&apos;</span>;
 
-<span class="hljs-built_in">document</span>.body.appendChild(link.tree);
+<span class="hljs-keyword">let</span> template = <span class="hljs-built_in">document</span>.querySelctor(<span class="hljs-string">&apos;template&apos;</span>);
+<span class="hljs-keyword">let</span> instance = createInstance(template);
+
+<span class="hljs-built_in">document</span>.body.append(instance.fragment);
+
+instance.model.name = <span class="hljs-string">&apos;Wilbur&apos;</span>;
+
+<span class="hljs-comment">// Will update nodes bound to the {{name}} part.</span>
 </code></pre>
-<p>Hydrating creates a <em>link</em> object which holds the data-bindings and the rendered DocumentFragment (the <code>.tree</code> property).</p>
+<h3 id="bram-cli"><a href="#bram-cli"><svg aria-hidden="true" class="link-link" height="16" version="1.1" viewbox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a> bram cli</h3>
+<p>The <strong>cli</strong> for bram is used to compile HTML modules into JavaScript modules that can be used in web browsers today. It allows you to include your template and JavaScript in single file, while editing HTML.</p>
+<p>The cli will write out the JavaScript module with the same file name as the HTML module, with <code>.js</code> appended. So <strong>counter.module.html</strong> becomes <strong>counter.module.html.js</strong>.</p>
+<p>You can compile like so:</p>
+<pre><code class="bash hljs">bram compile src/counter.module.html
+</code></pre>
+<p><strong>Or</strong> you can compile an entire directory. If compiling a directory only files matching the extension <code>.module.html</code> will be compiled; this prevents messing with non-module HTML files.</p>
+<pre><code class="bash hljs">bram compile src/
+</code></pre>
+<p>In order to use the HTML modules you must include the <code>.js</code> extension in your source. Bram does not change your module specifiers for you.</p>
+<blockquote>
+<p><em>Note</em> that the HTML module compiler is not tied to the Bram base library in any way. You can use HTML modules with any web component library, or for plain JavaScript components.</p>
+</blockquote>
 
 
 </main></body></html>
