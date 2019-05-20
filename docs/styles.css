@@ -22,6 +22,10 @@ a, a:visited {
   color: var(--alt-fg-color);
 }
 
+p {
+  line-height: 1.5em;
+}
+
 pre code {
   font-size: 1.2em;
 }

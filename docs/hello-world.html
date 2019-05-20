@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="./manifest.json">
-<style>.hero,.main-nav li,.main-nav ul,body{display:flex}.hero-container,footer{text-align:center}:root{--alt-bg-color:#5D7A7F;--main-fg-color:#A7DBE5;--spec-fg-color:#B9F3FF;--alt-fg-color:#CCC580;--link-fg-color:#FFD3E5;--code-color:#282c34;--serif-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}body,html{padding:0;margin:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}a,a:visited{color:var(--alt-fg-color)}pre code{font-size:1.2em}code{background-color:var(--code-color,#282c34);padding:2px 5px}.hero{flex:1;justify-content:center;background:#000;color:var(--spec-fg-color)}.hero-container figure{margin-top:8em}.hero-container figcaption{font-size:200%;font-weight:700;margin-top:5px}.hero-caption{font-size:100%;font-weight:400}main{flex:2;background:#303F42;color:var(--main-fg-color);padding:3em}.main-nav ul{list-style-type:none;padding:0;margin:0}.main-nav li{flex:1;justify-content:center}.main-nav a,.main-nav a:visited{color:#fff;text-decoration:none}.main-nav a:hover{color:var(--main-fg-color)}.nav-rule{border-style:solid;background:var(--spec-fg-color);border-color:var(--spec-fg-color);margin-bottom:30px;margin-top:15px;width:80%}.installation{display:flex;flex-direction:column;align-items:center}.installation h1{font-size:1.5em}.install-command{padding:15px 40px;background-color:var(--alt-bg-color);font-family:Courier New,Courier,monospace;font-size:1.3em;border-radius:6px}@media only screen and (max-device-width:767px){body{display:block}.hero{display:none}main{padding:1em}}</style>
+<style>.hero,.main-nav li,.main-nav ul,body{display:flex}.hero-container,footer{text-align:center}:root{--alt-bg-color:#5D7A7F;--main-fg-color:#A7DBE5;--spec-fg-color:#B9F3FF;--alt-fg-color:#CCC580;--link-fg-color:#FFD3E5;--code-color:#282c34;--serif-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}body,html{padding:0;margin:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}a,a:visited{color:var(--alt-fg-color)}p{line-height:1.5em}pre code{font-size:1.2em}code{background-color:var(--code-color,#282c34);padding:2px 5px}.hero{flex:1;justify-content:center;background:#000;color:var(--spec-fg-color)}.hero-container figure{margin-top:8em}.hero-container figcaption{font-size:200%;font-weight:700;margin-top:5px}.hero-caption{font-size:100%;font-weight:400}main{flex:2;background:#303F42;color:var(--main-fg-color);padding:3em}.main-nav ul{list-style-type:none;padding:0;margin:0}.main-nav li{flex:1;justify-content:center}.main-nav a,.main-nav a:visited{color:#fff;text-decoration:none}.main-nav a:hover{color:var(--main-fg-color)}.nav-rule{border-style:solid;background:var(--spec-fg-color);border-color:var(--spec-fg-color);margin-bottom:30px;margin-top:15px;width:80%}.installation{display:flex;flex-direction:column;align-items:center}.installation h1{font-size:1.5em}.install-command{padding:15px 40px;background-color:var(--alt-bg-color);font-family:Courier New,Courier,monospace;font-size:1.3em;border-radius:6px}@media only screen and (max-device-width:767px){body{display:block}.hero{display:none}main{padding:1em}}</style>
 
 <link rel="shortcut icon" href="./favicon.ico">
 
@@ -23,8 +23,8 @@
 <main>
   <nav class="main-nav">
     <ul>
-      <li><a href="/">Home</a></li>
-      <li><a href="api.html">API</a></li>
+      <li><a href="./">Home</a></li>
+      <li><a href="./api.html">API</a></li>
       <li><a href="./guide.html">Guides</a></li>
       <li><a href="https://github.com/matthewp/bram">GitHub</a></li>
     </ul>
@@ -39,6 +39,10 @@
   </div>
 
   <h2 id="hello-world-">Hello World!</h2>
+<style>
+  img { max-width: 100%; }
+</style>
+
 <p>This example is available via <a href="http://codepen.io/matthewp/pen/dNybdG?editors=1010">this codepen</a>. Fork it and experiment!</p>
 <p>Most of Bram is concerned with taking a template, defined in a <code>&lt;template&gt;</code> tag, and rendering it with some data, that we call an element&apos;s <strong>model</strong>.</p>
 <p>First, let&apos;s start by creating a simple template. We&apos;re giving it an id of <code>hello</code> so that we can refer to it later.</p>
@@ -65,7 +69,7 @@ customElements.define(<span class="hljs-string">&apos;hello-world&apos;</span>, 
 <p>Notice that the constructor sets the model&apos;s <code>name</code> property to the value of the <em>name</em> attribute. </p>
 <p>The second thing to notice is that the class definition includes <code>static get template()</code>. This is a static getter that defines the element&apos;s template. Here you can return a <a href="https://developer.mozilla.org/en-US/docs/Web/Guide/CSS/Getting_started/Selectors">selector</a> (as happens in this example), or a <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template">template element</a>.</p>
 <p>When looking at this example in devtools you&apos;ll see this:</p>
-<p><img src="https://cloud.githubusercontent.com/assets/361671/21608260/71d9daaa-d189-11e6-92d3-8134fc20d25e.png" alt="screen shot 2017-01-03 at 7 51 10 am"></p>
+<p><img src="https://cloud.githubusercontent.com/assets/361671/21608260/71d9daaa-d189-11e6-92d3-8134fc20d25e.png" alt="Devtools view"></p>
 <p>Notice that the <code>&lt;h1&gt;</code> is nested inside of a special section called <em>#shadow-root</em>. This is because Bram, by default, renders templates inside of a <a href="https://developer.mozilla.org/en-US/docs/Web/Web_Components/Shadow_DOM">Shadow DOM</a>. Think of the shadow DOM like a private area just for your element. Others <em>can</em> poke inside and see what&apos;s going on, but only if they really try.</p>
 <p>One cool property of shadow DOM is that global styles don&apos;t leak in. This means your styles are completely encapsulated. Some times you might <em>not</em> want to render to the shadow DOM, but rather to the element&apos;s direct children. We call that the <strong>light DOM</strong>.  You can toggle this by setting the <code>static get renderMode()</code> property like so:</p>
 <pre><code class="javascript hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyElement</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bram</span>.<span class="hljs-title">Element</span> </span>{

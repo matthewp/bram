@@ -2,8 +2,9 @@
   "name": "bram",
   "version": "0.6.6",
   "description": "Web component architecture with Observables",
-  "main": "bram.umd.js",
+  "main": "bram.js",
   "jsnext:main": "bram.js",
+  "module": "bram.js",
   "scripts": {
     "test": "testee --browsers firefox test/test.html"
   },
