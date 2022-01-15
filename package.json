@@ -36,7 +36,7 @@
     "cheerio": "^0.22.0",
     "clean-css": "^4.1.11",
     "highlight.js": "^9.8.0",
-    "marked": "^0.3.6",
+    "marked": "^4.0.10",
     "qunit": "^2.9.2",
     "script-type-module": "^1.0.0",
     "sw-precache": "^4.2.3",
