@@ -40,7 +40,7 @@
     "qunit": "^2.9.2",
     "script-type-module": "^1.0.0",
     "sw-precache": "^4.2.3",
-    "terser": "^3.17.0"
+    "terser": "^4.8.1"
   },
   "dependencies": {
     "fs-cheerio": "^3.0.0",
